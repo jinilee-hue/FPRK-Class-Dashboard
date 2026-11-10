@@ -16,7 +16,8 @@
   const get = (k, d) => { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } };
 
   /* ---------- colour themes: [id, label, frame, board, action] ---------- */
-  const THEMES = [['dark', 'Dark', '#0E1013', '#F6F3EC', '#FFC83D'], ['mint', 'Mint', '#62D4B4', '#FFFFFF', '#EC4F8E'], ['yellow', 'Yellow', '#FFE15A', '#FFFFFF', '#1D1A0F']];
+  const THEMES = [['dark', 'Dark', '#0E1013', '#F6F3EC', '#FFC83D'], ['mint', 'Mint', '#62D4B4', '#FFFFFF', '#EC4F8E'], ['yellow', 'Yellow', '#FFE15A', '#FFFFFF', '#1D1A0F'],
+    ['white', 'White', '#FFFFFF', '#FFFFFF', '#0066FF'], ['blue', 'Blue', '#4D8DFF', '#FFFFFF', '#FFD43B'], ['pink', 'Pink', '#FF8DBB', '#FFFFFF', '#3B0F26']];
   function applyTheme(t) { if (!THEMES.some(x => x[0] === t)) t = 'dark'; root.dataset.theme = t; root.dataset.tone = t === 'dark' ? 'dark' : 'bright'; }
 
   /* ---------- the user's phonics games, matched to the lesson ---------- */
