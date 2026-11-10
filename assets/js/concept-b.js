@@ -54,6 +54,10 @@
   const SPIN = 1700;
   let game = null;                                           // { id, where: 'here' | 'screen' }
   let live = false;
+  // where the student screen goes: the classroom screen (a second window), student tablets (needs the class server — preview) or both
+  let shareTo = 'none';
+  const hasScreen = () => shareTo === 'screen' || shareTo === 'both', hasTablets = () => shareTo === 'tablets' || shareTo === 'both';
+  const TCODE = String(1000 + Math.floor(Math.random() * 9000));   // class code placeholder until the class server exists
   const AV = ['#F2994A', '#2D9CDB', '#27AE60', '#9B51E0', '#EB5757', '#E0A800', '#13A8C4', '#E26DAE', '#3DAA6E', '#F2784B'];
   const avColor = n => { let h = 7; for (const ch of String(n)) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return AV[h % AV.length]; };
   const initial = n => esc((String(n).trim().charAt(0) || '?').toUpperCase());
@@ -251,7 +255,7 @@
   const crumbHTML = (sec, title) => `<button type="button" data-b="sections" title="Sections">${esc(sec)}${ic('chevron-down')}</button>${ic('chevron-right')}<b lang="en">${esc(title)}</b>`;
   function fitTop(force) {
     const top = $('.b-top'), crumb = $('#crumb'), L = FP.lesson(); if (!top || !crumb || !L) return;
-    const key = `${L.n}|${innerWidth}|${live ? 1 : 0}`;
+    const key = `${L.n}|${innerWidth}|${live ? 1 : 0}|${shareTo}`;
     if (key !== fitKey || force) {
       fitKey = key; fitLevel = 0;
       const keep = crumb.innerHTML, cut = () => { const b = crumb.querySelector('b'); return b.scrollHeight > b.clientHeight + 4; };
@@ -333,7 +337,7 @@
     }
     const notesOn = root.dataset.notes === 'panel' ? root.dataset.npanel !== 'hidden' : notesOpen;
     return `<div class="b-segs" role="group" aria-label="Progress">${segs}</div>
-      <div class="b-dockrow">${left}${mid}<div class="b-dright"><div class="b-toggles"><button type="button" class="b-tg${notesOn ? ' is-on' : ''}" data-b="notes" aria-pressed="${notesOn}" title="Teacher notes (N)">${ic('notebook-pen')}<span>Notes</span></button><button type="button" class="b-tg${flowOpen ? ' is-on' : ''}" data-b="flow" aria-pressed="${flowOpen}" title="Run of show (L)">${ic('list')}<span>Flow</span></button></div>${right}</div></div>`;
+      <div class="b-dockrow">${left}${mid}<div class="b-dright"><div class="b-toggles"><button type="button" class="b-tg${notesOn ? ' is-on' : ''}" data-b="notes" aria-pressed="${notesOn}" title="Teacher notes (N)">${ic('notebook-pen')}<span>Notes</span></button><button type="button" class="b-tg${flowOpen ? ' is-on' : ''}" data-b="flow" aria-pressed="${flowOpen}" title="Run of show (L)">${ic('flow')}<span>Flow</span></button></div>${right}</div></div>`;
   }
   const PRESETS = [[30000, '30 s'], [60000, '1 min'], [120000, '2 min'], [180000, '3 min'], [300000, '5 min']];
   function dockTimer() {
@@ -513,6 +517,8 @@
   function broadcastInk() { if (inkRaf) return; inkRaf = requestAnimationFrame(() => { inkRaf = 0; broadcast(); }); }
   function setLive(on) {
     if (live === on) return; live = on;
+    if (on && !hasScreen()) shareTo = hasTablets() ? 'both' : 'screen';    // a student window said hello
+    if (!on && hasScreen()) shareTo = hasTablets() ? 'tablets' : 'none';   // …or went away
     if (!on && game && game.where === 'screen') game = null;
     renderShareBtn(); renderScenes(); renderGame(); renderScene(); renderPause(); renderDock();
     if ($('#sharePop').matches(':popover-open')) renderShare();
@@ -524,20 +530,35 @@
   };
   setInterval(() => { if (live && Date.now() - lastPing > 5000) setLive(false); }, 1000);
   function renderShareBtn() {
-    const b = $('#shareBtn'); b.classList.toggle('is-live', live);
-    b.innerHTML = `${live ? '<i class="b-live" aria-hidden="true"></i>' : ic('cast')}<span>${live ? 'Sharing' : 'Share'}</span>`;
-    b.setAttribute('aria-label', live ? 'Sharing with students' : 'Share with students');
+    const b = $('#shareBtn'), on = shareTo !== 'none';
+    b.classList.toggle('is-live', live); b.classList.toggle('is-on', on);
+    b.innerHTML = `${live ? '<i class="b-live" aria-hidden="true"></i>' : ''}${on ? (hasScreen() ? ic('monitor') : '') + (hasTablets() ? ic('tablet') : '') : ic('cast')}<span>${live ? 'Sharing' : 'Share'}</span>`;
+    const to = [hasScreen() && 'the classroom screen', hasTablets() && 'student tablets (preview)'].filter(Boolean).join(' and ');
+    b.title = on ? `Sharing to ${to} (S)` : 'Share with students (S)'; b.setAttribute('aria-label', on ? `Sharing to ${to}` : 'Share with students');
+    fitTop();
   }
   function openStudent() { const u = new URL(location.href); u.search = ''; u.hash = ''; u.searchParams.set('view', 'student'); window.open(u.href, 'pond-student', 'popup,width=1280,height=800'); }
-  function stopShare() { if (CH) CH.postMessage({ type: 'stop' }); lastPing = 0; setLive(false); }
-  function renderShare() {
-    $('#sharePop').innerHTML = `<div class="b-pophead"><h3>Share with students</h3><p>Students see the 16:10 board only (1280 × 800) — never your notes or controls.</p></div>
-      <div class="b-scards">
-        <article class="b-scard${live ? ' is-live' : ''}"><span class="b-sicon">${ic('monitor')}</span><div class="b-stx"><b>Classroom screen</b><p>For a second screen or projector. It follows every step, your drawing, the timer, the student pick and the pause screen.</p>
-          <div class="b-sact">${live ? `<span class="b-sstat"><i class="b-live" aria-hidden="true"></i>Connected</span><button type="button" class="b-sbtn" data-b="shareopen">${ic('external-link')}Bring to front</button><button type="button" class="b-sbtn b-sbtn--stop" data-b="sharestop">${ic('x')}Stop sharing</button>` : `<button type="button" class="b-sbtn b-sbtn--go" data-b="shareopen">${ic('external-link')}Open student screen</button>`}</div></div></article>
-        <article class="b-scard is-soon"><span class="b-sicon">${ic('tablet')}</span><div class="b-stx"><b>Student tablets <em>Soon</em></b><p>Students join with a QR code or a class code and see the same 1280 × 800 screen. Needs the class server.</p></div></article>
-      </div>`;
+  function stopScreen() { if (CH) CH.postMessage({ type: 'stop' }); lastPing = 0; setLive(false); }
+  function setShareTo(v) {
+    const had = hasScreen(); shareTo = v;
+    if (hasScreen() && !live) openStudent();   // runs from a click, so the browser lets the window open
+    if (had && !hasScreen()) stopScreen();
+    renderShareBtn(); if ($('#sharePop').matches(':popover-open')) renderShare();
   }
+  function renderShare() {
+    const scr = hasScreen(), tab = hasTablets();
+    const opt = (v, icons, label, tip) => `<button type="button" data-b="shareto" data-v="${v}" aria-pressed="${shareTo === v}" title="${tip}"><span class="b-stic">${icons}</span><span>${label}</span></button>`;
+    $('#sharePop').innerHTML = `<div class="b-pophead"><h3>Share with students</h3><p>Students see the 16:10 board only (1280 × 800) — never your notes or controls.</p></div>
+      <div class="b-sto" role="group" aria-label="Share to">${opt('screen', ic('monitor'), 'Classroom screen', 'A second screen or projector')}${opt('tablets', ic('tablet'), 'Student tablets', 'Each student’s tablet')}${opt('both', ic('monitor') + ic('tablet'), 'Both', 'The classroom screen and the tablets show the same screen')}</div>
+      <div class="b-scards">
+        <article class="b-scard${scr ? (live ? ' is-live' : ' is-on') : ' is-off'}"><span class="b-sicon">${ic('monitor')}</span><div class="b-stx"><b>Classroom screen</b><p>For a second screen or projector. It follows every step, your drawing, the timer, the student pick and the pause screen.</p>
+          ${scr ? `<div class="b-sact">${live ? `<span class="b-sstat"><i class="b-live" aria-hidden="true"></i>Connected</span><button type="button" class="b-sbtn" data-b="shareopen">${ic('external-link')}Bring to front</button>` : `<span class="b-sstat is-wait">Opening the student screen…</span><button type="button" class="b-sbtn" data-b="shareopen">${ic('external-link')}Open again</button>`}</div>` : ''}</div></article>
+        <article class="b-scard${tab ? ' is-on' : ' is-off'}"><span class="b-sicon">${ic('tablet')}</span><div class="b-stx"><b>Student tablets <em>Soon</em></b><p>Students join with the QR code or the class code and see the same 1280 × 800 screen.</p>
+          ${tab ? `<div class="b-scode"><span class="b-sqr">${ic('qr-code')}</span><div><small>Class code</small><b class="num">${TCODE}</b><span>0 joined · preview — tablets can join once the class server is ready</span></div></div>` : ''}</div></article>
+      </div>
+      ${shareTo !== 'none' ? `<div class="b-sfoot"><button type="button" class="b-sbtn b-sbtn--stop" data-b="sharestop">${ic('x')}Stop sharing</button></div>` : ''}`;
+  }
+
 
   /* ---------- events ---------- */
   document.addEventListener('click', e => {
@@ -578,7 +599,8 @@
       case 'gplay': { const it = curGame(); if (it) { game = { id: it.id, where: v === 'screen' ? 'screen' : 'here' }; renderGame(); renderDock(); broadcast(); } break; }
       case 'gstop': game = null; renderGame(); renderDock(); broadcast(); break;
       case 'shareopen': openStudent(); break;
-      case 'sharestop': stopShare(); break;
+      case 'shareto': if (v === shareTo && hasScreen()) openStudent(); else setShareTo(v); break;
+      case 'sharestop': setShareTo('none'); break;
     }
   });
   $('#fabBtn').addEventListener('click', () => setPal(!palOpen));
