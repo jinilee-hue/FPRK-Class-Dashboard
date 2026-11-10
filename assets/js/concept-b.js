@@ -270,6 +270,8 @@
     const x = out ? Math.max(8, (gx - 64) / 2) : gx + 16, y = gy + (out ? 0 : 16);
     fab.style.left = left ? x + 'px' : 'auto'; fab.style.right = left ? 'auto' : x + 'px'; fab.style.bottom = y + 'px';
     fab.style.setProperty('--pal-max', Math.max(200, st.offsetHeight - 76) + 'px');
+    const app = $('#app');   // side panels (notes, side controls) line up with the frame's top and bottom
+    app.style.setProperty('--frame-top', Math.max(0, gy) + 'px'); app.style.setProperty('--frame-h', st.offsetHeight + 'px');
   }
 
   /* ---------- dock ---------- */

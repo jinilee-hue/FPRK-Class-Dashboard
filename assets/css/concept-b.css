@@ -258,6 +258,8 @@ button:disabled{cursor:default}
 
 /* notes as a docked side panel */
 .b-npanel{display:none;flex-direction:column;min-width:0;min-height:0;border-radius:22px;background:var(--d1);border:1px solid var(--d3);overflow:hidden}
+/* side panels take the 16:10 frame's height and line up with its top (placeFab sets --frame-top / --frame-h) */
+.b-npanel,:root:not([data-controls="bottom"]) .b-dock{align-self:start;margin-top:var(--frame-top,0px);height:var(--frame-h,100%)}
 :root[data-notes="panel"][data-npanel="shown"] .b-npanel{display:flex}
 .b-nphead{display:flex;align-items:center;gap:10px;padding:12px 12px 8px 18px}
 .b-nphead h3{margin:0;font-size:15px;font-weight:800;white-space:nowrap}
@@ -511,6 +513,13 @@ kbd{display:inline-grid;place-items:center;min-width:28px;height:26px;padding:0 
 .b-stufs[hidden]{display:none}
 
 /* ---------- responsive ---------- */
+@media (max-width:1600px){
+  :root[data-notes="panel"][data-npanel="shown"] .b-app{grid-template-columns:16px minmax(0,1fr) 16px 330px 16px}
+  :root[data-controls="left"] .b-app{grid-template-columns:16px 304px 16px minmax(0,1fr) 16px}
+  :root[data-controls="left"][data-notes="panel"][data-npanel="shown"] .b-app{grid-template-columns:16px 304px 16px minmax(0,1fr) 16px 320px 16px}
+  :root[data-controls="right"] .b-app{grid-template-columns:16px minmax(0,1fr) 16px 304px 16px}
+  :root[data-controls="right"][data-notes="panel"][data-npanel="shown"] .b-app{grid-template-columns:16px 320px 16px minmax(0,1fr) 16px 304px 16px}
+}
 @media (max-height:1000px){.b-tool{width:44px;height:44px}.b-tool .i{width:20px;height:20px}.b-sw{width:28px;height:28px;margin:4px 6px}.b-wd{height:34px}}
 @media (max-width:1840px){.b-scnl>span{display:none}.b-scnl{padding:0 4px}.b-scnl:empty{display:none}.b-crumb{font-size:16px}}
 @media (max-width:1760px){.b-wm{display:none}}
