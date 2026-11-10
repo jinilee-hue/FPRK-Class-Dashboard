@@ -16,7 +16,7 @@
   const get = (k, d) => { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } };
 
   /* ---------- colour themes: [id, label, frame, board, action] ---------- */
-  const THEMES = [['dark', 'Dark', '#0E1013', '#F6F3EC', '#FFC83D'], ['mint', 'Mint', '#62D4B4', '#FFFFFF', '#EC4F8E'], ['yellow', 'Yellow', '#FFE15A', '#FFFFFF', '#1D1A0F'],
+  const THEMES = [['dark', 'Dark', '#0E1013', '#F6F3EC', '#FFC83D'], ['mint', 'Mint', '#62D4B4', '#FFFFFF', '#D33275'], ['yellow', 'Yellow', '#FFE15A', '#FFFFFF', '#1D1A0F'],
     ['white', 'White', '#FFFFFF', '#FFFFFF', '#0066FF'], ['blue', 'Blue', '#4D8DFF', '#FFFFFF', '#FFD43B'], ['pink', 'Pink', '#FF8DBB', '#FFFFFF', '#3B0F26']];
   function applyTheme(t) { if (!THEMES.some(x => x[0] === t)) t = 'dark'; root.dataset.theme = t; root.dataset.tone = t === 'dark' ? 'dark' : 'bright'; }
 
@@ -59,7 +59,7 @@
   let shareTo = 'none';
   const hasScreen = () => shareTo === 'screen' || shareTo === 'both', hasTablets = () => shareTo === 'tablets' || shareTo === 'both';
   const TCODE = String(1000 + Math.floor(Math.random() * 9000));   // class code placeholder until the class server exists
-  const AV = ['#F2994A', '#2D9CDB', '#27AE60', '#9B51E0', '#EB5757', '#E0A800', '#13A8C4', '#E26DAE', '#3DAA6E', '#F2784B'];
+  const AV = ['#B85B1A', '#1F7AB6', '#1E8449', '#8E4BD6', '#CF3B3B', '#906C00', '#0D8098', '#C4387F', '#2D8355', '#C94C28'];   // white initials stay ≥ 4.5:1
   const avColor = n => { let h = 7; for (const ch of String(n)) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return AV[h % AV.length]; };
   const initial = n => esc((String(n).trim().charAt(0) || '?').toUpperCase());
   const clock = ms => { const s = Math.ceil(ms / 1000); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
@@ -72,19 +72,13 @@
   let pickIdx = -2;
   function renderScene() {
     const el = $('#scene'); if (!el) return;
-    const preview = scene === 'pause' && !STUDENT && live;   // the classroom screen is paused; the teacher keeps working
-    const show = scene === 'timer' || scene === 'pick' || preview;
+    const show = scene === 'timer' || scene === 'pick' || scene === 'pause';   // every class tool stays inside the 16:10 frame
     el.hidden = !show; el.dataset.scene = show ? scene : '';
     if (!show) { el.innerHTML = ''; tick(); return; }
     if (scene === 'timer') el.innerHTML = `<div class="b-fit"><div class="b-tfull" id="tFull"><svg viewBox="0 0 680 680" aria-hidden="true"><circle class="bg" cx="340" cy="340" r="${RR}"/><circle class="fg" cx="340" cy="340" r="${RR}" stroke-dasharray="${RC.toFixed(1)}"/></svg><div class="b-tread"><b id="tBig"></b><span id="tCap"></span></div></div></div>`;
     else if (scene === 'pick') { el.innerHTML = '<div class="b-fit"><div class="b-pick" id="pickView"></div></div>'; pickIdx = -2; drawPick(); }
-    else { const L = FP.lesson(); el.innerHTML = `<div class="b-fit"><div class="b-spause"><span class="b-spchip"><i class="b-live" aria-hidden="true"></i>Classroom screen · paused</span><span class="b-pausel" lang="en">${esc(L.key)}</span><p lang="en">Eyes on me!</p></div></div>`; }
+    else { const L = FP.lesson(); el.innerHTML = `<div class="b-fit"><div class="b-spause"${STUDENT ? '' : ' data-b="scene" data-v="pause" title="Back to the lesson (B)"'}>${!STUDENT && live ? '<span class="b-spchip"><i class="b-live" aria-hidden="true"></i>Classroom screen · paused</span>' : ''}<span class="b-pausel" lang="en">${esc(L.key)}</span><p lang="en">Eyes on me!</p></div></div>`; }
     tick();
-  }
-  function renderPause() {
-    const p = $('#pause'), on = scene === 'pause' && (STUDENT || !live);
-    if (on && p.hidden) { const L = FP.lesson(); p.innerHTML = `<div class="b-pausein"><span class="b-pausel" lang="en">${esc(L.key)}</span><p lang="en">Eyes on me!</p>${STUDENT ? '' : '<small>Tap anywhere or press B to go back</small>'}</div>`; }
-    p.hidden = !on;
   }
   function drawPick() {
     const v = $('#pickView'); if (!v) return;
@@ -180,7 +174,7 @@
       const redraw = scene !== m.scene || PK.t0 !== m.pick.t0 || PK.name !== m.pick.name;
       scene = m.scene; Object.assign(TM, m.timer); Object.assign(PK, m.pick); game = m.game;
       if (redraw) renderScene();
-      renderGame(); renderPause(); tick();
+      renderGame(); tick();
     };
     CH.onmessage = ({ data: m }) => {
       if (!m) return;
@@ -234,7 +228,7 @@
     else if (v === scene) return;
     if (v === 'pause') resumeTo = scene;
     scene = v;
-    renderScenes(); renderScene(); renderPause(); renderDock(); broadcast();
+    renderScenes(); renderScene(); renderDock(); broadcast();
   }
   const coreNext = FP.next, corePrev = FP.prev;   // a clicker press on a class tool brings the lesson back first
   FP.next = () => (scene !== 'lesson' ? setScene(scene === 'pause' ? 'pause' : 'lesson') : coreNext());
@@ -310,10 +304,10 @@
   const back = l => `<button type="button" class="b-prev b-back" data-b="scene" data-v="lesson" title="Back to the lesson" aria-label="Back to the lesson">${ic('presentation')}<span>${l || 'Lesson'}</span></button>`;
   function renderDock() {
     const d = $('#dock'); if (!d) return;
-    d.dataset.mode = scene === 'pause' && !live ? 'lesson' : scene;
+    d.dataset.mode = scene;
     if (scene === 'timer') d.innerHTML = dockTimer();
     else if (scene === 'pick') d.innerHTML = dockPick();
-    else if (scene === 'pause' && live) d.innerHTML = dockPause();
+    else if (scene === 'pause') d.innerHTML = dockPause();
     else d.innerHTML = dockLesson();
     tickRing(); tick();
   }
@@ -357,8 +351,8 @@
   }
   function dockPause() {
     const to = { lesson: 'the lesson', timer: 'the timer', pick: 'the student pick' }[resumeTo] || 'the lesson';
-    return `<div class="b-dockrow b-dockrow--tool"><div class="b-now"><div class="b-ring b-ring--icon">${ic('monitor-pause')}</div><div class="b-nowtx"><small>On the student screen</small><b>Eyes on me</b><span>The classroom screen is paused</span></div></div>
-      <div class="b-say b-say--quiet"><p>Only the classroom screen is paused — your dashboard keeps working.</p></div>
+    return `<div class="b-dockrow b-dockrow--tool"><div class="b-now"><div class="b-ring b-ring--icon">${ic('monitor-pause')}</div><div class="b-nowtx"><small>On the student screen</small><b>Eyes on me</b><span>${live ? 'The classroom screen is paused' : 'The student screen is paused'}</span></div></div>
+      <div class="b-say b-say--quiet"><p>${live ? 'Only the classroom screen is paused — your dashboard keeps working.' : 'Students see “Eyes on me!” in the frame — your notes and controls keep working.'}</p></div>
       <div class="b-dright"><div class="b-pn"><button type="button" class="b-next" data-b="scene" data-v="pause"><span><b>Resume</b><small>Back to ${to}</small></span>${ic('play')}</button></div></div></div>`;
   }
   function tickRing() {
@@ -521,7 +515,7 @@
     if (on && !hasScreen()) shareTo = hasTablets() ? 'both' : 'screen';    // a student window said hello
     if (!on && hasScreen()) shareTo = hasTablets() ? 'tablets' : 'none';   // …or went away
     if (!on && game && game.where === 'screen') game = null;
-    renderShareBtn(); renderScenes(); renderGame(); renderScene(); renderPause(); renderDock();
+    renderShareBtn(); renderScenes(); renderGame(); renderScene(); renderDock();
     if ($('#sharePop').matches(':popover-open')) renderShare();
   }
   if (CH) CH.onmessage = ({ data: m }) => {
@@ -606,7 +600,6 @@
   });
   $('#fabBtn').addEventListener('click', () => setPal(!palOpen));
   $('#lessonBtn').addEventListener('click', () => openMap(true));
-  $('#pause').addEventListener('click', () => { if (scene === 'pause') setScene('pause'); });
   $('#fsBtn').addEventListener('click', () => FP.fullscreen());
   document.addEventListener('fullscreenchange', () => { $('#fsBtn').innerHTML = ic(document.fullscreenElement ? 'minimize' : 'maximize'); });
   const POPS = { extrasPop: ['extrasBtn', renderExtras], helpPop: ['helpBtn', null], sharePop: ['shareBtn', renderShare], displayPop: ['displayBtn', renderDisplay] };
@@ -633,7 +626,6 @@
     if (e.type === 'inkmove') broadcastInk();
     if (e.type === 'key') {
       const k = e.key.toLowerCase();
-      if (scene === 'pause' && !live) { if (k === 'b' || k === 'escape' || k === '.') setScene('pause'); return; }
       if (!$('#map').hidden) { if (k === 'escape' || k === 'm') openMap(false); return; }
       if (k === 'escape') {
         if (palOpen) setPal(false);
