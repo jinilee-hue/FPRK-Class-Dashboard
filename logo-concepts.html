@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Phonics POND — Logo concepts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Andika:wght@700&family=Lexend:wght@500;600;700&family=Manrope:wght@600;700;800&display=swap">
+<style>
+:root{--page:#ECEEF1;--card:#FFFFFF;--line:#E1E4E9;--ink:#0F1419;--muted:#5A6371;
+  --f:"Pretendard Variable",Pretendard,system-ui,sans-serif;--m:"Manrope",system-ui,sans-serif;--lx:"Lexend","Manrope",system-ui,sans-serif;--kid:"Andika",sans-serif}
+/* Phonics POND themes — values from assets/css/concept-b.css */
+body{--panel:#15181D;--panel-line:transparent;--frame:#0E1013;--frame-line:transparent;--tile:#1C2027;--tile-line:#484C52;--tile-shadow:none;
+  --tx:#F4F2EE;--tx2:#B6BBC5;--wm2:#B6BBC5;--pt:#FFC83D;--acc:#FFC83D;--on:#1C1500;--acctx:#FFC83D;--eye:#FFFFFF;--dark:#0E1013}
+body[data-theme="mint"]{--panel:#FFFFFF;--panel-line:#DCE9E4;--frame:#62D4B4;--tile:#FFFFFF;--tile-line:rgba(0,0,0,.06);--tile-shadow:0 1px 2px rgba(0,0,0,.06);
+  --tx:#0B2E27;--tx2:#2F544B;--wm2:#2F544B;--pt:#D33275;--acc:#D33275;--on:#FFFFFF;--acctx:#C2266A;--dark:#0B2E27}
+body[data-theme="yellow"]{--panel:#FFFFFF;--panel-line:#EEE6C8;--frame:#FFE15A;--tile:#FFFFFF;--tile-line:rgba(0,0,0,.06);--tile-shadow:0 1px 2px rgba(0,0,0,.06);
+  --tx:#1D1A0F;--tx2:#4F4733;--wm2:#4F4733;--pt:#E8A600;--acc:#1D1A0F;--on:#FFE15A;--acctx:#8A5D00;--dark:#1D1A0F}
+body[data-theme="white"]{--panel:#FFFFFF;--panel-line:#E3E7ED;--frame:#FFFFFF;--frame-line:#E3E7ED;--tile:#FFFFFF;--tile-line:#AFB6C1;--tile-shadow:0 1px 2px rgba(0,0,0,.06);
+  --tx:#111827;--tx2:#3F4856;--wm2:#3F4856;--pt:#0066FF;--acc:#0066FF;--on:#FFFFFF;--acctx:#0057D9;--dark:#111827}
+body[data-theme="blue"]{--panel:#FFFFFF;--panel-line:#D6E3FC;--frame:#4D8DFF;--tile:#FFFFFF;--tile-line:rgba(0,0,0,.06);--tile-shadow:0 1px 2px rgba(0,0,0,.06);
+  --tx:#0B1B3F;--tx2:#2E4370;--wm2:#0B1B3F;--pt:#2F6FE8;--acc:#FFD43B;--on:#1A1400;--acctx:#1F5BD8;--dark:#0B1B3F}
+body[data-theme="pink"]{--panel:#FFFFFF;--panel-line:#F9D5E4;--frame:#FF8DBB;--tile:#FFFFFF;--tile-line:rgba(0,0,0,.06);--tile-shadow:0 1px 2px rgba(0,0,0,.06);
+  --tx:#3B0F26;--tx2:#6E3352;--wm2:#3B0F26;--pt:#D12F6E;--acc:#3B0F26;--on:#FF9CC5;--acctx:#C2185B;--dark:#3B0F26}
+
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--page);color:var(--ink);font:15px/1.5 var(--f);-webkit-font-smoothing:antialiased}
+button{font:inherit;cursor:pointer}
+.wrap{max-width:1480px;padding:34px 40px 56px}
+.head{display:flex;align-items:flex-end;justify-content:space-between;gap:20px 28px;flex-wrap:wrap;margin-bottom:22px}
+.head h1{margin:0;font-size:30px;line-height:1.15;font-weight:800;letter-spacing:-.02em}
+.head p{margin:6px 0 0;color:var(--muted);font-size:15px}
+.themes{display:inline-flex;flex-wrap:wrap;gap:2px;padding:4px;border-radius:14px;background:#fff;border:1px solid var(--line)}
+.themes button{display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 13px;border:0;border-radius:10px;background:transparent;font-weight:700;font-size:14px;color:var(--muted)}
+.themes button:hover{color:var(--ink);background:#F3F4F6}
+.themes button[aria-pressed="true"]{background:var(--ink);color:#fff}
+.themes i{width:14px;height:14px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.18)}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(400px,1fr));gap:18px}
+.card{display:flex;flex-direction:column;border-radius:22px;background:var(--card);border:1px solid var(--line);overflow:hidden}
+.stage{display:grid;place-items:center;height:196px;margin:10px 10px 0;border-radius:16px;background:var(--panel);box-shadow:inset 0 0 0 1px var(--panel-line)}
+.lock{display:flex;align-items:center;gap:18px}
+.lock>.sym{width:84px;height:84px}
+.lock .wm{font-size:40px}
+
+/* the dashboard's top bar at real size: logo tile + wordmark + lesson select */
+.tb{position:relative;display:flex;align-items:center;gap:12px;height:78px;margin:8px 10px 0;padding:0 14px;border-radius:14px;background:var(--frame);box-shadow:inset 0 0 0 1px var(--frame-line);overflow:hidden}
+.tb::after{content:"";position:absolute;right:0;top:0;bottom:0;width:64px;background:linear-gradient(90deg,transparent,var(--frame) 80%);pointer-events:none}
+.tb-logo{display:grid;place-items:center;flex:none;width:54px;height:54px;border-radius:16px;background:var(--tile);border:1px solid var(--tile-line);box-shadow:var(--tile-shadow)}
+.tb-logo .sym{width:34px;height:34px}
+.tb .wm{flex:none;font-size:24px;--wm-small:var(--wm2)}
+.tb-lesson{display:flex;align-items:center;gap:12px;flex:none;height:58px;padding:0 14px 0 8px;margin-left:6px;border-radius:16px;background:var(--tile);border:1px solid var(--tile-line);box-shadow:var(--tile-shadow);color:var(--tx)}
+.tb-lesson .lt{display:grid;place-items:center;width:44px;height:44px;border-radius:12px;background:var(--acc);color:var(--on);font:700 24px/1 var(--kid)}
+.tb-lesson b{display:block;font:800 18px/1.2 var(--m)}
+.tb-lesson b i{font-style:normal;color:var(--acctx);margin-left:3px}
+.tb-lesson small{display:block;margin-top:2px;font:600 14.5px/1.2 var(--m);color:var(--tx2)}
+
+.meta{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 12px;padding:16px 18px 6px}
+.no{grid-row:span 2;font:800 15px/28px var(--m);color:#9AA1AC;font-variant-numeric:tabular-nums}
+.meta h2{margin:0;font:800 19px/28px var(--f);letter-spacing:-.01em}
+.meta h2 em{font-style:normal;margin-left:6px;padding:2px 8px;border-radius:7px;background:#EEF0F3;font-size:12.5px;font-weight:700;color:var(--muted);vertical-align:2px}
+.meta p{margin:0;font-size:14.5px;line-height:1.5;color:var(--muted);text-wrap:pretty}
+.foot{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-top:auto;padding:12px 18px 18px}
+.icons{display:flex;align-items:flex-end;gap:10px}
+.app{display:grid;place-items:center;flex:none;width:var(--s);height:var(--s);border-radius:calc(var(--s) * .26);background:var(--acc);color:var(--on)}
+.app .sym{width:66%;height:66%}
+.one{display:grid;place-items:center;width:40px;height:40px;margin-left:6px;border-radius:10px;border:1px dashed #C9CED6;color:#111}
+.one .sym{width:26px;height:26px}
+.pick{height:38px;padding:0 14px;border-radius:11px;border:1px solid var(--line);background:#fff;font-weight:700;font-size:14px;color:var(--ink)}
+.pick:hover{border-color:var(--ink)}
+.no-hermes .pick{display:none}
+
+/* symbols: --k = ink, --p = point; "mono" draws everything in one colour */
+.sym{display:block;overflow:visible;--k:var(--tx);--p:var(--pt)}
+.sym.mono{--k:currentColor;--p:currentColor}
+.fk{fill:var(--k)}.fp{fill:var(--p)}.sk{fill:none;stroke:var(--k)}.sp{fill:none;stroke:var(--p)}.fe{fill:var(--eye)}.fd{fill:var(--dark)}
+
+/* wordmarks */
+.wm{color:var(--tx);white-space:nowrap;--wm-small:var(--tx2)}
+.wm-stack{display:grid;line-height:1;font-family:var(--m)}
+.wm-stack small{font-size:.5em;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--wm-small)}
+.wm-stack b{margin-top:.125em;font-size:1em;font-weight:800;letter-spacing:.03em}
+.ro{display:inline-block;width:.75em;height:.75em;margin:0 .03em 0 .02em;vertical-align:-.035em}
+.wm-lex2{display:grid;font-family:var(--lx);font-weight:600;font-size:.84em;line-height:.98;letter-spacing:-.01em}
+.wm-lex2 span:first-child{color:var(--wm-small)}
+.wm-line{font-family:var(--m);font-weight:800;font-size:.95em;letter-spacing:-.025em}
+.wm-line span{color:var(--wm-small)}
+.wm-spaced{display:grid;font-family:var(--m);font-weight:800;font-size:.64em;line-height:1.28;letter-spacing:.18em}
+.wm-spaced span:first-child{color:var(--wm-small)}
+.wm-lexline{font-family:var(--lx);font-weight:600;font-size:.92em;letter-spacing:-.015em}
+.lock .wm-refl b{position:relative}
+.lock .wm-refl b::after{content:attr(data-t);position:absolute;left:0;top:.86em;transform:scaleY(-.55);transform-origin:top;opacity:.28;
+  -webkit-mask:repeating-linear-gradient(180deg,#000 0 .07em,transparent .07em .12em);mask:repeating-linear-gradient(180deg,#000 0 .07em,transparent .07em .12em)}
+
+@media (max-width:760px){.wrap{padding:22px 16px 40px}.grid{grid-template-columns:minmax(0,1fr)}.lock .wm{font-size:32px}.lock>.sym{width:68px;height:68px}}
+</style>
+</head>
+<body data-theme="dark">
+<div class="wrap">
+  <div class="head">
+    <div>
+      <h1>Phonics POND · 로고 시안</h1>
+      <p>심볼 8안과 현재 마크. 테마를 바꾸면 상단 바와 앱 아이콘이 함께 바뀝니다.</p>
+    </div>
+    <div class="themes" role="group" aria-label="테마" id="themes"></div>
+  </div>
+  <div class="grid" id="grid"></div>
+</div>
+<script>
+(() => {
+  const THEMES = [['dark', 'Dark', '#0E1013'], ['mint', 'Mint', '#62D4B4'], ['yellow', 'Yellow', '#FFE15A'], ['white', 'White', '#FFFFFF'], ['blue', 'Blue', '#4D8DFF'], ['pink', 'Pink', '#FF8DBB']];
+  const r2 = v => +v.toFixed(2);
+  const at = (cx, cy, r, deg) => [r2(cx + r * Math.cos(deg * Math.PI / 180)), r2(cy + r * Math.sin(deg * Math.PI / 180))];
+  // lily pad: a disc with a V notch centred on `dir` degrees (clockwise from 3 o'clock), `w` degrees wide
+  const pad = (cx, cy, r, dir, w) => { const [x1, y1] = at(cx, cy, r, dir + w / 2), [x2, y2] = at(cx, cy, r, dir - w / 2); return `M${cx} ${cy}L${x1} ${y1}A${r} ${r} 0 1 1 ${x2} ${y2}Z`; };
+  // water line: `n` gentle waves from x0, `len` wide, crest height `h`
+  const wave = (x0, y, len, n, h) => { const s = len / n; let d = `M${x0} ${y}q${r2(s / 2)} ${-2 * h} ${r2(s)} 0`; for (let i = 1; i < n; i++) d += `t${r2(s)} 0`; return d; };
+  const MASK = (u, inner) => `<mask id="${u}" maskUnits="userSpaceOnUse" x="-8" y="-8" width="80" height="80"><rect x="-8" y="-8" width="80" height="80" fill="#fff"/>${inner}</mask>`;
+
+  const SYM = {
+    current: () => `<g transform="scale(2)"><path class="fp" d="M16 3.5c3.6 4.4 5.4 7.6 5.4 9.9a5.4 5.4 0 0 1-10.8 0c0-2.3 1.8-5.5 5.4-9.9Z"/><ellipse class="sp" cx="16" cy="24" rx="12.5" ry="4.6" stroke-width="2" opacity=".42"/><ellipse class="sp" cx="16" cy="24" rx="6.5" ry="2.2" stroke-width="2" opacity=".75"/></g>`,
+    ripple: () => `<circle class="sk" cx="32" cy="32" r="26.5" stroke-width="4" stroke-linecap="round" stroke-dasharray="65.2 18" transform="rotate(-58 32 32)" opacity=".42"/>
+      <circle class="sk" cx="32" cy="32" r="16" stroke-width="5.6"/><circle class="fp" cx="32" cy="32" r="7.2"/>`,
+    lilyp: u => { const w = wave(4, 54, 56, 4, 2.4);
+      return `${MASK(u, `<path d="${w}" fill="none" stroke="#000" stroke-width="11" stroke-linecap="round"/>`)}
+      <g class="fp" mask="url(#${u})"><rect x="13" y="7" width="11.5" height="50" rx="5.75"/><path d="${pad(33, 23, 16, 152, 36)}"/></g>
+      <path class="sk" d="${w}" stroke-width="4" stroke-linecap="round"/>`; },
+    frog: (u, mono) => { const body = `<circle cx="19.5" cy="22" r="11.5"/><circle cx="44.5" cy="22" r="11.5"/><rect x="5" y="22" width="54" height="34" rx="17"/>`;
+      return mono
+        ? `${MASK(u, `<circle cx="19.5" cy="22" r="6.6" fill="#000"/><circle cx="44.5" cy="22" r="6.6" fill="#000"/><ellipse cx="32" cy="42.5" rx="7.6" ry="4.8" fill="#000"/>`)}<g class="fp" mask="url(#${u})">${body}</g><circle class="fp" cx="20.6" cy="21.2" r="3.1"/><circle class="fp" cx="45.6" cy="21.2" r="3.1"/>`
+        : `<g class="fp">${body}</g><circle class="fe" cx="19.5" cy="22" r="6.6"/><circle class="fe" cx="44.5" cy="22" r="6.6"/><circle class="fd" cx="20.6" cy="21.2" r="3.3"/><circle class="fd" cx="45.6" cy="21.2" r="3.3"/><ellipse class="fd" cx="32" cy="42.5" rx="7.6" ry="4.8"/>`; },
+    reeds: u => { const w = wave(4, 52, 56, 4, 2.4), B = [[12, 31], [22, 19], [32, 7], [42, 22], [52, 34]];
+      return `${MASK(u, `<path d="${w}" fill="none" stroke="#000" stroke-width="11" stroke-linecap="round"/>`)}
+      <g mask="url(#${u})">${B.map(([x, t], i) => `<rect class="${i === 2 ? 'fp' : 'fk'}" x="${x - 3.4}" y="${t}" width="6.8" height="${54 - t}" rx="3.4"/>`).join('')}</g>
+      <path class="sp" d="${w}" stroke-width="4" stroke-linecap="round"/>`; },
+    refl: u => { const P = `<path d="M22.5 34V8.5h10a9.25 9.25 0 0 1 0 18.5h-10" fill="none" stroke-width="8.4" stroke-linejoin="round"/>`;
+      return `${MASK(u, `<g stroke="#000" stroke-width="2.2"><line x1="0" y1="48.6" x2="64" y2="48.6"/><line x1="0" y1="55.4" x2="64" y2="55.4"/></g>`)}
+      <g class="sk">${P}</g>
+      <g class="sp" mask="url(#${u})"><g transform="translate(0 38.5) scale(1 -.8) translate(0 -38.5)">${P}</g></g>`; },
+    bubbles: u => `${MASK(u, `<circle cx="23.6" cy="40.6" r="7" fill="none" stroke="#000" stroke-width="4.6"/><line x1="30.9" y1="33.2" x2="30.9" y2="48.4" stroke="#000" stroke-width="4.6" stroke-linecap="round"/>`)}
+      <circle class="fp" cx="25" cy="40" r="19" mask="url(#${u})"/><circle class="sk" cx="47" cy="18.5" r="7" stroke-width="3.8"/><circle class="sk" cx="55.5" cy="5" r="3.6" stroke-width="3.2"/>`,
+    steps: () => { const flat = (cls, cx, cy, r, op) => `<path class="${cls}"${op ? ` opacity="${op}"` : ''} transform="translate(0 ${cy}) scale(1 .46) translate(0 ${-cy})" d="${pad(cx, cy, r, 62, 30)}"/>`;
+      return `${flat('fk', 15, 17, 10, .5)}${flat('fk', 30, 32, 13.5)}${flat('fp', 43, 50, 18.5)}`; },
+    drop: u => `${MASK(u, `<g stroke="#000" stroke-width="5" stroke-linecap="round"><line x1="23" y1="28" x2="23" y2="36"/><line x1="32" y1="22" x2="32" y2="42"/><line x1="41" y1="28" x2="41" y2="36"/></g>`)}
+      <path class="fp" mask="url(#${u})" d="M32 6a26 26 0 0 1 26 26a26 26 0 0 1-26 26H11a5 5 0 0 1-5-5V32A26 26 0 0 1 32 6Z"/>`,
+  };
+  let uid = 0;
+  const sym = (id, mono) => `<svg class="sym${mono ? ' mono' : ''}" viewBox="0 0 64 64" aria-hidden="true">${SYM[id]('lg' + (++uid), !!mono)}</svg>`;
+
+  const RO = `<svg class="ro" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="41.5" fill="none" stroke="currentColor" stroke-width="17"/><circle cx="50" cy="50" r="15" style="fill:var(--pt)"/></svg>`;
+  const WM = {
+    stack: () => `<span class="wm wm-stack"><small>Phonics</small><b>POND</b></span>`,
+    ripple: () => `<span class="wm wm-stack"><small>Phonics</small><b>P${RO}ND</b></span>`,
+    lex2: () => `<span class="wm wm-lex2"><span>Phonics</span><span>Pond</span></span>`,
+    line: () => `<span class="wm wm-line"><span>phonics</span> pond</span>`,
+    spaced: () => `<span class="wm wm-spaced"><span>PHONICS</span><span>POND</span></span>`,
+    refl: () => `<span class="wm wm-stack wm-refl"><small>Phonics</small><b data-t="POND">POND</b></span>`,
+    lexline: () => `<span class="wm wm-lexline">phonics pond</span>`,
+  };
+
+  const LOGOS = [
+    { id: 'current', no: '00', name: 'Current', tag: '현재', idea: '물방울과 파문 — 지금 대시보드에 쓰는 마크.', wm: WM.stack },
+    { id: 'ripple', no: '01', name: 'Ripple', idea: '소리가 물결처럼 퍼지는 순간. POND의 O가 파문이 됩니다.', wm: WM.ripple },
+    { id: 'lilyp', no: '02', name: 'Lily P', idea: '연잎과 줄기가 만든 P — Phonics와 Pond의 첫 글자.', wm: WM.lex2 },
+    { id: 'frog', no: '03', name: 'Frog', idea: '연못의 주인공이 소리 내어 읽는 입 모양.', wm: WM.line },
+    { id: 'reeds', no: '04', name: 'Sound Reeds', idea: '물 위로 솟은 갈대가 소리 막대(이퀄라이저)가 됩니다.', wm: WM.spaced },
+    { id: 'refl', no: '05', name: 'Reflection', idea: '물에 비친 P는 b — 아이들이 헷갈리는 b·p를 품은 반영.', wm: WM.refl },
+    { id: 'bubbles', no: '06', name: 'Bubbles', idea: '글자가 물방울처럼 떠오릅니다.', wm: WM.lexline },
+    { id: 'steps', no: '07', name: 'Lily Steps', idea: '연잎 징검다리 — 레슨을 한 칸씩 건너는 수업 흐름.', wm: WM.stack },
+    { id: 'drop', no: '08', name: 'Talking Drop', idea: '지금의 물방울을 말풍선으로 — 가장 보수적인 발전안.', wm: WM.stack },
+  ];
+  const chev = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--tx2)"><path d="m6 9 6 6 6-6"/></svg>';
+  const lessonMock = `<span class="tb-lesson" aria-hidden="true"><span class="lt">Mm</span><span><b>Lesson 1 <i>/m/</i></b><small>Unit 1 · Day 3</small></span>${chev}</span>`;
+  const card = L => `<article class="card" id="logo-${L.id}">
+      <div class="stage"><div class="lock">${sym(L.id)}${L.wm()}</div></div>
+      <div class="tb" title="Top bar at real size"><span class="tb-logo">${sym(L.id)}</span>${L.wm()}${lessonMock}</div>
+      <div class="meta"><span class="no">${L.no}</span><h2>${L.name}${L.tag ? `<em>${L.tag}</em>` : ''}</h2><p>${L.idea}</p></div>
+      <div class="foot"><div class="icons" title="App icon 64 · 40 · 28 · 16 px and one colour">${[64, 40, 28, 16].map(s => `<span class="app" style="--s:${s}px">${sym(L.id, true)}</span>`).join('')}<span class="one">${sym(L.id, true)}</span></div>
+        <button type="button" class="pick" data-hermes-send="${L.id === 'current' ? 'Phonics POND 로고는 지금 마크를 그대로 쓸게.' : `Phonics POND 로고는 ${L.no} ${L.name} 시안으로 할게. 대시보드에 적용해줘.`}">${L.id === 'current' ? '지금 것 유지' : '이 안으로'}</button></div>
+    </article>`;
+  document.getElementById('grid').innerHTML = LOGOS.map(card).join('');
+
+  const tw = document.getElementById('themes');
+  const setTheme = t => { document.body.dataset.theme = t; tw.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.t === t)); try { localStorage.setItem('pond-logo-theme', t); } catch (e) {} };
+  tw.innerHTML = THEMES.map(([t, l, c]) => `<button type="button" data-t="${t}" aria-pressed="false"><i style="background:${c}"></i>${l}</button>`).join('');
+  tw.addEventListener('click', e => { const b = e.target.closest('button'); if (b) setTheme(b.dataset.t); });
+  let start = new URLSearchParams(location.search).get('theme');
+  try { start = start || localStorage.getItem('pond-logo-theme'); } catch (e) {}
+  setTheme(THEMES.some(x => x[0] === start) ? start : 'dark');
+
+  // the "pick" buttons talk to the chat when this page runs as a Hermes widget; elsewhere they stay hidden
+  const root = document.documentElement;
+  if (!window.hermes) root.classList.add('no-hermes');
+  setTimeout(() => { if (window.hermes) root.classList.remove('no-hermes'); }, 700);
+})();
+</script>
+</body>
+</html>
