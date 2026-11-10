@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FPR K Class Dashboard — Concept B · Stage</title>
+<script>(function(){var T=['dark','mint','yellow'],q=new URLSearchParams(location.search).get('theme'),t;try{t=q||localStorage.getItem('fprk-b-theme');if(q)localStorage.setItem('fprk-b-theme',q);}catch(e){t=q;}if(t==='light')t='mint';if(T.indexOf(t)<0)t='dark';var r=document.documentElement;r.dataset.theme=t;r.dataset.tone=t==='dark'?'dark':'bright';})();</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&family=Manrope:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="assets/css/fprk-shell.css?v=45c36b5">
+<link rel="stylesheet" href="assets/css/concept-b.css?v=45c36b5">
+</head>
+<body>
+<div class="b-app" id="app">
+  <header class="b-top">
+    <a class="b-home" href="index.html" title="All concepts" aria-label="All concepts"><span>FPR</span><b>K</b></a>
+    <button type="button" class="b-lesson" id="lessonBtn" aria-haspopup="dialog" title="Lesson map (M)"></button>
+    <nav class="b-crumb" id="crumb" aria-label="Where you are"></nav>
+    <div class="b-utils">
+      <div class="b-seg" id="pages" role="group" aria-label="Book pages"></div>
+      <button type="button" class="b-ubtn" id="extrasBtn" popovertarget="extrasPop" title="Class activities (A)"><svg class="i"><use href="#i-grid"/></svg><span>Activities</span></button>
+      <button type="button" class="b-ubtn b-ubtn--icon" id="pauseBtn" title="Pause screen (B)" aria-label="Pause screen"><svg class="i"><use href="#i-monitor-pause"/></svg></button>
+      <div class="b-themes" id="themes" role="radiogroup" aria-label="Theme (T)"><button type="button" role="radio" data-b="theme" data-v="dark" aria-checked="true" title="Dark" aria-label="Dark"><i style="--sw:#0E1013"></i></button><button type="button" role="radio" data-b="theme" data-v="mint" aria-checked="false" title="Mint" aria-label="Mint"><i style="--sw:#62D4B4"></i></button><button type="button" role="radio" data-b="theme" data-v="yellow" aria-checked="false" title="Yellow" aria-label="Yellow"><i style="--sw:#FFE15A"></i></button></div>
+      <button type="button" class="b-ubtn b-ubtn--icon" id="fsBtn" title="Full screen (F)" aria-label="Full screen"><svg class="i"><use href="#i-maximize"/></svg></button>
+      <button type="button" class="b-ubtn b-ubtn--icon" id="helpBtn" popovertarget="helpPop" title="Shortcuts" aria-label="Keyboard shortcuts"><svg class="i"><use href="#i-keyboard"/></svg></button>
+    </div>
+  </header>
+
+  <aside class="b-rail" id="rail" role="toolbar" aria-orientation="vertical" aria-label="Board tools"></aside>
+
+  <main class="b-stagewrap">
+    <div class="b-stage" id="stage"></div>
+    <section class="b-sheet b-flow" id="flowStrip" aria-label="Run of show" hidden></section>
+    <section class="b-sheet b-notes" id="notes" aria-label="Teacher notes" hidden></section>
+  </main>
+
+  <footer class="b-dock" id="dock" aria-label="Presenter controls"></footer>
+</div>
+
+<div class="b-map" id="map" role="dialog" aria-modal="true" aria-label="Lesson map" hidden></div>
+<div class="b-pause" id="pause" role="dialog" aria-label="Pause screen" hidden></div>
+<div popover id="extrasPop" class="b-pop" aria-label="Class activities"></div>
+<div popover id="helpPop" class="b-pop b-pop--help" aria-label="Keyboard shortcuts">
+  <h3>Presenter shortcuts</h3>
+  <p>Works with a presentation clicker.</p>
+  <dl>
+    <dt><kbd>→</kbd><kbd>Space</kbd><kbd>PgDn</kbd></dt><dd>Next</dd>
+    <dt><kbd>←</kbd><kbd>PgUp</kbd></dt><dd>Back</dd>
+    <dt><kbd>N</kbd></dt><dd>Teacher notes</dd>
+    <dt><kbd>L</kbd></dt><dd>Run of show</dd>
+    <dt><kbd>M</kbd></dt><dd>Lesson map</dd>
+    <dt><kbd>A</kbd></dt><dd>Class activities</dd>
+    <dt><kbd>B</kbd></dt><dd>Pause screen</dd>
+    <dt><kbd>T</kbd></dt><dd>Theme: dark · mint · yellow</dd>
+    <dt><kbd>D</kbd></dt><dd>Pen on / off</dd>
+    <dt><kbd>F</kbd></dt><dd>Full screen</dd>
+  </dl>
+</div>
+
+<script src="assets/js/fprk-data.js?v=45c36b5"></script>
+<script src="assets/js/fprk-core.js?v=45c36b5"></script>
+<script src="assets/js/concept-b.js?v=45c36b5"></script>
+</body>
+</html>

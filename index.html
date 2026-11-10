@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FPR K Class Dashboard — Design Concepts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Andika:wght@700&family=Figtree:wght@800&family=Manrope:wght@800&display=swap">
+<style>
+:root{
+  --bg:#F3F4F6; --card:#fff; --ink:#0E1116; --ink-2:#434B57; --muted:#7D8695; --line:#E3E6EB; --line-2:#D2D7DF;
+  --a:#0066FF; --a-soft:#EAF2FF; --b:#15181D; --b-acc:#FFC83D; --b-soft:#FFF6D6; --c:#C2410C; --c-soft:#FFF1EA;
+  --f:"Pretendard Variable",Pretendard,-apple-system,"Apple SD Gothic Neo",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 var(--f);-webkit-font-smoothing:antialiased;word-break:keep-all}
+a{color:inherit}
+.i{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.wrap{max-width:1720px;margin:0 auto;padding:56px 56px 72px}
+
+/* hero */
+.hero{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:48px;align-items:end;padding-bottom:40px;border-bottom:1px solid var(--line-2)}
+.brand{display:flex;align-items:center;gap:12px;margin-bottom:28px;font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.mark{display:grid;place-items:center;width:44px;height:44px;border-radius:13px;background:var(--ink);color:#fff;line-height:1}
+.mark b{font:700 22px/1 "Andika",sans-serif}
+h1{margin:0;font-size:64px;line-height:1.04;font-weight:800;letter-spacing:-.035em}
+h1 span{color:var(--muted);font-weight:700}
+.lead{max-width:860px;margin:20px 0 0;font-size:18px;line-height:1.7;color:var(--ink-2)}
+.lead b{color:var(--ink)}
+.facts{display:grid;grid-template-columns:repeat(2,minmax(170px,auto));gap:10px}
+.fact{padding:14px 18px;border-radius:16px;background:var(--card);border:1px solid var(--line)}
+.fact small{display:block;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.fact b{font-size:17px;font-weight:700}
+
+/* concept cards */
+.sec-h{display:flex;align-items:baseline;justify-content:space-between;gap:20px;margin:56px 0 20px}
+.sec-h h2{margin:0;font-size:28px;font-weight:800;letter-spacing:-.02em}
+.sec-h p{margin:0;color:var(--muted);font-size:15px}
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px}
+.card{display:flex;flex-direction:column;border-radius:30px;background:var(--card);border:1px solid var(--line);box-shadow:0 1px 2px rgba(15,20,30,.04),0 30px 60px -40px rgba(15,20,30,.25);overflow:hidden;transition:transform .25s,box-shadow .25s}
+.card:hover{transform:translateY(-3px);box-shadow:0 1px 2px rgba(15,20,30,.04),0 40px 70px -40px rgba(15,20,30,.35)}
+.shot{position:relative;display:block;margin:14px 14px 0;border-radius:20px;overflow:hidden;aspect-ratio:16/9;background:#E9ECF0;outline:1px solid rgba(15,20,30,.06);outline-offset:-1px}
+.shot img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .5s cubic-bezier(.2,.7,.2,1)}
+.shot:hover img{transform:scale(1.025)}
+.shot .open{position:absolute;right:14px;bottom:14px;display:inline-flex;align-items:center;gap:6px;height:38px;padding:0 14px;border-radius:999px;background:rgba(14,17,22,.82);color:#fff;font-size:13.5px;font-weight:700;text-decoration:none;backdrop-filter:blur(8px);opacity:0;transform:translateY(6px);transition:.25s}
+.shot:hover .open{opacity:1;transform:none}
+.subs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 14px 0}
+.subs button{position:relative;padding:0;border:0;border-radius:13px;overflow:hidden;aspect-ratio:16/9;background:#E9ECF0;cursor:zoom-in;outline:1px solid rgba(15,20,30,.06);outline-offset:-1px}
+.subs img{display:block;width:100%;height:100%;object-fit:cover}
+.subs span{position:absolute;left:8px;bottom:8px;padding:3px 9px;border-radius:999px;background:rgba(255,255,255,.92);font-size:12px;font-weight:700;color:var(--ink)}
+.body{display:flex;flex-direction:column;flex:1;padding:24px 28px 28px}
+.title{display:flex;align-items:center;gap:14px}
+.badge{display:grid;place-items:center;width:52px;height:52px;border-radius:16px;font-size:24px;font-weight:800;color:#fff;flex:none}
+.title h3{margin:0;font-size:34px;line-height:1;letter-spacing:-.02em}
+.title p{margin:4px 0 0;font-size:15px;font-weight:600;color:var(--muted)}
+.tsw{margin-left:auto;align-self:center;display:inline-flex;gap:2px;padding:3px;border-radius:12px;background:var(--bg);border:1px solid var(--line)}
+.tsw button{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 10px;border:0;border-radius:9px;background:transparent;font:600 13.5px var(--f);color:var(--muted);cursor:pointer}
+.tsw button[aria-pressed="true"]{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(15,20,30,.14)}
+.tsw i{width:11px;height:11px;border-radius:50%}
+.ca .badge{background:var(--a)} .ca h3{font-family:"Figtree",var(--f);font-weight:800}
+.cb .badge{background:var(--b);color:var(--b-acc)} .cb h3{font-family:"Manrope",var(--f);font-weight:800}
+.cc .badge{background:var(--c)} .cc h3{font-family:var(--f);font-weight:800;letter-spacing:-.035em}
+.desc{margin:18px 0 0;font-size:16px;line-height:1.7;color:var(--ink-2)}
+.points{list-style:none;margin:16px 0 0;padding:0;display:grid;gap:8px}
+.points li{display:flex;gap:10px;font-size:15px;line-height:1.55}
+.points .i{width:18px;height:18px;margin-top:3px;stroke-width:2.6}
+.ca .points .i{color:var(--a)} .cb .points .i{color:#C99400} .cc .points .i{color:var(--c)}
+.meta{display:grid;grid-template-columns:auto 1fr;gap:8px 16px;margin:22px 0 0;padding:16px 18px;border-radius:16px;background:var(--bg);font-size:14px}
+.meta dt{font-weight:700;color:var(--muted)}
+.meta dd{margin:0;font-weight:600}
+.meta dd small{color:var(--muted);font-weight:500}
+.cta{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:auto;padding-top:24px}
+.cta a{display:flex;align-items:center;justify-content:space-between;width:100%;height:60px;padding:0 22px 0 24px;border-radius:18px;font-size:17px;font-weight:800;text-decoration:none;transition:filter .15s,transform .1s}
+.cta a:hover{filter:brightness(1.08)}
+.cta a:active{transform:scale(.99)}
+.cta .i{width:22px;height:22px}
+.ca .cta a{background:var(--a);color:#fff}
+.cb .cta a{background:var(--b);color:var(--b-acc)}
+.cc .cta a{background:var(--c);color:#fff}
+
+/* compare */
+.compare{border-radius:26px;background:var(--card);border:1px solid var(--line);overflow:hidden}
+.compare table{width:100%;border-collapse:collapse;font-size:15px}
+.compare th,.compare td{padding:16px 22px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.compare tr:last-child td,.compare tr:last-child th{border-bottom:0}
+.compare thead th{background:#FAFAFB;font-size:15px}
+.compare thead th span{display:inline-flex;align-items:center;gap:10px;font-weight:800}
+.compare thead th i{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:8px;font-style:normal;font-size:13px;color:#fff}
+.compare tbody th{width:180px;font-weight:700;color:var(--muted);white-space:nowrap}
+.compare td{width:calc((100% - 180px)/3);color:var(--ink-2)}
+.compare td b{color:var(--ink)}
+.num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+
+/* shared */
+.shared{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.feat{display:flex;gap:16px;padding:20px 22px;border-radius:20px;background:var(--card);border:1px solid var(--line)}
+.feat .ic{display:grid;place-items:center;width:44px;height:44px;border-radius:13px;background:var(--bg);color:var(--ink);flex:none}
+.feat .ic .i{width:21px;height:21px}
+.feat b{display:block;font-size:16px;font-weight:700;margin-top:1px}
+.feat p{margin:3px 0 0;font-size:14px;line-height:1.55;color:var(--muted)}
+kbd{display:inline-grid;place-items:center;min-width:22px;height:22px;padding:0 5px;border-radius:6px;border:1px solid var(--line-2);border-bottom-width:2px;background:#fff;font:700 11.5px var(--f);color:var(--ink)}
+
+.foot{display:flex;justify-content:space-between;gap:24px;margin-top:56px;padding-top:24px;border-top:1px solid var(--line-2);font-size:14px;color:var(--muted)}
+.foot code{font:500 13px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--ink-2);background:var(--card);border:1px solid var(--line);padding:2px 7px;border-radius:7px}
+
+/* lightbox */
+dialog{padding:0;border:0;background:transparent;max-width:min(1600px,94vw);max-height:92vh}
+dialog::backdrop{background:rgba(10,12,16,.82);backdrop-filter:blur(4px)}
+dialog img{display:block;width:100%;height:auto;max-height:86vh;object-fit:contain;border-radius:16px;box-shadow:0 40px 80px -20px rgba(0,0,0,.6)}
+dialog p{margin:12px 0 0;text-align:center;color:#fff;font-size:15px;font-weight:600}
+dialog button{position:fixed;top:20px;right:24px;width:48px;height:48px;border-radius:14px;border:0;background:rgba(255,255,255,.14);color:#fff;cursor:pointer;display:grid;place-items:center}
+
+@media (max-width:1400px){.cards{grid-template-columns:1fr 1fr}.shared{grid-template-columns:1fr 1fr}h1{font-size:52px}.hero{grid-template-columns:1fr}}
+@media (max-width:900px){.wrap{padding:32px 20px}.cards,.shared{grid-template-columns:1fr}.compare{overflow-x:auto}.compare table{min-width:820px}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="arrow" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol>
+  <symbol id="x" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+  <symbol id="layers" viewBox="0 0 24 24"><path d="m12 2 9 5-9 5-9-5 9-5Z"/><path d="m3 12 9 5 9-5"/><path d="m3 17 9 5 9-5"/></symbol>
+  <symbol id="list" viewBox="0 0 24 24"><path d="M9 6h11"/><path d="M9 12h11"/><path d="M9 18h11"/><path d="M4 6h.01"/><path d="M4 12h.01"/><path d="M4 18h.01"/></symbol>
+  <symbol id="book" viewBox="0 0 24 24"><path d="M2 4h7a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H2Z"/><path d="M22 4h-7a3 3 0 0 0-3 3v13a2 2 0 0 1 2-2h8Z"/></symbol>
+  <symbol id="pen" viewBox="0 0 24 24"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></symbol>
+  <symbol id="timer" viewBox="0 0 24 24"><path d="M10 2h4"/><path d="M12 14l3-3"/><circle cx="12" cy="14" r="8"/></symbol>
+  <symbol id="music" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></symbol>
+  <symbol id="keyboard" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M6 9h.01M10 9h.01M14 9h.01M18 9h.01M6 13h.01M18 13h.01M8 16h8"/></symbol>
+  <symbol id="speech" viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></symbol>
+  <symbol id="save" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></symbol>
+</svg>
+
+<main class="wrap">
+  <header class="hero">
+    <div>
+      <div class="brand"><span class="mark"><b>K</b></span>POLY · From Phonics to Reading · Level K</div>
+      <h1>Class Dashboard <span>— 3 Concepts</span></h1>
+      <p class="lead">외국인 강사가 교실 전자칠판에서 쓰는 <b>수업 진행 화면</b>입니다. v18 프로토타입의 메뉴와 수업 흐름(<b>Lesson → Section → Activity → Step</b>)은 그대로 쓰고 화면 틀만 새로 설계했습니다. <b>콘텐츠 영역은 비워 둔 슬롯</b>으로, 제작 콘텐츠가 들어갈 자리의 실제 크기(px)를 실시간으로 보여 줍니다.</p>
+    </div>
+    <div class="facts">
+      <div class="fact"><small>Screen</small><b class="num">1920 × 1080 e-board</b></div>
+      <div class="fact"><small>UI language</small><b>English</b></div>
+      <div class="fact"><small>Lessons</small><b class="num">L1–30 연결</b></div>
+      <div class="fact"><small>Content area</small><b>빈 슬롯 · 규격 표시</b></div>
+    </div>
+  </header>
+
+  <div class="sec-h"><h2>시안</h2><p>썸네일을 누르면 시안이 열리고, 작은 화면은 크게 볼 수 있습니다.</p></div>
+  <section class="cards">
+    <article class="card ca">
+      <a class="shot" href="concept-a-guide.html"><img src="assets/preview/a-main.webp" alt="Concept A — Guide" loading="lazy"><span class="open">Open<svg class="i"><use href="#arrow"/></svg></span></a>
+      <div class="subs"><button type="button" data-src="assets/preview/a-lessons.webp" data-cap="A · Lesson picker"><img src="assets/preview/a-lessons.webp" alt="" loading="lazy"><span>Lesson picker</span></button><button type="button" data-src="assets/preview/a-plan.webp" data-cap="A · Teacher guide — Plan"><img src="assets/preview/a-plan.webp" alt="" loading="lazy"><span>Plan tab</span></button></div>
+      <div class="body">
+        <div class="title"><span class="badge">A</span><div><h3>Guide</h3><p>Everything in view.</p></div></div>
+        <p class="desc">왼쪽 수업 흐름 · 가운데 칠판 · 오른쪽 강사 가이드의 3단 구성입니다. 지금 할 말(Say)과 할 일(Do)이 언제나 옆에 보여 처음 가르치는 강사도 길을 잃지 않습니다.</p>
+        <ul class="points">
+          <li><svg class="i"><use href="#check"/></svg>단계마다 Say · Do · Kids 스크립트와 TG 원문 인용</li>
+          <li><svg class="i"><use href="#check"/></svg>가이드 3탭: Script · Plan · Korean learners</li>
+          <li><svg class="i"><use href="#check"/></svg><span><kbd>G</kbd> 키로 가이드를 접어 칠판을 넓게</span></li>
+        </ul>
+        <dl class="meta"><dt>Content</dt><dd class="num">1198 × 760 <small>· 가이드 접으면 1582 × 760</small></dd><dt>Tone</dt><dd>Light · POLY Blue · Figtree</dd><dt>Best for</dt><dd>신규 강사, 수업 준비 겸용</dd></dl>
+        <div class="cta"><a href="concept-a-guide.html">Concept A 열기<svg class="i"><use href="#arrow"/></svg></a></div>
+      </div>
+    </article>
+
+    <article class="card cb">
+      <a class="shot" href="concept-b-stage.html?theme=dark" data-page="concept-b-stage.html"><img src="assets/preview/b-main.webp" data-base="assets/preview/b-main" alt="Concept B — Stage" loading="lazy"><span class="open">Open<svg class="i"><use href="#arrow"/></svg></span></a>
+      <div class="subs"><button type="button" data-src="assets/preview/b-map.webp" data-base="assets/preview/b-map" data-cap="B · Lesson map"><img src="assets/preview/b-map.webp" data-base="assets/preview/b-map" alt="" loading="lazy"><span>Lesson map</span></button><button type="button" data-src="assets/preview/b-notes.webp" data-base="assets/preview/b-notes" data-cap="B · Teacher notes sheet"><img src="assets/preview/b-notes.webp" data-base="assets/preview/b-notes" alt="" loading="lazy"><span>Notes sheet</span></button></div>
+      <div class="body">
+        <div class="title"><span class="badge">B</span><div><h3>Stage</h3><p>The board is the room.</p></div><div class="tsw" role="group" aria-label="Theme"><button type="button" data-theme="dark" aria-pressed="true"><i style="background:#0E1013"></i>Dark</button><button type="button" data-theme="mint" aria-pressed="false"><i style="background:#62D4B4;box-shadow:inset 0 0 0 1px rgba(11,46,39,.2)"></i>Mint</button><button type="button" data-theme="yellow" aria-pressed="false"><i style="background:#FFE15A;box-shadow:inset 0 0 0 1px rgba(29,26,15,.25)"></i>Yellow</button></div></div>
+        <p class="desc">칠판이 화면 거의 전체를 차지하는 프레젠터 모드입니다. 테마는 다크 · 민트 · 옐로 세 가지입니다. 진행 버튼과 지금 할 말은 손이 닿는 하단 독에 모았고, 나머지는 필요할 때만 꺼냅니다.</p>
+        <ul class="points">
+          <li><svg class="i"><use href="#check"/></svg>큰 Next 버튼 · 프레젠터 리모컨으로 넘기기</li>
+          <li><svg class="i"><use href="#check"/></svg>활동 타이머 링 · 단계별 진행 세그먼트</li>
+          <li><svg class="i"><use href="#check"/></svg><span>레슨맵 <kbd>M</kbd> · 노트 <kbd>N</kbd> · 화면 가리기 <kbd>B</kbd> · 테마 <kbd>T</kbd></span></li>
+        </ul>
+        <dl class="meta"><dt>Content</dt><dd class="num">1824 × 858 <small>· 세 시안 중 가장 큼</small></dd><dt>Tone</dt><dd>Dark · Mint · Yellow · Manrope</dd><dt>Best for</dt><dd>숙련 강사, 아이들 시선을 칠판에 모을 때</dd></dl>
+        <div class="cta"><a href="concept-b-stage.html?theme=dark" data-page="concept-b-stage.html">Concept B 열기<svg class="i"><use href="#arrow"/></svg></a></div>
+      </div>
+    </article>
+
+    <article class="card cc">
+      <a class="shot" href="concept-c-script.html"><img src="assets/preview/c-main.webp" alt="Concept C — Script" loading="lazy"><span class="open">Open<svg class="i"><use href="#arrow"/></svg></span></a>
+      <div class="subs"><button type="button" data-src="assets/preview/c-contents.webp" data-cap="C · Contents"><img src="assets/preview/c-contents.webp" alt="" loading="lazy"><span>Contents</span></button><button type="button" data-src="assets/preview/c-board.webp" data-cap="C · Script hidden — wide board"><img src="assets/preview/c-board.webp" alt="" loading="lazy"><span>Script hidden</span></button></div>
+      <div class="body">
+        <div class="title"><span class="badge">C</span><div><h3>Script</h3><p>Teach from the script.</p></div></div>
+        <p class="desc">오른쪽 스크립트가 곧 내비게이션입니다. 대본을 읽듯 한 줄씩 넘기면 칠판이 따라옵니다. TG 문장을 충실히 따르는 수업에 맞춘 구성입니다.</p>
+        <ul class="points">
+          <li><svg class="i"><use href="#check"/></svg>현재 줄 하이라이트 · 자동 스크롤 텔레프롬프터</li>
+          <li><svg class="i"><use href="#check"/></svg>섹션 챕터 탭 · 수업 전 체크(Before you start)</li>
+          <li><svg class="i"><use href="#check"/></svg><span><kbd>S</kbd> 키로 스크립트를 숨기면 칠판 확장 + 대사 한 줄</span></li>
+        </ul>
+        <dl class="meta"><dt>Content</dt><dd class="num">1271 × 845 <small>· 스크립트 숨기면 1891 × 845</small></dd><dt>Tone</dt><dd>Cool grey · Burnt orange · Pretendard</dd><dt>Best for</dt><dd>대본 중심 진행, 신규 강사 온보딩</dd></dl>
+        <div class="cta"><a href="concept-c-script.html">Concept C 열기<svg class="i"><use href="#arrow"/></svg></a></div>
+      </div>
+    </article>
+  </section>
+
+  <div class="sec-h"><h2>한눈에 비교</h2><p>콘텐츠 영역 크기는 1920 × 1080 화면 기준 실측값입니다.</p></div>
+  <section class="compare">
+    <table>
+      <thead><tr><th></th><th><span><i style="background:var(--a)">A</i>Guide</span></th><th><span><i style="background:var(--b);color:var(--b-acc)">B</i>Stage</span></th><th><span><i style="background:var(--c)">C</i>Script</span></th></tr></thead>
+      <tbody>
+        <tr><th>레이아웃</th><td>3단 — 흐름 · 칠판 · 가이드</td><td>칠판 전면 + 왼쪽 도구 레일 + 하단 독</td><td>2단 — 칠판 · 스크립트</td></tr>
+        <tr><th>진행 방식</th><td>왼쪽 흐름 목록 · 하단 <b>Next step</b></td><td>하단 <b>Next</b> · 진행 세그먼트 · 리모컨</td><td>스크립트 줄 선택 · <b>Next line</b></td></tr>
+        <tr><th>강사 가이드</th><td>항상 표시 (접기 가능)</td><td>필요할 때 노트 시트로</td><td>스크립트 자체가 가이드</td></tr>
+        <tr><th>레슨 이동</th><td>상단 팝오버 (6유닛 × 5레슨)</td><td>전체 화면 레슨맵 + 섹션 미리보기</td><td>목차(Contents) 팝오버</td></tr>
+        <tr><th>콘텐츠 영역</th><td class="num"><b>1198 × 760</b> → 1582 × 760</td><td class="num"><b>1824 × 858</b></td><td class="num"><b>1271 × 845</b> → 1891 × 845</td></tr>
+        <tr><th>톤</th><td>라이트 · POLY Blue</td><td>다크 · 민트 · 옐로 (테마 3종)</td><td>쿨 그레이 · 번트 오렌지</td></tr>
+        <tr><th>잘 맞는 상황</th><td>처음 이 교재를 가르칠 때</td><td>진행이 익숙하고 몰입이 중요할 때</td><td>TG 대본을 그대로 따를 때</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <div class="sec-h"><h2>세 시안 공통</h2><p>같은 엔진(<code style="font-size:13px">fprk-core.js</code>) 위에 화면 틀만 다릅니다.</p></div>
+  <section class="shared">
+    <div class="feat"><span class="ic"><svg class="i"><use href="#layers"/></svg></span><div><b>빈 콘텐츠 슬롯</b><p>제작 콘텐츠가 들어갈 자리. 현재 활동·단계 이름과 실제 px 규격을 표시합니다.</p></div></div>
+    <div class="feat"><span class="ic"><svg class="i"><use href="#list"/></svg></span><div><b>4단 수업 흐름</b><p>Lesson → Section → Activity → Step. 30개 레슨 데이터가 연결돼 있습니다.</p></div></div>
+    <div class="feat"><span class="ic"><svg class="i"><use href="#book"/></svg></span><div><b>SB · TG 페이지 뷰어</b><p>교재와 지도서 페이지를 바로 띄우고, 둘을 나란히 볼 수 있습니다.</p></div></div>
+    <div class="feat"><span class="ic"><svg class="i"><use href="#pen"/></svg></span><div><b>판서</b><p>펜 · 형광펜 · 지우개, 5색 · 3굵기, 실행 취소. 콘텐츠 위에 바로 씁니다.</p></div></div>
+    <div class="feat"><span class="ic"><svg class="i"><use href="#timer"/></svg></span><div><b>수업 타이머</b><p>전체 수업 시간과 활동별 경과 시간을 따로 잽니다.</p></div></div>
+    <div class="feat"><span class="ic"><svg class="i"><use href="#music"/></svg></span><div><b>Class activities</b><p>노래 · 율동 · 그림 게임 바로가기. 다녀와도 수업 위치는 그대로입니다.</p></div></div>
+    <div class="feat"><span class="ic"><svg class="i"><use href="#keyboard"/></svg></span><div><b>키보드 · 리모컨</b><p><kbd>→</kbd> <kbd>Space</kbd> 다음, <kbd>←</kbd> 이전, <kbd>D</kbd> 펜, <kbd>F</kbd> 전체 화면.</p></div></div>
+    <div class="feat"><span class="ic"><svg class="i"><use href="#speech"/></svg></span><div><b>Korean learners</b><p>한국 아이들이 헷갈리는 발음 팁과 비교 단어 듣기(map vs nap).</p></div></div>
+    <div class="feat"><span class="ic"><svg class="i"><use href="#save"/></svg></span><div><b>이어서 하기</b><p>새로고침하거나 다시 열어도 마지막 레슨 · 단계에서 시작합니다.</p></div></div>
+  </section>
+
+  <footer class="foot">
+    <span>콘텐츠 연결 위치: 각 화면의 <code>.k-viewport</code> (Content area)</span>
+    <span><code>concept-a-guide.html</code> · <code>concept-b-stage.html</code> · <code>concept-c-script.html</code></span>
+  </footer>
+</main>
+
+<dialog id="lb" aria-label="Preview"><button type="button" aria-label="Close"><svg class="i"><use href="#x"/></svg></button><img alt=""><p></p></dialog>
+<script>
+  const lb = document.getElementById('lb');
+  document.querySelectorAll('.subs button').forEach(b => b.addEventListener('click', () => {
+    lb.querySelector('img').src = b.dataset.src; lb.querySelector('p').textContent = b.dataset.cap; lb.showModal();
+  }));
+  lb.addEventListener('click', e => { if (e.target === lb || e.target.closest('button')) lb.close(); });
+  document.querySelectorAll('.tsw button').forEach(b => b.addEventListener('click', () => {
+    const t = b.dataset.theme, card = b.closest('.card');
+    card.querySelectorAll('.tsw button').forEach(x => x.setAttribute('aria-pressed', x === b));
+    card.querySelectorAll('[data-base]').forEach(el => { const src = el.dataset.base + (t === 'dark' ? '' : '-' + t) + '.webp'; if (el.tagName === 'IMG') el.src = src; else el.dataset.src = src; });
+    card.querySelectorAll('a[data-page]').forEach(a => { a.href = a.dataset.page + '?theme=' + t; });
+  }));
+</script>
+</body>
+</html>

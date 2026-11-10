@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FPR K Class Dashboard — Concept A · Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&family=Figtree:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="assets/css/fprk-shell.css?v=45c36b5">
+<link rel="stylesheet" href="assets/css/concept-a.css?v=45c36b5">
+</head>
+<body>
+<div class="a-app" id="app">
+  <header class="a-top">
+    <a class="a-brand" href="index.html" title="All concepts">
+      <span class="a-mark" aria-hidden="true">Aa</span>
+      <span class="a-brandtx"><b>FPR K</b><small>Class Dashboard</small></span>
+    </a>
+    <button type="button" class="a-lesson" id="lessonBtn" popovertarget="lessonPop" aria-haspopup="dialog"></button>
+    <div class="a-meta" id="meta"></div>
+    <div class="a-actions">
+      <div class="a-group" role="group" aria-label="Book pages" id="pages"></div>
+      <button type="button" class="a-btn" id="extrasBtn" popovertarget="extrasPop"><svg class="i"><use href="#i-grid"/></svg><span>Activities</span></button>
+      <button type="button" class="a-btn a-timer" id="timerBtn" aria-pressed="false" title="Class timer"></button>
+      <button type="button" class="a-btn a-btn--icon" id="fsBtn" title="Full screen (F)" aria-label="Full screen"><svg class="i"><use href="#i-maximize"/></svg></button>
+      <button type="button" class="a-btn a-btn--icon" id="helpBtn" popovertarget="helpPop" title="Shortcuts" aria-label="Keyboard shortcuts"><svg class="i"><use href="#i-keyboard"/></svg></button>
+    </div>
+  </header>
+
+  <nav class="a-sections" id="sections" aria-label="Lesson sections"></nav>
+
+  <aside class="a-flow" id="flow" aria-label="Lesson flow"></aside>
+
+  <main class="a-center">
+    <section class="a-stagecard" aria-label="Class screen">
+      <header class="a-stagehead" id="stagehead"></header>
+      <div class="a-stage" id="stage"></div>
+    </section>
+    <div class="a-control" id="control"></div>
+  </main>
+
+  <aside class="a-guide" id="guide" aria-label="Teacher guide"></aside>
+  <button type="button" class="a-guidetab" id="guideTab" aria-label="Open teacher guide"><svg class="i"><use href="#i-notebook-pen"/></svg><span>Guide</span></button>
+</div>
+
+<div popover id="lessonPop" class="a-pop a-pop--lessons" aria-label="Choose a lesson"></div>
+<div popover id="extrasPop" class="a-pop a-pop--extras" aria-label="Class activities"></div>
+<div popover id="helpPop" class="a-pop a-pop--help" aria-label="Keyboard shortcuts">
+  <h3>Shortcuts</h3>
+  <p class="a-muted">Work with a presentation clicker, too.</p>
+  <dl>
+    <dt><kbd>→</kbd> <kbd>Space</kbd> <kbd>PgDn</kbd></dt><dd>Next step</dd>
+    <dt><kbd>←</kbd> <kbd>PgUp</kbd></dt><dd>Previous step</dd>
+    <dt><kbd>D</kbd></dt><dd>Pen on / off</dd>
+    <dt><kbd>G</kbd></dt><dd>Show / hide teacher guide</dd>
+    <dt><kbd>F</kbd></dt><dd>Full screen</dd>
+    <dt><kbd>Esc</kbd></dt><dd>Close page viewer</dd>
+  </dl>
+</div>
+
+<script src="assets/js/fprk-data.js?v=45c36b5"></script>
+<script src="assets/js/fprk-core.js?v=45c36b5"></script>
+<script src="assets/js/concept-a.js?v=45c36b5"></script>
+</body>
+</html>

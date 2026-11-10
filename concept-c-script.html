@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FPR K Class Dashboard — Concept C · Script</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&display=swap">
+<link rel="stylesheet" href="assets/css/fprk-shell.css?v=45c36b5">
+<link rel="stylesheet" href="assets/css/concept-c.css?v=45c36b5">
+</head>
+<body>
+<div class="c-app" id="app">
+  <header class="c-top">
+    <a class="c-brand" href="index.html" title="All concepts"><b>FPR</b><i>K</i><span>Class Script</span></a>
+    <button type="button" class="c-lesson" id="lessonBtn" popovertarget="lessonPop" aria-haspopup="dialog"></button>
+    <div class="c-actions">
+      <div class="c-seg" id="pages" role="group" aria-label="Book pages"></div>
+      <button type="button" class="c-btn" id="extrasBtn" popovertarget="extrasPop"><svg class="i"><use href="#i-grid"/></svg><span>Activities</span></button>
+      <button type="button" class="c-btn c-timer" id="timerBtn" aria-pressed="false"></button>
+      <button type="button" class="c-btn c-btn--icon" id="scriptBtn" aria-pressed="true" title="Show / hide script (S)" aria-label="Show or hide script"><svg class="i"><use href="#i-panel-right"/></svg></button>
+      <button type="button" class="c-btn c-btn--icon" id="fsBtn" title="Full screen (F)" aria-label="Full screen"><svg class="i"><use href="#i-maximize"/></svg></button>
+      <button type="button" class="c-btn c-btn--icon" id="helpBtn" popovertarget="helpPop" title="Shortcuts" aria-label="Keyboard shortcuts"><svg class="i"><use href="#i-keyboard"/></svg></button>
+    </div>
+  </header>
+
+  <main class="c-board">
+    <section class="c-boardcard" aria-label="Board">
+      <header class="c-boardhead" id="boardhead"></header>
+      <div class="c-stage" id="stage"></div>
+      <div class="c-tools" id="tools" role="toolbar" aria-label="Board tools"></div>
+    </section>
+  </main>
+
+  <aside class="c-script" id="script" aria-label="Lesson script">
+    <header class="c-shead" id="shead"></header>
+    <div class="c-doc" id="doc"></div>
+    <footer class="c-sfoot" id="sfoot"></footer>
+  </aside>
+</div>
+
+<div popover id="lessonPop" class="c-pop c-pop--toc" aria-label="Contents"></div>
+<div popover id="extrasPop" class="c-pop c-pop--extras" aria-label="Class activities"></div>
+<div popover id="helpPop" class="c-pop c-pop--help" aria-label="Keyboard shortcuts">
+  <h3>Shortcuts</h3>
+  <dl>
+    <dt><kbd>→</kbd><kbd>Space</kbd><kbd>PgDn</kbd></dt><dd>Next line of the script</dd>
+    <dt><kbd>←</kbd><kbd>PgUp</kbd></dt><dd>Previous line</dd>
+    <dt><kbd>S</kbd></dt><dd>Show / hide the script</dd>
+    <dt><kbd>D</kbd></dt><dd>Pen on / off</dd>
+    <dt><kbd>F</kbd></dt><dd>Full screen</dd>
+  </dl>
+</div>
+
+<script src="assets/js/fprk-data.js?v=45c36b5"></script>
+<script src="assets/js/fprk-core.js?v=45c36b5"></script>
+<script src="assets/js/concept-c.js?v=45c36b5"></script>
+</body>
+</html>
