@@ -216,12 +216,13 @@
   function renderScenes() {
     const el = $('#scenes'); if (!el || !FP.lesson()) return;
     el.innerHTML = `<span class="b-scnl" title="${live ? 'Sharing to the classroom screen' : 'What students see'}">${live ? '<i class="b-live" aria-hidden="true"></i>' : ''}<span>Students see</span></span>${SCENES.map(([v, i, l, t]) => `<button type="button" data-b="scene" data-v="${v}" aria-pressed="${scene === v}" title="${t}">${ic(i)}<span>${l}</span></button>`).join('')}`;
+    fitTop();
   }
   function renderActs() {   // the lesson's class activities + games, next to the lesson button
     const b = $('#extrasBtn'); if (!b || !FP.lesson()) return;
     const on = FP.mode() === 'extra';
     b.classList.toggle('is-on', on); b.setAttribute('aria-pressed', on);
-    b.innerHTML = `${ic('grid')}<span>Activities</span>${ic('chevron-down', 'b-dd')}`;
+    b.innerHTML = `${ic('grid')}<span>Class activities</span>${ic('chevron-down', 'b-dd')}`;
   }
   function setScene(v) {
     if (v === 'pause' && scene === 'pause') v = resumeTo;
@@ -237,12 +238,37 @@
   /* ---------- top ---------- */
   function renderTop() {
     const L = FP.lesson();
-    $('#lessonBtn').innerHTML = `<span class="b-lt" lang="en">${esc(L.key)}</span><span class="b-ltx"><b>Lesson ${L.n} <i lang="en">${esc(L.snd)}</i></b><small>Unit ${L.unit} · ${esc(FP.unitTheme(L.unit))} · ${esc(L.day)}</small></span>${ic('chevron-down')}`;
+    $('#lessonBtn').innerHTML = `<span class="b-lt${L.key.length > 3 ? ' is-long' : ''}" lang="en">${esc(L.key)}</span><span class="b-ltx"><b>Lesson ${L.n} <i lang="en"${L.snd.length > 9 ? ' class="is-long"' : ''}>${esc(L.snd)}</i></b><small>Unit ${L.unit} · ${esc(L.day)}</small></span>${ic('chevron-down')}`;
+    $('#lessonBtn').title = `Lesson map (M) — Lesson ${L.n} ${L.snd} · Unit ${L.unit} · ${FP.unitTheme(L.unit)}`;
+    fitTop();
+  }
+  // The activity title must never be cut. When the bar runs short (long lesson names, narrow windows) secondary
+  // labels go first: "Students see" → the "Class activities" text → the lesson's sound line (still on the tile and
+  // in the tooltip) → the Share text → the screen-button texts (icons + tooltips stay). Decided once per lesson +
+  // window width from every section/title pair, so nothing jumps on Next.
+  const FIT = ['is-tight', 'is-tighter', 'is-tightest', 'is-tight4', 'is-tight5'];
+  let fitKey = '', fitLevel = 0, fitT = 0;
+  const crumbHTML = (sec, title) => `<button type="button" data-b="sections" title="Sections">${esc(sec)}${ic('chevron-down')}</button>${ic('chevron-right')}<b lang="en">${esc(title)}</b>`;
+  function fitTop(force) {
+    const top = $('.b-top'), crumb = $('#crumb'), L = FP.lesson(); if (!top || !crumb || !L) return;
+    const key = `${L.n}|${innerWidth}|${live ? 1 : 0}`;
+    if (key !== fitKey || force) {
+      fitKey = key; fitLevel = 0;
+      const keep = crumb.innerHTML, cut = () => { const b = crumb.querySelector('b'); return b.scrollHeight > b.clientHeight + 4; };
+      const intro = ['Lesson Words', 'Sound Chant', L.a1, 'Meaning First', 'Sound Awareness', 'Sound–Letter Match', 'Sound Review', 'Sound Blending', L.a2, 'G-Learning'];
+      for (const s of FP.sections()) for (const t of (s.built ? intro : s.subs.length ? s.subs : [s.name])) {
+        crumb.innerHTML = crumbHTML(s.name, t || '');
+        while (fitLevel < FIT.length) { FIT.forEach((c, i) => top.classList.toggle(c, i < fitLevel)); if (!cut()) break; fitLevel++; }
+      }
+      crumb.innerHTML = keep;
+    }
+    FIT.forEach((c, i) => top.classList.toggle(c, i < fitLevel));
   }
   function renderCrumb() {
     const c = FP.context(), sec = FP.section();
-    if (c.mode === 'extra') { $('#crumb').innerHTML = `<span>${esc((FP.extraInfo() || {}).group || 'Class activity')}</span>${ic('chevron-right')}<b>${esc(c.title)}</b>`; return; }
-    $('#crumb').innerHTML = `<button type="button" data-b="sections" title="Sections">${esc(sec.name)}${ic('chevron-down')}</button>${ic('chevron-right')}<b lang="en">${esc(FP.cur().title)}</b>`;
+    if (c.mode === 'extra') $('#crumb').innerHTML = `<span>${esc((FP.extraInfo() || {}).group || 'Class activity')}</span>${ic('chevron-right')}<b>${esc(c.title)}</b>`;
+    else $('#crumb').innerHTML = crumbHTML(sec.name, FP.cur().title);
+    fitTop();
   }
 
   /* ---------- floating board tools ---------- */
@@ -610,6 +636,8 @@
   addLayers(); refreshGames();
   renderScenes(); renderActs(); renderFab(); renderShareBtn(); renderDock(); renderGame();
   new ResizeObserver(() => placeFab()).observe($('#stagewrap'));
+  new ResizeObserver(() => { clearTimeout(fitT); fitT = setTimeout(fitTop, 60); }).observe($('.b-top'));
+  if (document.fonts) document.fonts.ready.then(() => fitTop(true));
   placeFab();
   if (qs.get('scene')) setScene(qs.get('scene'));   // QA / deep link: ?scene=timer|pick|pause
 })();
