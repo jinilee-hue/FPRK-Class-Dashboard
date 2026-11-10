@@ -211,9 +211,17 @@
   }
 
   /* ---------- what students see (top bar) ---------- */
+  // what students see: the lesson, a class activity or game, or a class tool
   const SCENES = [['lesson', 'presentation', 'Lesson', 'Show the lesson'], ['timer', 'timer', 'Timer', 'Timer (T)'], ['pick', 'dices', 'Pick', 'Pick a student (P)'], ['pause', 'monitor-pause', 'Pause', 'Eyes on me (B)']];
   function renderScenes() {
-    $('#scenes').innerHTML = `<span class="b-scnl" title="${live ? 'Sharing to the classroom screen' : 'What students see'}">${live ? '<i class="b-live" aria-hidden="true"></i>' : ''}<span>On screen</span></span>${SCENES.map(([v, i, l, t]) => `<button type="button" data-b="scene" data-v="${v}" aria-pressed="${scene === v}" title="${t}">${ic(i)}<span>${l}</span></button>`).join('')}`;
+    const el = $('#scenes'); if (!el || !FP.lesson()) return;
+    el.innerHTML = `<span class="b-scnl" title="${live ? 'Sharing to the classroom screen' : 'What students see'}">${live ? '<i class="b-live" aria-hidden="true"></i>' : ''}<span>Students see</span></span>${SCENES.map(([v, i, l, t]) => `<button type="button" data-b="scene" data-v="${v}" aria-pressed="${scene === v}" title="${t}">${ic(i)}<span>${l}</span></button>`).join('')}`;
+  }
+  function renderActs() {   // the lesson's class activities + games, next to the lesson button
+    const b = $('#extrasBtn'); if (!b || !FP.lesson()) return;
+    const on = FP.mode() === 'extra';
+    b.classList.toggle('is-on', on); b.setAttribute('aria-pressed', on);
+    b.innerHTML = `${ic('grid')}<span>Activities</span>${ic('chevron-down', 'b-dd')}`;
   }
   function setScene(v) {
     if (v === 'pause' && scene === 'pause') v = resumeTo;
@@ -522,7 +530,7 @@
       case 'flow': toggleSheet('flow'); break;
       case 'ntab': notesTab = v; renderNotes(); break;
       case 'say': FP.speak(v); break;
-      case 'extra': FP.openExtra(v); if ($('#extrasPop').matches(':popover-open')) $('#extrasPop').hidePopover(); break;
+      case 'extra': FP.openExtra(v); if ($('#extrasPop').matches(':popover-open')) $('#extrasPop').hidePopover(); if (scene !== 'lesson') setScene('lesson'); break;
       case 'sections': sectionsMenu(t); break;
       case 'sec': { FP.setSection(+v); const sm = $('#secMenu'); if (sm && sm.matches(':popover-open')) sm.hidePopover(); break; }
       case 'mappick': mapPick = +v; renderMap(); break;
@@ -555,15 +563,21 @@
     $('#' + p).addEventListener('beforetoggle', e => {
       if (e.newState !== 'open') return; if (fill) fill();
       const r = $('#' + b).getBoundingClientRect(), pop = $('#' + p);
-      pop.style.top = (r.bottom + 10) + 'px'; pop.style.right = Math.max(10, innerWidth - r.right) + 'px'; pop.style.left = 'auto';
+      pop.style.top = (r.bottom + 10) + 'px';
+      if (p === 'extrasPop') { pop.style.left = r.left + 'px'; pop.style.right = 'auto'; }
+      else { pop.style.right = Math.max(10, innerWidth - r.right) + 'px'; pop.style.left = 'auto'; }
     });
+  });
+  $('#extrasPop').addEventListener('toggle', e => {
+    if (e.newState !== 'open') return; const pop = $('#extrasPop');
+    pop.style.left = Math.max(10, Math.min(parseFloat(pop.style.left) || 10, innerWidth - pop.offsetWidth - 10)) + 'px';
   });
   $('#rosterPop').addEventListener('beforetoggle', e => { if (e.newState === 'open') renderRoster(); });
   $('#rosterPop').addEventListener('toggle', e => { if (e.newState === 'open') { const tx = $('#rosterTx'); if (tx) tx.focus(); } });
 
   FP.on(e => {
     if (e.type === 'lesson') { refreshGames(); renderTop(); }
-    if (e.type === 'nav') { renderCrumb(); renderDock(); renderFlow(); renderNotes(); renderGame(); broadcast(); }
+    if (e.type === 'nav') { renderCrumb(); renderActs(); renderDock(); renderFlow(); renderNotes(); renderGame(); broadcast(); }
     if (e.type === 'ink') { renderFab(); broadcast(); }
     if (e.type === 'inkmove') broadcastInk();
     if (e.type === 'key') {
@@ -592,7 +606,7 @@
 
   FP.mount($('#stage'), { storageKey: 'fprk-b', keepAwake: true, fresh: qs.has('fresh'), lesson: +qs.get('lesson') || 1, act: qs.get('act') || 'ls1', design: DESIGN });
   addLayers(); refreshGames();
-  renderScenes(); renderFab(); renderShareBtn(); renderDock(); renderGame();
+  renderScenes(); renderActs(); renderFab(); renderShareBtn(); renderDock(); renderGame();
   new ResizeObserver(() => placeFab()).observe($('#stagewrap'));
   placeFab();
   if (qs.get('scene')) setScene(qs.get('scene'));   // QA / deep link: ?scene=timer|pick|pause
