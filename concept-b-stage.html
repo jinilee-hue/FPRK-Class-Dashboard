@@ -3,63 +3,81 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>FPR K Class Dashboard — Concept B · Stage</title>
-<script>(function(){var T=['dark','mint','yellow'],q=new URLSearchParams(location.search).get('theme'),t;try{t=q||localStorage.getItem('fprk-b-theme');if(q)localStorage.setItem('fprk-b-theme',q);}catch(e){t=q;}if(t==='light')t='mint';if(T.indexOf(t)<0)t='dark';var r=document.documentElement;r.dataset.theme=t;r.dataset.tone=t==='dark'?'dark':'bright';})();</script>
+<title>Phonics POND — Class Dashboard</title>
+<script>(function(){var q=new URLSearchParams(location.search),r=document.documentElement,g=function(k){try{return localStorage.getItem(k);}catch(e){return null;}},s=function(k,v){try{localStorage.setItem(k,v);}catch(e){}};
+var t=q.get('theme')||g('fprk-b-theme');if(t==='light')t='mint';if(['dark','mint','yellow'].indexOf(t)<0)t='dark';if(q.get('theme'))s('fprk-b-theme',t);
+var c=q.get('controls')||g('pond-controls');if(['bottom','left','right'].indexOf(c)<0)c='bottom';if(q.get('controls'))s('pond-controls',c);
+var n=q.get('notes')||g('pond-notes');if(['sheet','panel'].indexOf(n)<0)n='sheet';if(q.get('notes'))s('pond-notes',n);
+r.dataset.theme=t;r.dataset.tone=t==='dark'?'dark':'bright';r.dataset.controls=c;r.dataset.notes=n;r.dataset.npanel=g('pond-npanel')==='hidden'?'hidden':'shown';r.dataset.view=q.get('view')==='student'?'student':'teacher';})();</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&family=Manrope:wght@400;500;600;700;800&display=swap">
-<link rel="stylesheet" href="assets/css/fprk-shell.css?v=58ba8c4">
-<link rel="stylesheet" href="assets/css/concept-b.css?v=58ba8c4">
+<link rel="stylesheet" href="assets/css/fprk-shell.css?v=25f88e0">
+<link rel="stylesheet" href="assets/css/concept-b.css?v=25f88e0">
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="pond-mark" viewBox="0 0 32 32"><path d="M16 3.5c3.6 4.4 5.4 7.6 5.4 9.9a5.4 5.4 0 0 1-10.8 0c0-2.3 1.8-5.5 5.4-9.9Z" fill="currentColor"/><ellipse cx="16" cy="24" rx="12.5" ry="4.6" fill="none" stroke="currentColor" stroke-width="2" opacity=".42"/><ellipse cx="16" cy="24" rx="6.5" ry="2.2" fill="none" stroke="currentColor" stroke-width="2" opacity=".75"/></symbol>
+</svg>
 <div class="b-app" id="app">
   <header class="b-top">
-    <a class="b-home" href="index.html" title="All concepts" aria-label="All concepts"><span>FPR</span><b>K</b></a>
+    <a class="b-brand" href="index.html" title="Phonics POND — all concepts"><span class="b-logo"><svg viewBox="0 0 32 32" aria-hidden="true"><use href="#pond-mark"/></svg></span><span class="b-wm"><small>Phonics</small><b>POND</b></span></a>
     <button type="button" class="b-lesson" id="lessonBtn" aria-haspopup="dialog" title="Lesson map (M)"></button>
     <nav class="b-crumb" id="crumb" aria-label="Where you are"></nav>
     <div class="b-utils">
+      <div class="b-scenes" id="scenes" role="group" aria-label="What students see"></div>
       <div class="b-seg" id="pages" role="group" aria-label="Book pages"></div>
-      <button type="button" class="b-ubtn" id="extrasBtn" popovertarget="extrasPop" title="Class activities (A)"><svg class="i"><use href="#i-grid"/></svg><span>Activities</span></button>
-      <button type="button" class="b-ubtn b-ubtn--icon" id="pauseBtn" title="Pause screen (B)" aria-label="Pause screen"><svg class="i"><use href="#i-monitor-pause"/></svg></button>
-      <div class="b-themes" id="themes" role="radiogroup" aria-label="Theme (T)"><button type="button" role="radio" data-b="theme" data-v="dark" aria-checked="true" title="Dark" aria-label="Dark"><i style="--sw:#0E1013"></i></button><button type="button" role="radio" data-b="theme" data-v="mint" aria-checked="false" title="Mint" aria-label="Mint"><i style="--sw:#62D4B4"></i></button><button type="button" role="radio" data-b="theme" data-v="yellow" aria-checked="false" title="Yellow" aria-label="Yellow"><i style="--sw:#FFE15A"></i></button></div>
+      <button type="button" class="b-ubtn" id="extrasBtn" popovertarget="extrasPop" title="Class activities and games (A)"><svg class="i"><use href="#i-grid"/></svg><span>Activities</span></button>
+      <button type="button" class="b-ubtn b-share" id="shareBtn" popovertarget="sharePop" title="Share with students (S)"></button>
+      <button type="button" class="b-ubtn b-ubtn--icon" id="displayBtn" popovertarget="displayPop" title="Display — layout and color" aria-label="Display settings"><svg class="i"><use href="#i-palette"/></svg></button>
       <button type="button" class="b-ubtn b-ubtn--icon" id="fsBtn" title="Full screen (F)" aria-label="Full screen"><svg class="i"><use href="#i-maximize"/></svg></button>
       <button type="button" class="b-ubtn b-ubtn--icon" id="helpBtn" popovertarget="helpPop" title="Shortcuts" aria-label="Keyboard shortcuts"><svg class="i"><use href="#i-keyboard"/></svg></button>
     </div>
   </header>
 
-  <aside class="b-rail" id="rail" role="toolbar" aria-orientation="vertical" aria-label="Board tools"></aside>
-
-  <main class="b-stagewrap">
+  <main class="b-stagewrap" id="stagewrap">
     <div class="b-stage" id="stage"></div>
+    <div class="b-fab" id="fab">
+      <div class="b-fabpal" id="fabPal" role="toolbar" aria-label="Board tools" hidden></div>
+      <button type="button" class="b-fabbtn" id="fabBtn" aria-expanded="false" aria-controls="fabPal" aria-label="Board tools"></button>
+    </div>
     <section class="b-sheet b-flow" id="flowStrip" aria-label="Run of show" hidden></section>
     <section class="b-sheet b-notes" id="notes" aria-label="Teacher notes" hidden></section>
+    <div class="b-wait" id="wait" hidden></div>
   </main>
 
+  <aside class="b-npanel" id="npanel" aria-label="Teacher notes"></aside>
   <footer class="b-dock" id="dock" aria-label="Presenter controls"></footer>
 </div>
 
 <div class="b-map" id="map" role="dialog" aria-modal="true" aria-label="Lesson map" hidden></div>
 <div class="b-pause" id="pause" role="dialog" aria-label="Pause screen" hidden></div>
 <div popover id="extrasPop" class="b-pop" aria-label="Class activities"></div>
+<div popover id="sharePop" class="b-pop b-pop--share" aria-label="Share with students"></div>
+<div popover id="displayPop" class="b-pop b-pop--display" aria-label="Display settings"></div>
+<div popover id="rosterPop" class="b-pop b-pop--roster" aria-label="Class list"></div>
 <div popover id="helpPop" class="b-pop b-pop--help" aria-label="Keyboard shortcuts">
   <h3>Presenter shortcuts</h3>
   <p>Works with a presentation clicker.</p>
   <dl>
     <dt><kbd>→</kbd><kbd>Space</kbd><kbd>PgDn</kbd></dt><dd>Next</dd>
     <dt><kbd>←</kbd><kbd>PgUp</kbd></dt><dd>Back</dd>
+    <dt><kbd>D</kbd></dt><dd>Pen on / off</dd>
+    <dt><kbd>T</kbd></dt><dd>Timer on the screen</dd>
+    <dt><kbd>P</kbd></dt><dd>Pick a student</dd>
+    <dt><kbd>B</kbd></dt><dd>Eyes on me (pause)</dd>
     <dt><kbd>N</kbd></dt><dd>Teacher notes</dd>
     <dt><kbd>L</kbd></dt><dd>Run of show</dd>
     <dt><kbd>M</kbd></dt><dd>Lesson map</dd>
-    <dt><kbd>A</kbd></dt><dd>Class activities</dd>
-    <dt><kbd>B</kbd></dt><dd>Pause screen</dd>
-    <dt><kbd>T</kbd></dt><dd>Theme: dark · mint · yellow</dd>
-    <dt><kbd>D</kbd></dt><dd>Pen on / off</dd>
+    <dt><kbd>A</kbd></dt><dd>Class activities &amp; games</dd>
+    <dt><kbd>S</kbd></dt><dd>Share with students</dd>
+    <dt><kbd>C</kbd></dt><dd>Next color</dd>
     <dt><kbd>F</kbd></dt><dd>Full screen</dd>
   </dl>
 </div>
 
-<script src="assets/js/fprk-data.js?v=58ba8c4"></script>
-<script src="assets/js/fprk-core.js?v=58ba8c4"></script>
-<script src="assets/js/concept-b.js?v=58ba8c4"></script>
+<script src="assets/js/fprk-data.js?v=25f88e0"></script>
+<script src="assets/js/fprk-core.js?v=25f88e0"></script>
+<script src="assets/js/concept-b.js?v=25f88e0"></script>
 </body>
 </html>

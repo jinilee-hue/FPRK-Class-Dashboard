@@ -67,6 +67,18 @@
     flag: '<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/>',
     sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>',
     moon: '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
+    cast: '<path d="M2 8V6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-6"/><path d="M2 12a9 9 0 0 1 8 8"/><path d="M2 16a5 5 0 0 1 4 4"/><line x1="2" x2="2.01" y1="20" y2="20"/>',
+    palette: '<circle cx="13.5" cy="6.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="17.5" cy="10.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="8.5" cy="7.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="6.5" cy="12.5" r="1.2" fill="currentColor" stroke="none"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.93 0 1.65-.75 1.65-1.69 0-.44-.18-.84-.44-1.13-.29-.29-.44-.65-.44-1.13a1.64 1.64 0 0 1 1.67-1.67h2c3.05 0 5.55-2.5 5.55-5.55C21.97 6.01 17.46 2 12 2z"/>',
+    monitor: '<rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/>',
+    tablet: '<rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><line x1="12" x2="12.01" y1="18" y2="18"/>',
+    'external-link': '<path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>',
+    dices: '<rect width="12" height="12" x="2" y="10" rx="2" ry="2"/><path d="m17.92 14 3.5-3.5a2.24 2.24 0 0 0 0-3l-5-4.92a2.24 2.24 0 0 0-3 0L10 6"/><path d="M6 18h.01"/><path d="M10 14h.01"/><path d="M15 6h.01"/><path d="M18 9h.01"/>',
+    shuffle: '<path d="m18 14 4 4-4 4"/><path d="m18 2 4 4-4 4"/><path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l6.1-8.6c.7-1.1 2-1.7 3.3-1.7H22"/><path d="M2 6h1.9c1.5 0 2.9.9 3.6 2.2"/><path d="M22 18h-5.9c-1.3 0-2.6-.7-3.3-1.8l-.5-.8"/>',
+    pause: '<rect x="14" y="4" width="4" height="16" rx="1"/><rect x="6" y="4" width="4" height="16" rx="1"/>',
+    plus: '<path d="M5 12h14"/><path d="M12 5v14"/>',
+    minus: '<path d="M5 12h14"/>',
+    pencil: '<path d="M21.17 6.81a1 1 0 0 0-3.99-3.99L3.84 16.17a2 2 0 0 0-.5.83l-1.32 4.35a.5.5 0 0 0 .62.62l4.35-1.32a2 2 0 0 0 .83-.5z"/><path d="m15 5 4 4"/>',
+    gamepad: '<line x1="6" x2="10" y1="11" y2="11"/><line x1="8" x2="8" y1="9" y2="13"/><line x1="15" x2="15.01" y1="12" y2="12"/><line x1="18" x2="18.01" y1="10" y2="10"/><path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z"/>',
   };
   FP.icon = (n, c) => `<svg class="i${c ? ' ' + c : ''}" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#i-${n}"/></svg>`;
   const icon = FP.icon;
@@ -244,9 +256,11 @@
   }
   FP.render = () => render(false);
   function measure() {
+    if (!root) return;
+    const r = root.getBoundingClientRect(), D = FP.opts.design;   // design = [w, h]: content is made at this size and scaled to the frame
+    if (D && r.width) root.style.setProperty('--k-scale', (r.width / D[0]).toFixed(5));
     const el = slotEl && slotEl.querySelector('[data-slot-size]'); if (!el) return;
-    const r = root.getBoundingClientRect();
-    el.textContent = `${Math.round(r.width)} × ${Math.round(r.height)} px · ${ratioName(r.width / r.height)}`;
+    el.textContent = D ? `${D[0]} × ${D[1]} · ${ratioName(D[0] / D[1])} · shown at ${Math.round(r.width / D[0] * 100)}%` : `${Math.round(r.width)} × ${Math.round(r.height)} px · ${ratioName(r.width / r.height)}`;
   }
 
   /* ---------- board ink (draws over the content area) ---------- */
@@ -282,7 +296,7 @@
     ctx2d = canvas.getContext('2d');
     const pt = e => { const r = canvas.getBoundingClientRect(); return [(e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height]; };
     canvas.addEventListener('pointerdown', e => { if (!ink.on) return; canvas.setPointerCapture(e.pointerId); curStroke = { t: ink.tool, c: ink.color, w: ink.width, p: [pt(e)] }; strokes().push(curStroke); redrawInk(); });
-    canvas.addEventListener('pointermove', e => { if (!curStroke) return; (e.getCoalescedEvents ? e.getCoalescedEvents() : [e]).forEach(ev => curStroke.p.push(pt(ev))); redrawInk(); });
+    canvas.addEventListener('pointermove', e => { if (!curStroke) return; (e.getCoalescedEvents ? e.getCoalescedEvents() : [e]).forEach(ev => curStroke.p.push(pt(ev))); redrawInk(); emit('inkmove'); });
     ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(t => canvas.addEventListener(t, () => { if (curStroke) { curStroke = null; emit('ink'); } }));
     new ResizeObserver(() => sizeInk()).observe(root);
   }
@@ -297,6 +311,8 @@
     },
     toggle: () => FP.ink.set(ink.on ? { tool: 'select' } : { tool: ink.tool && ink.tool !== 'select' ? ink.tool : 'pen' }),
     undo: () => { strokes().pop(); redrawInk(); emit('ink'); },
+    export: () => strokes().map(s => ({ t: s.t, c: s.c, w: s.w, p: s.p.slice() })),
+    import: list => { INK[inkKey()] = (list || []).map(s => ({ t: s.t, c: s.c, w: s.w, p: (s.p || []).slice() })); redrawInk(); },
     clear: () => { INK[inkKey()] = []; redrawInk(); emit('ink'); },
   };
 
@@ -491,7 +507,7 @@
     el.classList.add('k-root');
     el.innerHTML = '<div class="k-viewport"></div><canvas class="k-ink" aria-hidden="true"></canvas>';
     root = el; slotEl = el.querySelector('.k-viewport'); canvas = el.querySelector('.k-ink');
-    initInk(); initViewer(); initKeys(); voices();
+    initInk(); initViewer(); if (opts.keys !== false) initKeys(); voices();
     const st = opts.fresh ? null : load();
     setLessonData(st && DATA.lessons[st.lesson] ? st.lesson : (opts.lesson || 1));
     S.sec = st && (L.secs || [])[st.sec] ? st.sec : introIndex();
