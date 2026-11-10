@@ -52,7 +52,11 @@
   const tLeft = () => (TM.run ? Math.max(0, TM.endAt - Date.now()) : TM.left);
   const tActive = () => TM.run || TM.done || TM.left < TM.dur;
   const PK = { name: '', seq: null, t0: 0 };
-  const SPIN = 1700;
+  // the class list (sample names; a real list stays in this browser) — declared up here so the classroom screen can use it too
+  const DEF_ROSTER = ['Amy', 'Ben', 'Chloe', 'Daniel', 'Ella', 'Finn', 'Grace', 'Henry', 'Ivy', 'Jake', 'Kate', 'Leo'];
+  let roster = get('pond-roster', null); if (!Array.isArray(roster) || !roster.length) roster = DEF_ROSTER.slice();
+  let picked = new Set((get('pond-picked', []) || []).filter(n => roster.includes(n)));
+  const SPIN = 2600;
   let game = null;                                           // { id, where: 'here' | 'screen' }
   let live = false;
   // where the student screen goes: the classroom screen (a second window), student tablets (needs the class server — preview) or both
@@ -65,7 +69,7 @@
   const clock = ms => { const s = Math.ceil(ms / 1000); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
 
   function addLayers() {
-    $('#stage').insertAdjacentHTML('beforeend', `<div class="b-game" id="game" hidden></div><div class="b-scene" id="scene" hidden></div><div class="b-over"><button type="button" class="b-ctimer" id="ctimer" data-b="scene" data-v="timer" title="Timer"${STUDENT ? ' tabindex="-1"' : ''} hidden></button></div>`);
+    $('#stage').insertAdjacentHTML('beforeend', `<div class="b-media" id="media" hidden></div><div class="b-game" id="game" hidden></div><div class="b-scene" id="scene" hidden></div><div class="b-over"><button type="button" class="b-ctimer" id="ctimer" data-b="scene" data-v="timer" title="Timer"${STUDENT ? ' tabindex="-1"' : ''} hidden></button></div>`);
   }
 
   const RR = 300, RC = 2 * Math.PI * RR;
@@ -75,19 +79,65 @@
     const show = scene === 'timer' || scene === 'pick' || scene === 'pause';   // every class tool stays inside the 16:10 frame
     el.hidden = !show; el.dataset.scene = show ? scene : '';
     if (!show) { el.innerHTML = ''; tick(); return; }
-    if (scene === 'timer') el.innerHTML = `<div class="b-fit"><div class="b-tfull" id="tFull"><svg viewBox="0 0 680 680" aria-hidden="true"><circle class="bg" cx="340" cy="340" r="${RR}"/><circle class="fg" cx="340" cy="340" r="${RR}" stroke-dasharray="${RC.toFixed(1)}"/></svg><div class="b-tread"><b id="tBig"></b><span id="tCap"></span></div></div></div>`;
-    else if (scene === 'pick') { el.innerHTML = '<div class="b-fit"><div class="b-pick" id="pickView"></div></div>'; pickIdx = -2; drawPick(); }
+    if (scene === 'timer') {
+      const ticks = Array.from({ length: 60 }, (_, i) => { const a = i * 6 * Math.PI / 180, big = i % 5 === 0, r1 = big ? 258 : 268;
+        return `<line class="${big ? 'tk tk--big' : 'tk'}" x1="${(300 + r1 * Math.sin(a)).toFixed(1)}" y1="${(300 - r1 * Math.cos(a)).toFixed(1)}" x2="${(300 + 282 * Math.sin(a)).toFixed(1)}" y2="${(300 - 282 * Math.cos(a)).toFixed(1)}"/>`; }).join('');
+      el.innerHTML = `<div class="b-fit"><div class="b-tm" id="tFull">
+        <div class="b-tdial"><svg viewBox="0 0 600 600" aria-hidden="true"><circle class="face" cx="300" cy="300" r="292"/><g>${ticks}</g><path class="pie" id="tPie"/><line class="hand" id="tHand" x1="300" y1="300" x2="300" y2="58"/><circle class="knob" cx="300" cy="300" r="30"/><circle class="knob-dot" cx="300" cy="300" r="10"/></svg>
+          <span class="b-tbell" aria-hidden="true">${ic('bell')}</span></div>
+        <div class="b-tinfo"><span class="b-tchip" id="tChip"></span><b class="b-tnum" id="tBig"></b><span class="b-ttot" id="tTot"></span></div>
+      </div></div>`;
+      dialLoop();
+    }
+    else if (scene === 'pick') { el.innerHTML = '<div class="b-fit"><div class="b-pk" id="pickView"></div></div>'; pickIdx = -2; buildPick(); drawPick(); }
     else { const L = FP.lesson(); el.innerHTML = `<div class="b-fit"><div class="b-spause"${STUDENT ? '' : ' data-b="scene" data-v="pause" title="Back to the lesson (B)"'}>${!STUDENT && live ? '<span class="b-spchip"><i class="b-live" aria-hidden="true"></i>Classroom screen · paused</span>' : ''}<span class="b-pausel" lang="en">${esc(L.key)}</span><p lang="en">Eyes on me!</p></div></div>`; }
     tick();
   }
+  // Pick a student: the whole class on the board, a highlight hops from name to name and lands on one
+  function buildPick() {
+    const v = $('#pickView'); if (!v) return;
+    const n = roster.length, cols = n <= 4 ? n : n <= 12 ? 4 : n <= 20 ? 5 : 6, rows = Math.ceil(n / cols);
+    const rowh = Math.max(56, Math.min(140, Math.floor((600 - (rows - 1) * 18) / rows)));
+    const done = roster.filter(x => picked.has(x)).length;
+    v.innerHTML = `<header class="b-pkhead"><span class="b-pkdice">${ic('dices')}</span><h2 lang="en">Who’s next?</h2>
+        <div class="b-pkprog" aria-label="${done} of ${n} had a turn">${n <= 16 ? `<span class="b-pkdots">${roster.map(x => `<i class="${picked.has(x) ? 'is-done' : ''}" data-n="${esc(x)}"></i>`).join('')}</span>` : `<span class="b-pkbar"><i style="width:${(done / n * 100).toFixed(1)}%"></i></span>`}<span><b>${done}</b> of ${n}</span></div></header>
+      <div class="b-pkgrid${cols >= 5 ? ' is-dense' : ''}${cols >= 6 ? ' is-xdense' : ''}" style="--cols:${cols};--rowh:${rowh}px">${roster.map(x => `<div class="b-pkt${picked.has(x) ? ' is-done' : ''}" data-n="${esc(x)}"><span class="b-pkav" style="--c:${avColor(x)}">${initial(x)}<span class="b-pkok">${ic('check')}</span></span><b lang="en">${esc(x)}</b></div>`).join('')}</div>
+      <div class="b-pkres" hidden></div>`;
+    v.dataset.sig = JSON.stringify([roster, [...picked]]);
+    fitNames(v); if (document.fonts) document.fonts.ready.then(() => fitNames(v));
+  }
+  function fitNames(v) {   // long names shrink to fit their tile before they would be cut off
+    v.querySelectorAll('.b-pkt b, .b-pkcard b').forEach(b => {
+      b.style.fontSize = ''; let fs = parseFloat(getComputedStyle(b).fontSize); const min = b.closest('.b-pkcard') ? 64 : 20;
+      while (b.scrollWidth > b.clientWidth + 1 && fs > min) { fs -= 2; b.style.fontSize = fs + 'px'; }
+    });
+  }
   function drawPick() {
     const v = $('#pickView'); if (!v) return;
-    if (!PK.name) { if (pickIdx !== -1) { pickIdx = -1; v.innerHTML = `<div class="b-pkcard is-wait"><span class="b-pkav">${ic('dices')}</span><b>Who’s next?</b></div>`; } return; }
-    const t = (Date.now() - PK.t0) / SPIN, spinning = !!PK.seq && t < 1;
-    const k = spinning ? Math.min(PK.seq.length - 1, Math.floor((1 - Math.pow(1 - Math.max(0, t), 2.4)) * PK.seq.length)) : 1e6;
+    const t = PK.name ? (Date.now() - PK.t0) / SPIN : 0, spinning = !!(PK.name && PK.seq) && t < 1;
+    const k = !PK.name ? -1 : spinning ? Math.min(PK.seq.length - 1, Math.floor((1 - Math.pow(1 - Math.max(0, t), 2.6)) * PK.seq.length)) : 1e6;
     if (k !== pickIdx) {
-      pickIdx = k; const n = spinning ? PK.seq[k] : PK.name;
-      v.innerHTML = `<div class="b-pkcard ${spinning ? 'is-spin' : 'is-pick'}"><span class="b-pkav" style="--c:${avColor(n)}">${initial(n)}</span><b lang="en">${esc(n)}</b>${spinning ? '<span class="b-pkcap is-quiet">Picking…</span>' : '<span class="b-pkcap">It’s your turn!</span>'}</div>`;
+      pickIdx = k;
+      const hot = spinning ? PK.seq[k] : '';
+      v.querySelectorAll('.b-pkt').forEach(el => {
+        const n = el.dataset.n;
+        el.classList.toggle('is-hot', n === hot);
+        el.classList.toggle('is-done', picked.has(n) && !(spinning && n === PK.name));   // don't give the answer away mid-spin
+      });
+      v.querySelectorAll('.b-pkdots i').forEach(d => d.classList.toggle('is-done', picked.has(d.dataset.n) && !(spinning && d.dataset.n === PK.name)));
+      const had = roster.filter(x => picked.has(x) && !(spinning && x === PK.name)).length;
+      const prog = v.querySelector('.b-pkprog b'); if (prog) prog.textContent = had;
+      const bar = v.querySelector('.b-pkbar i'); if (bar) bar.style.width = (had / Math.max(1, roster.length) * 100).toFixed(1) + '%';
+      const res = v.querySelector('.b-pkres');
+      if (res) {
+        const show = !!PK.name && !spinning;
+        if (show && res.hidden) {
+          const n = PK.name, burst = Array.from({ length: 13 }, (_, i) => `<i style="--a:${(-120 + i * 20)}deg;--d:${i % 2 ? 184 : 222}px;--c:${AV[(i * 3) % AV.length]}"></i>`).join('');   // an arc over the head, clear of the name
+          res.innerHTML = `<div class="b-pkcard"><span class="b-pkhalo"><span class="b-pkburst" aria-hidden="true">${burst}</span><span class="b-pkav b-pkav--lg" style="--c:${avColor(n)}">${initial(n)}</span></span><b lang="en">${esc(n)}</b><span class="b-pkcap">${ic('sparkles')}It’s your turn!</span></div>`;
+        }
+        res.hidden = !show;
+        if (show) fitNames(res);
+      }
     }
     if (spinning) requestAnimationFrame(drawPick);
   }
@@ -96,10 +146,15 @@
     if (TM.run && left <= 0) { TM.run = false; TM.left = 0; TM.done = true; if (!STUDENT) { chime(); renderDock(); broadcast(); } }
     const f = $('#tFull');
     if (f) {
-      $('#tBig').textContent = clock(left);
-      $('#tCap').textContent = TM.done ? 'Time’s up!' : TM.run ? 'Time left' : left < TM.dur ? 'Paused' : 'Ready';
-      f.classList.toggle('is-low', TM.run && left <= 10000); f.classList.toggle('is-done', TM.done);
-      f.querySelector('.fg').style.strokeDashoffset = (RC * (1 - (TM.dur ? left / TM.dur : 0))).toFixed(1);
+      const st = TM.done ? 'done' : TM.run ? 'run' : left < TM.dur ? 'paused' : 'ready';
+      $('#tBig').textContent = st === 'done' ? 'Time’s up!' : clock(left);
+      if (f.dataset.st !== st) {
+        f.dataset.st = st;
+        $('#tChip').innerHTML = { ready: `${ic('timer')}Ready`, run: '<i class="b-tlive" aria-hidden="true"></i>Time left', paused: `${ic('pause')}Paused`, done: `${ic('check')}Done` }[st];
+      }
+      $('#tTot').textContent = st === 'ready' ? humanTime(TM.dur) : st === 'done' ? 'Great job, everyone!' : `of ${humanTime(TM.dur)}`;
+      f.classList.toggle('is-low', TM.run && left <= 10000); f.classList.toggle('is-done', TM.done); f.classList.toggle('is-long', left >= 600000);
+      drawDial(left);
     }
     const ct = $('#ctimer');
     if (ct) {
@@ -113,6 +168,20 @@
     }
     const dt = $('#dockTimer'); if (dt) dt.textContent = TM.done ? 'Time’s up!' : clock(left);
   }
+  const humanTime = ms => { const s = Math.round(ms / 1000), m = Math.floor(s / 60), r = s % 60; return m && r ? `${m} min ${r} s` : m ? `${m} minute${m > 1 ? 's' : ''}` : `${r} seconds`; };
+  function drawDial(left) {
+    const pie = $('#tPie'), hand = $('#tHand'); if (!pie) return;
+    const p = TM.dur ? Math.max(0, Math.min(1, left / TM.dur)) : 0, a = p * 2 * Math.PI, R = 246;
+    const x = (300 - R * Math.sin(a)).toFixed(2), y = (300 - R * Math.cos(a)).toFixed(2);   // the slice runs from 12 o'clock back to the time left
+    pie.setAttribute('d', p >= 0.9995 ? `M300 54a246 246 0 1 0 0.01 0Z` : p <= 0 ? '' : `M300 300L${x} ${y}A${R} ${R} 0 ${p > 0.5 ? 1 : 0} 1 300 54Z`);
+    const hx = (300 - 256 * Math.sin(a)).toFixed(2), hy = (300 - 256 * Math.cos(a)).toFixed(2);
+    hand.setAttribute('x2', hx); hand.setAttribute('y2', hy);
+  }
+  function dialLoop() {   // smooth slice while the timer runs on screen
+    if (!$('#tFull')) return;
+    if (TM.run) drawDial(tLeft());
+    requestAnimationFrame(dialLoop);
+  }
   let actx = null;
   function chime() {   // three soft rising tones when the timer ends (teacher window only: it always has a user gesture)
     try {
@@ -124,6 +193,142 @@
         o.connect(g).connect(actx.destination); o.start(t0 + d); o.stop(t0 + d + 1);
       });
     } catch (e) { /* no audio */ }
+  }
+
+  /* ---------- produced class media (videos) in the student-screen frame ---------- */
+  // Files live in assets/media/ on this computer only: company content, kept out of git and the public share.
+  const MEDIA = {
+    1: {
+      'x-abc': { title: 'ABC Song', files: ['l1-abc-song.mp4'] },                              // Class activities › Alphabet Song
+      ls1: { title: 'Sound Chant', steps: [['l1-chant-1.mp4'], ['l1-chant-2.mp4'], ['l1-chant-3.mp4'], ['l1-chant-4.mp4'],
+        ['l1-chant-1.mp4', 'l1-chant-2.mp4', 'l1-chant-3.mp4', 'l1-chant-4.mp4']] },          // step 5 "All together" plays 1–4 in a row
+    },
+  };
+  const MD = { key: '', idx: 0, playing: false, pos: 0, at: 0 };   // the teacher's window owns this; the classroom screen follows it
+  const DUR = {};
+  let mEl = null, mIdleT = 0, mPolicyMute = false;
+  const mPos = () => (MD.playing ? MD.pos + (Date.now() - MD.at) / 1000 : MD.pos);
+  const mSrc = f => 'assets/media/' + f;
+  const mClock = s => { s = Math.max(0, Math.floor(s || 0)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
+  function curMedia() {
+    const L = FP.lesson(), set = L && MEDIA[L.n]; if (!set) return null;
+    const s = FP.state();
+    if (FP.mode() === 'extra') { const m = set[s.extra]; return m && m.files ? { key: `${L.n}|${s.extra}`, group: `${L.n}|${s.extra}`, title: m.title, files: m.files } : null; }
+    const m = set[s.act]; if (!m) return null;
+    const files = m.steps ? m.steps[s.step] : m.files; if (!files || !files.length) return null;
+    return { key: `${L.n}|${s.act}|${s.step}`, group: `${L.n}|${s.act}`, title: m.steps ? `${m.title} · ${files.length > 1 ? 'All together' : 'Step ' + (s.step + 1)}` : m.title, files };
+  }
+  function renderMedia() {
+    const el = $('#media'); if (!el) return;
+    const m = curMedia();
+    root.classList.toggle('has-media', !!m);
+    if (!m) {
+      if (el.dataset.key) { el.hidden = true; el.innerHTML = ''; el.dataset.key = ''; mEl = null; }
+      if (!STUDENT && MD.key) Object.assign(MD, { key: '', idx: 0, playing: false, pos: 0, at: Date.now() });
+      return;
+    }
+    if (el.dataset.key !== m.key) {
+      if (!STUDENT) {   // moving on inside the same activity keeps playing (Sound Chant step 1 → 2 → …)
+        const keep = MD.playing && MD.key && MD.key.split('|').slice(0, 2).join('|') === m.group;
+        Object.assign(MD, { key: m.key, idx: 0, playing: !!keep && scene === 'lesson', pos: 0, at: Date.now() });
+      }
+      el.dataset.key = m.key; el.hidden = false;
+      el.innerHTML = `<div class="b-fit"><video playsinline preload="auto"></video>
+        <div class="b-mui">
+          <span class="b-mtag">${ic('music')}<span lang="en">${esc(m.title)}</span></span>
+          <button type="button" class="b-mbig" data-b="mtoggle" aria-label="Play">${ic('play')}</button>
+          <div class="b-mbar">
+            <button type="button" class="b-mpp" data-b="mtoggle" aria-label="Play or pause" title="Play / pause (K)">${ic('play')}</button>
+            <span class="b-mtime">0:00 / 0:00</span>
+            <div class="b-mtrack" data-b="mseek" title="Jump to">${m.files.map(() => '<span class="b-mseg"><i></i></span>').join('')}</div>
+            <button type="button" class="b-mre" data-b="mrestart" aria-label="Play from the start" title="From the start">${ic('rotate-ccw')}</button>
+            ${STUDENT ? '' : `<span class="b-mnote" hidden>${ic('volume-2')}Sound on the classroom screen</span>`}
+          </div>
+          <button type="button" class="b-mtap" hidden>${ic('volume-2')}Tap for sound</button>
+        </div>
+        <div class="b-mmiss" hidden></div></div>`;
+      mEl = el.querySelector('video'); mEl.dataset.src = ''; mPolicyMute = false;
+      mEl.addEventListener('loadedmetadata', () => { DUR[mEl.dataset.src] = mEl.duration; syncMedia(true); });
+      mEl.addEventListener('timeupdate', () => {
+        paintMedia();
+        if (!STUDENT && MD.playing && !mEl.paused && Math.abs(mEl.currentTime - mPos()) > 0.6) { MD.pos = mEl.currentTime; MD.at = Date.now(); broadcast(); }   // re-anchor after buffering
+      });
+      mEl.addEventListener('ended', () => {
+        if (STUDENT) return;   // the teacher's window drives the playlist
+        const mm = curMedia(); if (!mm) return;
+        if (MD.idx < mm.files.length - 1) Object.assign(MD, { idx: MD.idx + 1, pos: 0, at: Date.now(), playing: true });
+        else Object.assign(MD, { playing: false, pos: mEl.duration || MD.pos, at: Date.now() });
+        syncMedia(true); broadcast();
+      });
+      mEl.addEventListener('error', () => {
+        const box = el.querySelector('.b-mmiss'); if (!box) return;
+        const shared = /github\.io$/.test(location.hostname);
+        box.innerHTML = `<span class="b-mmicon">${ic('monitor-pause')}</span><b>${shared ? 'This video isn’t in the shared preview' : 'Video file not found'}</b><p>${shared ? 'Class videos stay on the teacher’s computer.' : 'assets/media/' + esc(m.files[MD.idx] || '')}</p>`;
+        box.hidden = false; el.classList.add('is-missing');
+      });
+    }
+    syncMedia(true);
+  }
+  // put the local <video> where MD says; `seek` forces the position (commands, new files), otherwise only big drifts are fixed
+  function syncMedia(seek) {
+    const el = $('#media'), m = curMedia(); if (!el || !mEl || !m || MD.key !== m.key) return;
+    const src = mSrc(m.files[Math.min(MD.idx, m.files.length - 1)]);
+    if (mEl.dataset.src !== src) { mEl.dataset.src = src; mEl.src = src; seek = true; }
+    const want = mPos(), dur = mEl.duration || DUR[src] || 0;
+    if (mEl.readyState >= 1 && (seek || STUDENT) && Math.abs(mEl.currentTime - want) > (seek ? 0.05 : 0.45)) { try { mEl.currentTime = dur ? Math.min(want, dur - 0.05) : want; } catch (e) { /* not seekable yet */ } }
+    mEl.muted = STUDENT ? mPolicyMute : (live && hasScreen());   // sharing: the classroom screen plays the sound
+    const on = MD.playing && scene === 'lesson';
+    if (on && mEl.paused) {
+      const p = mEl.play();
+      if (p && p.catch) p.catch(err => {   // a new window can't start sound before someone touches it
+        if (err && err.name === 'NotAllowedError' && !mEl.muted) { mPolicyMute = true; mEl.muted = true; mEl.play().catch(() => {}); const tap = el.querySelector('.b-mtap'); if (tap) tap.hidden = false; }
+      });
+    } else if (!on && !mEl.paused) mEl.pause();
+    el.classList.toggle('is-playing', on);
+    const note = el.querySelector('.b-mnote'); if (note) note.hidden = !(live && hasScreen());
+    paintMedia(); mediaIdle();
+  }
+  function paintMedia() {
+    const el = $('#media'); if (!el || !mEl) return;
+    const cur = mEl.currentTime || 0, dur = mEl.duration || DUR[mEl.dataset.src] || 0;
+    el.querySelectorAll('.b-mseg i').forEach((s, i) => { s.style.width = (i < MD.idx ? 100 : i > MD.idx ? 0 : dur ? Math.min(100, (cur / dur) * 100) : 0).toFixed(2) + '%'; });
+    const t = el.querySelector('.b-mtime'); if (t) t.textContent = `${mClock(cur)} / ${mClock(dur)}`;
+    const on = MD.playing && scene === 'lesson', st = on ? 'pause' : 'play';
+    const pp = el.querySelector('.b-mpp'); if (pp && pp.dataset.st !== st) { pp.dataset.st = st; pp.innerHTML = ic(st); }
+  }
+  function mediaIdle() {   // the control bar fades while a video plays and nobody touches the board
+    const el = $('#media'); if (!el) return;
+    el.classList.remove('is-idle'); clearTimeout(mIdleT);
+    if (MD.playing) mIdleT = setTimeout(() => el.classList.add('is-idle'), 2600);
+  }
+  function seekAt(e, track) {
+    const seg = e.target.closest('.b-mseg'); if (!seg) return null;
+    const r = seg.getBoundingClientRect();
+    return { i: [...track.children].indexOf(seg), f: Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) };
+  }
+  function mediaCmd(a, v) {
+    const m = curMedia(); if (!m) return;
+    const here = () => (mEl && mEl.readyState >= 1 ? mEl.currentTime : mPos());   // the teacher's own video is the clock
+    let seek = false;
+    if (a === 'mtoggle') {
+      if (MD.playing) Object.assign(MD, { pos: here(), playing: false, at: Date.now() });
+      else {
+        const dur = DUR[mSrc(m.files[MD.idx])] || 0;
+        if (MD.idx >= m.files.length - 1 && dur && here() >= dur - 0.3) { Object.assign(MD, { idx: 0, pos: 0 }); seek = true; }   // finished: start over
+        else MD.pos = here();
+        Object.assign(MD, { playing: true, at: Date.now() });
+        if (scene !== 'lesson') setScene('lesson');
+      }
+    }
+    if (a === 'mrestart') { Object.assign(MD, { idx: 0, pos: 0, at: Date.now(), playing: true }); seek = true; }
+    if (a === 'mseek' && v) { const i = Math.max(0, Math.min(m.files.length - 1, v.i | 0)); Object.assign(MD, { idx: i, pos: (DUR[mSrc(m.files[i])] || 0) * v.f, at: Date.now() }); seek = true; }
+    syncMedia(seek); broadcast();
+  }
+  function pauseMedia() { if (MD.playing) { Object.assign(MD, { pos: mEl && mEl.readyState >= 1 ? mEl.currentTime : mPos(), playing: false, at: Date.now() }); syncMedia(); } }
+  // commands from the classroom screen (touch boards): its buttons ask the teacher's window, which stays in charge
+  function runCmd(a, v) {
+    if (a === 'gplay') { const it = curGame(); if (it) { game = { id: it.id, where: v === 'here' ? 'here' : 'screen' }; renderGame(); renderDock(); broadcast(); } }
+    if (a === 'mtoggle' || a === 'mrestart' || a === 'mseek') mediaCmd(a, v);
   }
 
   /* ---------- games in the student-screen frame ---------- */
@@ -146,7 +351,7 @@
     }
     const g = it.game;
     let acts;
-    if (STUDENT) acts = `<p class="b-gstat">${game && game.where === 'here' ? 'Playing on the teacher’s screen' : 'Get ready to play!'}</p>`;
+    if (STUDENT) acts = game && game.where === 'here' ? `<p class="b-gstat">Playing on the teacher’s screen</p><div class="b-gacts"><button type="button" class="b-gbtn" data-b="gplay" data-v="screen">${ic('play')}Play on this screen</button></div>` : `<div class="b-gacts"><button type="button" class="b-gbtn b-gbtn--go b-gbtn--lg" data-b="gplay" data-v="screen">${ic('play')}Play</button></div>`;
     else if (game && game.where === 'screen') acts = `<p class="b-gstat"><i class="b-live" aria-hidden="true"></i>Playing on the classroom screen</p><div class="b-gacts"><button type="button" class="b-gbtn" data-b="gplay" data-v="here">${ic('monitor')}Play here instead</button><button type="button" class="b-gbtn" data-b="gstop">${ic('x')}Stop</button></div>`;
     else if (live) acts = `<div class="b-gacts"><button type="button" class="b-gbtn b-gbtn--go b-gbtn--lg" data-b="gplay" data-v="screen">${ic('cast')}Play on classroom screen</button><button type="button" class="b-gbtn" data-b="gplay" data-v="here">${ic('play')}Play here</button></div>`;
     else acts = `<div class="b-gacts"><button type="button" class="b-gbtn b-gbtn--go b-gbtn--lg" data-b="gplay" data-v="here">${ic('play')}Play</button></div>`;
@@ -171,19 +376,33 @@
       if (m.extra) { if (s.extra !== m.extra) FP.openExtra(m.extra); }
       else if (s.extra || s.act !== m.act || s.step !== m.step) FP.go(m.act, m.step);
       FP.ink.import(m.ink);
-      const redraw = scene !== m.scene || PK.t0 !== m.pick.t0 || PK.name !== m.pick.name;
-      scene = m.scene; Object.assign(TM, m.timer); Object.assign(PK, m.pick); game = m.game;
+      const { roster: rs, picked: pd, ...pk } = m.pick;
+      const redraw = scene !== m.scene || PK.t0 !== pk.t0 || PK.name !== pk.name || JSON.stringify([rs, pd]) !== JSON.stringify([roster, [...picked]]);
+      if (Array.isArray(rs)) roster = rs; if (Array.isArray(pd)) picked = new Set(pd);
+      scene = m.scene; Object.assign(TM, m.timer); Object.assign(PK, pk); game = m.game;
+      if (m.media) Object.assign(MD, m.media);
       if (redraw) renderScene();
-      renderGame(); tick();
+      renderGame(); renderMedia(); tick();
     };
     CH.onmessage = ({ data: m }) => {
       if (!m) return;
       if (m.type === 'state') { wait.hidden = true; apply(m); }
       if (m.type === 'stop') { card('Sharing has ended', 'You can close this window.'); setTimeout(() => window.close(), 1500); }
     };
+    document.addEventListener('click', e => {   // touch boards: the activity's own buttons work here too
+      const t = e.target.closest('[data-b]'); if (!t) return;
+      const a = t.dataset.b;
+      if (a === 'gplay' || a === 'mtoggle' || a === 'mrestart') CH.postMessage({ type: 'cmd', a, v: t.dataset.v });
+      if (a === 'mseek') { const v = seekAt(e, t); if (v) CH.postMessage({ type: 'cmd', a, v }); }
+    });
+    addEventListener('pointerdown', () => {   // the first touch on this window allows sound
+      if (mPolicyMute && mEl) { mPolicyMute = false; mEl.muted = false; const tap = $('#media .b-mtap'); if (tap) tap.hidden = true; }
+    }, true);
+    addEventListener('pointermove', mediaIdle);
     CH.postMessage({ type: 'hello' });
     setInterval(() => CH.postMessage({ type: 'ping' }), 2000);
     setInterval(tick, 250);
+    setInterval(() => { if (MD.playing) syncMedia(); }, 1000);   // keep the classroom screen in step with the teacher
     addEventListener('pagehide', () => CH.postMessage({ type: 'bye' }));
     const fsb = document.createElement('button'); fsb.type = 'button'; fsb.className = 'b-stufs';
     fsb.innerHTML = `${ic('maximize')}<span>Full screen</span>`; fsb.addEventListener('click', () => FP.fullscreen()); document.body.appendChild(fsb);
@@ -227,6 +446,8 @@
     if (v === 'pause' && scene === 'pause') v = resumeTo;
     else if (v === scene) return;
     if (v === 'pause') resumeTo = scene;
+    if (v !== 'lesson') pauseMedia();
+    if (v === 'pick' && scene !== 'pick' && Date.now() - PK.t0 > 1500) { PK.name = ''; PK.seq = null; }   // a fresh "Who's next?" board
     scene = v;
     renderScenes(); renderScene(); renderDock(); broadcast();
   }
@@ -320,7 +541,7 @@
       const it = FP.extraInfo(), gm = it.game ? it : null;
       left = `<div class="b-now"><div class="b-ring b-ring--icon">${ic(it.icon)}</div><div class="b-nowtx"><small>${esc(it.group)}${gm ? ` · Lesson ${FP.lesson().n}` : ''}</small><b>${esc(it.label)}</b><span lang="en">${esc(it.sub)}</span></div></div>`;
       const gmsg = !gm ? '' : game && game.where === 'here' ? `${esc(it.label)} is running on the board. Go back to the lesson when the round is over.` : game && game.where === 'screen' ? `${esc(it.label)} is running on the classroom screen.` : `Tap Play on the board to start ${esc(it.label)}.`;
-      mid = `<div class="b-say b-say--quiet"><p>${gm ? gmsg : it.soon ? 'This activity is in production — the content area is ready for it.' : 'Run the activity, then go back to where you left the lesson.'}</p></div>`;
+      mid = `<div class="b-say b-say--quiet"><p>${curMedia() ? `Tap ▶ on the board or press K to play${live && hasScreen() ? ' — the sound plays on the classroom screen' : ''}.` : gm ? gmsg : it.soon ? 'This activity is in production — the content area is ready for it.' : 'Run the activity, then go back to where you left the lesson.'}</p></div>`;
       right = `<div class="b-pn"><button type="button" class="b-next" data-b="close"><span><b>Back to lesson</b><small lang="en">${esc(cur.title)}</small></span>${ic('arrow-left')}</button></div>`;
     } else {
       const g = FP.guide(), c = g.cur || {}, nx = FP.peek(1), pv = FP.peek(-1), grp = FP.groups().find(x => x.id === cur.group) || {};
@@ -380,13 +601,14 @@
   }
 
   /* ---------- pick a student ---------- */
-  const DEF_ROSTER = ['Amy', 'Ben', 'Chloe', 'Daniel', 'Ella', 'Finn', 'Grace', 'Henry', 'Ivy', 'Jake', 'Kate', 'Leo'];
-  let roster = get('pond-roster', null); if (!Array.isArray(roster) || !roster.length) roster = DEF_ROSTER.slice();
-  let picked = new Set((get('pond-picked', []) || []).filter(n => roster.includes(n)));
   function showStudent(n, spin) {
     if (!n) return;
     PK.name = n; PK.t0 = Date.now(); PK.seq = null;
-    if (spin && roster.length > 1) { const pool = roster.filter(x => x !== n), seq = []; for (let i = 0; i < 14; i++) seq.push(pool[Math.floor(Math.random() * pool.length)]); seq.push(n); PK.seq = seq; }
+    if (spin && roster.length > 1) {
+      const rest = roster.filter(x => x !== n && !picked.has(x)), pool = rest.length >= 2 ? rest : roster.filter(x => x !== n), seq = [];
+      for (let i = 0; i < 16; i++) { let x; do x = pool[Math.floor(Math.random() * pool.length)]; while (pool.length > 1 && x === seq[seq.length - 1]); seq.push(x); }
+      seq.push(n); PK.seq = seq;
+    }
     picked.add(n); put('pond-picked', [...picked]);
     if (scene !== 'pick') setScene('pick'); else { renderScene(); renderDock(); broadcast(); }
   }
@@ -399,8 +621,9 @@
     const names = [...new Set($('#rosterTx').value.split('\n').map(s => s.trim()).filter(Boolean))].slice(0, 60);
     roster = names.length ? names : DEF_ROSTER.slice(); put('pond-roster', roster);
     picked = new Set([...picked].filter(n => roster.includes(n))); put('pond-picked', [...picked]);
-    if (PK.name && !roster.includes(PK.name)) { PK.name = ''; PK.seq = null; renderScene(); broadcast(); }
-    $('#rosterPop').hidePopover(); renderDock();
+    if (PK.name && !roster.includes(PK.name)) { PK.name = ''; PK.seq = null; }
+    if (scene === 'pick') renderScene();
+    $('#rosterPop').hidePopover(); renderDock(); broadcast();
   }
 
   /* ---------- run of show ---------- */
@@ -507,7 +730,7 @@
   function broadcast() {
     if (!CH || !FP.lesson()) return;
     const s = FP.state();
-    CH.postMessage({ type: 'state', lesson: FP.lesson().n, sec: s.sec, act: s.act, step: s.step, extra: s.extra, theme: root.dataset.theme, scene, timer: { dur: TM.dur, left: tLeft(), endAt: TM.endAt, run: TM.run, done: TM.done }, pick: { name: PK.name, seq: PK.seq, t0: PK.t0 }, game, ink: FP.ink.export() });
+    CH.postMessage({ type: 'state', lesson: FP.lesson().n, sec: s.sec, act: s.act, step: s.step, extra: s.extra, theme: root.dataset.theme, scene, timer: { dur: TM.dur, left: tLeft(), endAt: TM.endAt, run: TM.run, done: TM.done }, pick: { name: PK.name, seq: PK.seq, t0: PK.t0, roster, picked: [...picked] }, game, media: { key: MD.key, idx: MD.idx, playing: MD.playing, pos: mPos(), at: Date.now() }, ink: FP.ink.export() });
   }
   function broadcastInk() { if (inkRaf) return; inkRaf = requestAnimationFrame(() => { inkRaf = 0; broadcast(); }); }
   function setLive(on) {
@@ -515,13 +738,14 @@
     if (on && !hasScreen()) shareTo = hasTablets() ? 'both' : 'screen';    // a student window said hello
     if (!on && hasScreen()) shareTo = hasTablets() ? 'tablets' : 'none';   // …or went away
     if (!on && game && game.where === 'screen') game = null;
-    renderShareBtn(); renderScenes(); renderGame(); renderScene(); renderDock();
+    renderShareBtn(); renderScenes(); renderGame(); renderScene(); renderDock(); syncMedia();
     if ($('#sharePop').matches(':popover-open')) renderShare();
   }
   if (CH) CH.onmessage = ({ data: m }) => {
     if (!m) return;
     if (m.type === 'hello' || m.type === 'ping') { const was = live; lastPing = Date.now(); setLive(true); if (m.type === 'hello' || !was) broadcast(); }
     if (m.type === 'bye') { lastPing = 0; setLive(false); }
+    if (m.type === 'cmd') runCmd(m.a, m.v);
   };
   setInterval(() => { if (live && Date.now() - lastPing > 5000) setLive(false); }, 1000);
   function renderShareBtn() {
@@ -590,9 +814,11 @@
       case 'rosteredit': $('#rosterPop').showPopover(); break;
       case 'rostersave': saveRoster(); break;
       case 'rosterclose': $('#rosterPop').hidePopover(); break;
-      case 'rosterclear': picked.clear(); put('pond-picked', []); $('#rosterPop').hidePopover(); renderDock(); break;
+      case 'rosterclear': picked.clear(); put('pond-picked', []); PK.name = ''; PK.seq = null; $('#rosterPop').hidePopover(); if (scene === 'pick') renderScene(); renderDock(); broadcast(); break;
       case 'gplay': { const it = curGame(); if (it) { game = { id: it.id, where: v === 'screen' ? 'screen' : 'here' }; renderGame(); renderDock(); broadcast(); } break; }
       case 'gstop': game = null; renderGame(); renderDock(); broadcast(); break;
+      case 'mtoggle': case 'mrestart': mediaCmd(a); break;
+      case 'mseek': mediaCmd(a, seekAt(e, t)); break;
       case 'shareopen': openStudent(); break;
       case 'shareto': if (v === shareTo && hasScreen()) openStudent(); else setShareTo(v); break;
       case 'sharestop': setShareTo('none'); break;
@@ -621,7 +847,7 @@
 
   FP.on(e => {
     if (e.type === 'lesson') { refreshGames(); renderTop(); }
-    if (e.type === 'nav') { renderCrumb(); renderActs(); renderDock(); renderFlow(); renderNotes(); renderGame(); broadcast(); }
+    if (e.type === 'nav') { renderCrumb(); renderActs(); renderMedia(); renderDock(); renderFlow(); renderNotes(); renderGame(); broadcast(); }
     if (e.type === 'ink') { renderFab(); broadcast(); }
     if (e.type === 'inkmove') broadcastInk();
     if (e.type === 'key') {
@@ -642,6 +868,7 @@
       if (k === 'a') $('#extrasPop').togglePopover();
       if (k === 's') $('#sharePop').togglePopover();
       if (k === 'c') cycleTheme();
+      if (k === 'k' && curMedia()) mediaCmd('mtoggle');
     }
   });
   setInterval(tickRing, 1000);
@@ -649,7 +876,8 @@
 
   FP.mount($('#stage'), { storageKey: 'fprk-b', keepAwake: true, fresh: qs.has('fresh'), lesson: +qs.get('lesson') || 1, act: qs.get('act') || 'ls1', design: DESIGN });
   addLayers(); refreshGames();
-  renderScenes(); renderActs(); renderFab(); renderShareBtn(); renderDock(); renderGame();
+  renderScenes(); renderActs(); renderFab(); renderShareBtn(); renderMedia(); renderDock(); renderGame();
+  $('#stage').addEventListener('pointermove', mediaIdle);
   new ResizeObserver(() => placeFab()).observe($('#stagewrap'));
   new ResizeObserver(() => { clearTimeout(fitT); fitT = setTimeout(fitTop, 60); }).observe($('.b-top'));
   if (document.fonts) document.fonts.ready.then(() => fitTop(true));
