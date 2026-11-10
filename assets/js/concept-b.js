@@ -230,7 +230,6 @@
   function renderTop() {
     const L = FP.lesson();
     $('#lessonBtn').innerHTML = `<span class="b-lt" lang="en">${esc(L.key)}</span><span class="b-ltx"><b>Lesson ${L.n} <i lang="en">${esc(L.snd)}</i></b><small>Unit ${L.unit} · ${esc(FP.unitTheme(L.unit))} · ${esc(L.day)}</small></span>${ic('chevron-down')}`;
-    $('#pages').innerHTML = `<button type="button" data-b="page" data-v="sb" title="Student Book page">${ic('book-open')}<span>SB p${L.sb}</span></button><button type="button" data-b="page" data-v="tg" title="Teacher’s Guide page">${ic('file-text')}<span>TG p${L.sb}</span></button><button type="button" data-b="page" data-v="both" title="Side by side" aria-label="SB and TG side by side">${ic('columns')}</button>`;
   }
   function renderCrumb() {
     const c = FP.context(), sec = FP.section();
@@ -514,7 +513,6 @@
       case 'next': FP.next(); break;
       case 'prev': FP.prev(); break;
       case 'close': FP.closeExtra(); break;
-      case 'page': FP.viewer.page(v); break;
       case 'tool': FP.ink.set({ tool: v }); break;
       case 'color': FP.ink.set({ color: v }); break;
       case 'width': FP.ink.set({ width: +v }); break;

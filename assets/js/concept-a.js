@@ -12,7 +12,6 @@
     const L = FP.lesson();
     $('#lessonBtn').innerHTML = `<span class="a-unit">U${L.unit}<small>${esc(FP.unitTheme(L.unit))}</small></span><span class="a-lt" lang="en">${esc(L.key)}</span><span class="a-ltx"><b>Lesson ${L.n}</b><small>${esc(L.snd)} · ${esc((L.lab || '').split(' · ')[1] || L.ltr)}</small></span>${ic('chevron-down', 'a-chev')}`;
     $('#meta').innerHTML = `<span class="a-chip">${esc(L.day)}</span><span class="a-metatx">Introduce Sound-Spelling · <b>10 min</b></span>`;
-    $('#pages').innerHTML = `<button type="button" class="a-btn" data-a="page" data-v="sb">${ic('book-open')}<span>SB p${L.sb}</span></button><button type="button" class="a-btn" data-a="page" data-v="tg">${ic('file-text')}<span>TG p${L.sb}</span></button><button type="button" class="a-btn a-btn--icon" data-a="page" data-v="both" title="SB + TG side by side" aria-label="SB and TG side by side">${ic('columns')}</button>`;
     renderTimer();
   }
   function renderTimer() {
@@ -125,7 +124,7 @@
         <div class="a-do"><span class="a-lab">${ic('hand')}Do</span><p>${esc(c.do)}</p></div>
         ${c.kids ? `<div class="a-do"><span class="a-lab">${ic('users')}Kids</span><p>${esc(c.kids)}</p></div>` : ''}
         ${c.tg ? `<blockquote class="a-tgq"><span>From the TG · ${esc(FP.lesson().tgr || 'TG')}</span><p lang="en">${esc(c.tg)}</p></blockquote>` : ''}</article>`;
-    if (g.pending) h += `<p class="a-note">${ic('sparkle')}<span>Step-by-step script arrives with this section’s content. Open the SB / TG pages from the top bar meanwhile.</span></p>`;
+    if (g.pending) h += `<p class="a-note">${ic('sparkle')}<span>Step-by-step script arrives with this section’s content. Until then, follow the printed TG.</span></p>`;
     if (g.words && g.words.length) h += `<div class="a-words"><span class="a-lab2">Words in this activity</span><div>${g.words.map(w => `<button type="button" data-a="say" data-v="${esc(w)}" lang="en">${esc(w)}</button>`).join('')}</div></div>`;
     if (g.answer) h += `<div class="a-answer"><span class="a-lab">${ic('circle-check')}Answer key</span><p><b>Yes:</b> ${g.answer.yes.map(esc).join(' · ')}</p><p><b>No:</b> ${g.answer.no.map(esc).join(' · ')}</p></div>`;
     if (g.steps.length > 1) h += `<h4 class="a-gh">All steps</h4><ol class="a-glist">${g.steps.map((s, i) => `<li><button type="button" class="${i === st.step ? 'is-on' : ''}${i < st.step ? ' is-done' : ''}" data-a="step" data-v="${i}"><span>${i < st.step ? ic('check') : i + 1}</span><span><b lang="en">${esc(s.title)}</b>${i === st.step || !s.say ? '' : `<small lang="en">“${esc(s.say)}”</small>`}</span></button></li>`).join('')}</ol>`;
@@ -165,7 +164,6 @@
       case 'lesson': FP.setLesson(+v); $('#lessonPop').hidePopover(); break;
       case 'extra': FP.openExtra(v); if ($('#extrasPop').matches(':popover-open')) $('#extrasPop').hidePopover(); break;
       case 'close': FP.closeExtra(); break;
-      case 'page': FP.viewer.page(v); break;
       case 'tool': FP.ink.set({ tool: v }); break;
       case 'color': FP.ink.set({ color: v }); break;
       case 'width': FP.ink.set({ width: +v }); break;

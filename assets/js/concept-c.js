@@ -11,7 +11,6 @@
   function renderTop() {
     const L = FP.lesson();
     $('#lessonBtn').innerHTML = `<span class="c-lt" lang="en">${esc(L.key)}</span><span class="c-ltx"><b>Lesson ${L.n} <i lang="en">${esc(L.snd)}</i></b><small>Unit ${L.unit} · ${esc(FP.unitTheme(L.unit))} · ${esc(L.day)}</small></span>${ic('chevron-down')}`;
-    $('#pages').innerHTML = `<button type="button" data-c="page" data-v="sb">${ic('book-open')}<span>SB p${L.sb}</span></button><button type="button" data-c="page" data-v="tg">${ic('file-text')}<span>TG p${L.sb}</span></button><button type="button" data-c="page" data-v="both" title="SB + TG side by side" aria-label="SB and TG side by side">${ic('columns')}</button>`;
     renderTimer();
   }
   function renderTimer() {
@@ -135,7 +134,6 @@
       case 'lesson': FP.setLesson(+v); $('#lessonPop').hidePopover(); break;
       case 'extra': FP.openExtra(v); if ($('#extrasPop').matches(':popover-open')) $('#extrasPop').hidePopover(); break;
       case 'close': FP.closeExtra(); break;
-      case 'page': FP.viewer.page(v); break;
       case 'tool': FP.ink.set({ tool: v }); break;
       case 'color': FP.ink.set({ color: v }); break;
       case 'width': FP.ink.set({ width: +v }); break;
