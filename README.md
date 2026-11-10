@@ -3,4 +3,4 @@
 https://jinilee-hue.github.io/FPRK-Class-Dashboard/
 
 Public copy of the class-dashboard frame concepts A · B · C. Textbook page scans are not included.
-Built from the private working repo with `_dev/publish.py` (source 45c36b5).
+Built from the private working repo with `_dev/publish.py` (source 58ba8c4).

@@ -230,7 +230,8 @@ button:disabled{cursor:default}
 .b-secs small,.b-secitem small{font-size:12.5px;color:var(--tx3)}
 .b-secs em,.b-secitem em{font-style:normal;font-size:9.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:3px 6px;border-radius:6px;background:var(--d3);color:var(--tx3)}
 .b-secs em.is-ready,.b-secitem em.is-ready{background:rgba(74,222,155,.14);color:var(--ok)}
-.b-secs .is-cur,.b-secitem.is-on{background:var(--d2);box-shadow:inset 3px 0 0 var(--acc)}
+.b-secs .is-cur,.b-secitem.is-on{background:var(--d2)}
+.b-secs .is-cur span,.b-secitem.is-on span{background:var(--acc);color:var(--acc-ink)}
 .b-open{display:inline-flex;align-items:center;justify-content:center;gap:10px;height:62px;margin-top:10px;border-radius:18px;border:0;background:var(--acc);color:var(--acc-ink);font-size:17px;font-weight:800}
 .b-open .i{width:22px;height:22px}
 
