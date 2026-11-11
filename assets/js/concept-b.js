@@ -91,7 +91,7 @@
           <path class="stem" d="M300 106V82"/><circle class="cap" cx="300" cy="70" r="16"/>
           <circle class="body" cx="300" cy="330" r="226"/><circle class="face" cx="300" cy="330" r="190"/>
           <g class="dots">${Array.from({ length: 12 }, (_, i) => dot(i)).join('')}</g>
-          <path class="pie" id="tPie"/><line class="hand" id="tHand" x1="300" y1="330" x2="300" y2="170"/>
+          <path class="pie" id="tPie"/><line class="hand-halo" id="tHalo" x1="300" y1="330" x2="300" y2="170"/><line class="hand" id="tHand" x1="300" y1="330" x2="300" y2="170"/>
           <circle class="hub" cx="300" cy="330" r="17"/><circle class="hub-dot" cx="300" cy="330" r="6"/>
         </svg></div>
         <b class="b-tnum" id="tBig"></b>
@@ -148,7 +148,8 @@
     const p = TM.dur ? Math.max(0, Math.min(1, left / TM.dur)) : 0, a = p * 2 * Math.PI, R = 152, cx = 300, cy = 330;
     const x = (cx - R * Math.sin(a)).toFixed(2), y = (cy - R * Math.cos(a)).toFixed(2);
     pie.setAttribute('d', p >= 0.9995 ? `M${cx} ${cy - R}a${R} ${R} 0 1 0 0.01 0Z` : p <= 0 ? '' : `M${cx} ${cy}L${x} ${y}A${R} ${R} 0 ${p > 0.5 ? 1 : 0} 1 ${cx} ${cy - R}Z`);
-    hand.setAttribute('x2', (cx - 160 * Math.sin(a)).toFixed(2)); hand.setAttribute('y2', (cy - 160 * Math.cos(a)).toFixed(2));
+    const hx = (cx - 160 * Math.sin(a)).toFixed(2), hy = (cy - 160 * Math.cos(a)).toFixed(2), halo = $('#tHalo');
+    hand.setAttribute('x2', hx); hand.setAttribute('y2', hy); if (halo) { halo.setAttribute('x2', hx); halo.setAttribute('y2', hy); }
   }
   function dialLoop() {   // the slice and the hand move smoothly while the timer runs on screen
     if (!$('#tFull')) return;
@@ -416,7 +417,7 @@
   function renderActs() {   // the lesson's class activities + games, next to the lesson button
     const b = $('#extrasBtn'); if (!b || !FP.lesson()) return;
     const on = FP.mode() === 'extra';
-    b.classList.toggle('is-on', on); b.setAttribute('aria-pressed', on);
+    b.classList.remove('is-on'); b.setAttribute('aria-pressed', on);   // when open it sits in the path (Lesson · Class activities › item) and looks like the other selects
     b.innerHTML = `${ic('grid')}<span>Class activities</span>${ic('chevron-down', 'b-dd')}`;
   }
   function setScene(v) {
@@ -447,7 +448,7 @@
   let fitKey = '', fitLevel = 0, fitT = 0;
   const actBtn = (title, tip) => `<button type="button" class="b-crumbact" data-b="actmenu" title="${tip}" aria-haspopup="true"><b lang="en">${esc(title)}</b>${ic('chevron-down')}</button>`;
   const crumbHTML = (sec, title) => `<button type="button" data-b="sections" title="Sections">${esc(sec)}${ic('chevron-down')}</button>${ic('chevron-right')}${actBtn(title, 'Activities in this section')}`;
-  const extraCrumbHTML = (group, title) => `<span lang="en">${esc(group)}</span>${ic('chevron-right')}${actBtn(title, 'Class activities in this group')}`;
+  const extraCrumbHTML = (group, title) => `${ic('chevron-right')}<button type="button" class="b-crumbact" data-b="actmenu" title="Class activities in this group" aria-haspopup="true"><span class="b-cak"><small lang="en">${esc(group)}</small><b lang="en">${esc(title)}</b></span>${ic('chevron-down')}</button>`;
   function fitTop(force) {
     const top = $('.b-top'), crumb = $('#crumb'), L = FP.lesson(); if (!top || !crumb || !L) return;
     const key = `${L.n}|${innerWidth}|${live ? 1 : 0}|${shareTo}`;
@@ -469,6 +470,7 @@
   }
   function renderCrumb() {
     const c = FP.context(), sec = FP.section();
+    $('.b-top').classList.toggle('is-extra', c.mode === 'extra');
     if (c.mode === 'extra') $('#crumb').innerHTML = extraCrumbHTML((FP.extraInfo() || {}).group || 'Class activity', c.title);
     else $('#crumb').innerHTML = crumbHTML(sec.name, FP.cur().title);
     const am = $('#actMenu'); if (am && am.matches(':popover-open')) am.hidePopover();   // picked: the menu closes

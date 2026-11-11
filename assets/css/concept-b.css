@@ -57,6 +57,11 @@ button:disabled{cursor:default}
 .b-crumb b{min-width:0;max-width:340px;color:var(--tx);font-weight:800;line-height:1.16;white-space:normal;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;text-wrap:balance}
 .b-crumb>button,.b-crumb>span,.b-crumb>.i{flex:none}
 .b-crumb>.b-crumbact{flex:0 1 auto;min-width:0}
+.b-brand,.b-lesson{order:-2}
+.b-top.is-extra #extrasBtn{order:-1}   /* a class activity is open: Lesson · Class activities › group / item */
+.b-crumbact .b-cak{display:grid;min-width:0;text-align:left}
+.b-crumbact .b-cak small{font-size:13.5px;font-weight:600;line-height:1.2;color:var(--tx2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.b-crumbact .b-cak b{-webkit-line-clamp:1;line-height:1.25}
 .b-crumbact{text-align:left;justify-content:space-between}
 .b-crumbact b{font-weight:700}   /* same weight as the Section select: one family of boxes */   /* the activity select: the title wraps to 2 lines inside, never cut */
 .b-crumb span{color:var(--tx2)}
@@ -80,7 +85,7 @@ button:disabled{cursor:default}
 /* ---------- the student-screen frame (16:10, 1280 × 800 design) ---------- */
 .b-stagewrap{position:relative;min-width:0;min-height:0;container-type:size}
 .b-stage{position:absolute;inset:0;margin:auto;width:min(100cqw,160cqh);height:min(100cqh,62.5cqw);border-radius:20px;overflow:hidden;box-shadow:0 0 0 1px rgba(255,255,255,.05),0 30px 80px -20px rgba(0,0,0,.6)}
-.b-stage.k-root{--k-font:var(--f);--k-slot-bg:#F6F3EC;--k-slot-dot:rgba(60,45,10,.085);--k-slot-line:#D6CDBC;--k-slot-ink:#1A1712;--k-slot-muted:#6B6457;--k-slot-accent:#C98E00;--k-tm:#F2A007;--k-slot-on-accent:#1A1712;--k-slot-accent-soft:#FFF0C2;--k-slot-badge:#FFFDF7;--k-slot-radius:18px;--k-slot-inset:18px}
+.b-stage.k-root{--k-font:var(--f);--k-slot-bg:#F6F3EC;--k-slot-dot:rgba(60,45,10,.085);--k-slot-line:#D6CDBC;--k-slot-ink:#1A1712;--k-slot-muted:#6B6457;--k-slot-accent:#C98E00;--k-slot-on-accent:#1A1712;--k-slot-accent-soft:#FFF0C2;--k-slot-badge:#FFFDF7;--k-slot-radius:18px;--k-slot-inset:18px}
 .b-fit,.b-over{position:absolute;left:0;top:0;width:1280px;height:800px;zoom:var(--k-scale,1)}
 .b-over{z-index:25;pointer-events:none}
 
@@ -146,41 +151,45 @@ button:disabled{cursor:default}
 .b-scene{position:absolute;inset:0;z-index:20}
 .b-scene[hidden]{display:none}
 .b-scene .b-fit{background:radial-gradient(circle,var(--k-slot-dot) 1.5px,transparent 2px) 0 0/30px 30px,var(--k-slot-bg);color:var(--k-slot-ink);font-family:var(--f)}
+/* Timer + Pick share the Pause surface (dark: near-black, bright themes: the theme colour) and the Pause tile colours (--acc / --acc-ink) */
+.b-tm,.b-pick{background:#0B0C0F;box-shadow:inset 0 0 0 2px rgba(255,255,255,.12);--sc-tx:#F4F2EE;--sc-tx2:#A7ADB8;--sc-ring:rgba(255,255,255,.12);--sc-low:#FF7A7A;--sc-done:var(--acc)}
+:root[data-tone="bright"] :is(.b-tm,.b-pick){background:var(--bg);box-shadow:inset 0 0 0 2px rgba(0,0,0,.08);--sc-tx:var(--tx);--sc-tx2:var(--tx2);--sc-ring:#FFFFFF;--sc-low:var(--tx);--sc-done:var(--tx)}
 /* Timer — a simple alarm clock for young kids: the coloured slice is the time left and shrinks as the hand moves; it rings when time is up */
-.b-tm{position:absolute;inset:0;display:grid;justify-items:center;align-content:center;gap:14px;--tm:var(--k-tm,var(--k-slot-accent))}
+.b-tm{position:absolute;inset:0;display:grid;justify-items:center;align-content:center;gap:14px;--tm:var(--acc)}
 .b-tm.is-low{--tpie:#F04A4A}
 .b-tclock{width:560px;height:560px}
 .b-tclock svg{display:block;width:100%;height:100%;overflow:visible;transform-origin:50% 88%}
 .b-tclock .body,.b-tclock .bells path,.b-tclock .cap{fill:var(--tm)}
 .b-tclock .legs path,.b-tclock .stem{fill:none;stroke:var(--tm);stroke-width:26;stroke-linecap:round}
 .b-tclock .body{filter:drop-shadow(0 22px 30px rgba(30,20,0,.18))}
-.b-tclock .face{fill:var(--k-slot-badge)}
-.b-tclock .dots circle{fill:var(--k-slot-ink);opacity:.28}
-.b-tclock .pie{fill:var(--tpie,var(--tm));opacity:.92;transition:fill .3s}
-.b-tclock .hand{stroke:var(--k-slot-ink);stroke-width:10;stroke-linecap:round}
-.b-tclock .hub{fill:var(--k-slot-ink)}
-.b-tclock .hub-dot{fill:var(--k-slot-badge)}
+.b-tclock .face{fill:#FFFFFF}
+.b-tclock .dots circle{fill:#1A1712;opacity:.26}
+.b-tclock .pie{fill:var(--tpie,var(--tm));stroke:rgba(0,0,0,.14);stroke-width:3;stroke-linejoin:round;transition:fill .3s}   /* thin edge: a bright yellow slice still reads on the white face */
+.b-tclock .hand-halo{stroke:#FFFFFF;stroke-width:20;stroke-linecap:round}   /* keeps the hand visible over dark slices (yellow / pink themes) */
+.b-tclock .hand{stroke:#1A1712;stroke-width:10;stroke-linecap:round}
+.b-tclock .hub{fill:#1A1712;stroke:#FFFFFF;stroke-width:5}
+.b-tclock .hub-dot{fill:#FFFFFF}
 .b-tclock .rings path{fill:none;stroke:var(--tm);stroke-width:10;stroke-linecap:round;opacity:0}
 .b-tm.is-done .b-tclock svg{animation:b-shake .42s ease-in-out 5}
 .b-tm.is-done .b-tclock .rings path{animation:b-ringline .84s ease-out 3}
-.b-tm.is-done .b-tclock .hand{opacity:.35}
-.b-tnum{display:block;font-size:112px;font-weight:800;line-height:1;letter-spacing:-.045em;font-variant-numeric:tabular-nums;color:var(--k-slot-ink);white-space:nowrap}
-.b-tm.is-low .b-tnum{color:#D93036;animation:b-throb 1s ease-in-out infinite}
-.b-tm[data-st="paused"] .b-tnum{color:var(--k-slot-muted)}
-.b-tm.is-done .b-tnum{font-size:92px;letter-spacing:-.03em;color:#23804F}
+.b-tm.is-done .b-tclock :is(.hand,.hand-halo){opacity:.35}
+.b-tnum{display:block;font-size:112px;font-weight:800;line-height:1;letter-spacing:-.045em;font-variant-numeric:tabular-nums;color:var(--sc-tx);white-space:nowrap}
+.b-tm.is-low .b-tnum{color:var(--sc-low);animation:b-throb 1s ease-in-out infinite}
+.b-tm[data-st="paused"] .b-tnum{color:var(--sc-tx2)}
+.b-tm.is-done .b-tnum{font-size:92px;letter-spacing:-.03em;color:var(--sc-done)}
 @keyframes b-shake{0%,100%{transform:rotate(0)}20%{transform:rotate(-7deg)}40%{transform:rotate(6deg)}60%{transform:rotate(-5deg)}80%{transform:rotate(4deg)}}
 @keyframes b-ringline{0%{opacity:0}30%{opacity:1}100%{opacity:0}}
 /* Pick a student — one card: "Who's next?", the names roll in the same spot, then the reveal */
-.b-pick{position:absolute;inset:0;display:grid;place-items:center;background:radial-gradient(circle at 50% 42%,var(--k-slot-accent-soft) 0,transparent 60%)}
+.b-pick{position:absolute;inset:0;display:grid;place-items:center}
 .b-pkcard{display:grid;justify-items:center;gap:28px;max-width:1180px}
 .b-pkhalo{position:relative;display:grid;place-items:center}
-.b-pkav{position:relative;display:grid;place-items:center;width:270px;height:270px;border-radius:50%;background:var(--c,var(--k-slot-line));color:#fff;font:700 146px/1 var(--kid);box-shadow:0 0 0 12px var(--k-slot-badge),0 34px 60px -24px rgba(0,0,0,.42)}
+.b-pkav{position:relative;display:grid;place-items:center;width:270px;height:270px;border-radius:50%;background:var(--c,var(--k-slot-line));color:#fff;font:700 146px/1 var(--kid);box-shadow:0 0 0 12px var(--sc-ring),0 34px 60px -24px rgba(0,0,0,.42)}
 .b-pkav .i{width:124px;height:124px;stroke-width:1.6}
-.b-pkcard b{max-width:1180px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;padding-bottom:.08em;font:700 128px/1 var(--kid);letter-spacing:-.01em;color:var(--k-slot-ink)}
-.b-pkcap{display:inline-flex;align-items:center;gap:12px;height:66px;padding:0 32px 0 26px;border-radius:999px;background:var(--k-slot-ink);color:var(--k-slot-badge);font-size:30px;font-weight:800}
+.b-pkcard b{max-width:1180px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;padding-bottom:.08em;font:700 128px/1 var(--kid);letter-spacing:-.01em;color:var(--sc-tx)}
+.b-pkcap{display:inline-flex;align-items:center;gap:12px;height:66px;padding:0 32px 0 26px;border-radius:999px;background:var(--acc);color:var(--acc-ink);font-size:30px;font-weight:800}
 .b-pkcap .i{width:30px;height:30px;stroke-width:2}
-.b-pkcap.is-quiet{background:transparent;color:var(--k-slot-muted)}
-.b-pkcard.is-wait .b-pkav{background:var(--k-tm,var(--k-slot-accent));color:#fff}   /* filled circle + white icon, same colour as the timer clock */
+.b-pkcap.is-quiet{background:transparent;color:var(--sc-tx2)}
+.b-pkcard.is-wait .b-pkav{background:var(--acc);color:var(--acc-ink)}   /* filled like the Pause tile (dark theme: bright yellow + dark icon) */
 .b-pkcard.is-wait .b-pkav .i{stroke-width:1.9}
 .b-pkcard.is-wait b{font:800 80px/1 var(--f);letter-spacing:-.025em}
 .b-pkcard.is-spin .b-pkav{animation:b-tick .18s ease-out}
@@ -690,20 +699,20 @@ kbd{display:inline-grid;place-items:center;min-width:28px;height:26px;padding:0 
 :root[data-tone="bright"] .b-secs em.is-ready,:root[data-tone="bright"] .b-secitem em.is-ready{background:#E1F5EC;color:#0B7A50}
 :root[data-tone="bright"] .b-thumb{box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)}
 :root[data-theme="mint"] .b-stage{box-shadow:0 0 0 1px rgba(11,46,39,.08),0 26px 60px -30px rgba(11,46,39,.45)}
-:root[data-theme="mint"] .b-stage.k-root{--k-slot-bg:#FFFFFF;--k-slot-dot:rgba(11,46,39,.08);--k-slot-line:#CDE6DD;--k-slot-ink:#0B2E27;--k-slot-muted:#55766E;--k-slot-accent:#C2266A;--k-tm:#D33275;--k-slot-on-accent:#FFFFFF;--k-slot-accent-soft:#FFE4EF;--k-slot-badge:#FFFFFF}
+:root[data-theme="mint"] .b-stage.k-root{--k-slot-bg:#FFFFFF;--k-slot-dot:rgba(11,46,39,.08);--k-slot-line:#CDE6DD;--k-slot-ink:#0B2E27;--k-slot-muted:#55766E;--k-slot-accent:#C2266A;--k-slot-on-accent:#FFFFFF;--k-slot-accent-soft:#FFE4EF;--k-slot-badge:#FFFFFF}
 :root[data-theme="mint"] .b-map{background:rgba(98,212,180,.975)}
 :root[data-theme="mint"] .b-next{box-shadow:0 10px 26px -12px rgba(176,32,96,.55)}
 :root[data-theme="mint"] .b-ltile.is-cur:hover{background:#BF2A67;border-color:#BF2A67}
 :root[data-theme="mint"] .b-ltile.is-cur .b-ltinfo small{color:#FFFFFF}
 :root[data-theme="yellow"] .b-stage{box-shadow:0 0 0 1px rgba(29,26,15,.08),0 26px 60px -30px rgba(120,90,0,.45)}
-:root[data-theme="yellow"] .b-stage.k-root{--k-slot-bg:#FFFFFF;--k-slot-dot:rgba(29,26,15,.08);--k-slot-line:#EADFB8;--k-slot-ink:#1D1A0F;--k-slot-muted:#6E6650;--k-slot-accent:#1D1A0F;--k-tm:#E8A600;--k-slot-on-accent:#FFFFFF;--k-slot-accent-soft:#FFF4BF;--k-slot-badge:#FFFFFF}
+:root[data-theme="yellow"] .b-stage.k-root{--k-slot-bg:#FFFFFF;--k-slot-dot:rgba(29,26,15,.08);--k-slot-line:#EADFB8;--k-slot-ink:#1D1A0F;--k-slot-muted:#6E6650;--k-slot-accent:#1D1A0F;--k-slot-on-accent:#FFFFFF;--k-slot-accent-soft:#FFF4BF;--k-slot-badge:#FFFFFF}
 :root[data-theme="yellow"] .b-map{background:rgba(255,225,90,.975)}
 :root[data-theme="yellow"] .b-next{box-shadow:0 10px 26px -12px rgba(29,26,15,.6)}
 :root[data-theme="yellow"] .b-ltile.is-cur:hover{background:#2C281A;border-color:#2C281A}
 :root[data-theme="yellow"] .b-ltile.is-cur .b-ltinfo small{color:rgba(255,225,90,.78)}
 :root[data-theme="yellow"] .b-gbtn--go{background:#FFE15A;color:#1D1A0F}
 :root[data-theme="white"] .b-stage{box-shadow:0 0 0 1px rgba(17,24,39,.10),0 26px 60px -30px rgba(17,24,39,.32)}
-:root[data-theme="white"] .b-stage.k-root{--k-slot-bg:#FFFFFF;--k-slot-dot:rgba(17,24,39,.07);--k-slot-line:#E3E7ED;--k-slot-ink:#111827;--k-slot-muted:#6B7380;--k-slot-accent:#0057D9;--k-tm:#0066FF;--k-slot-on-accent:#FFFFFF;--k-slot-accent-soft:#E6F0FF;--k-slot-badge:#FFFFFF}
+:root[data-theme="white"] .b-stage.k-root{--k-slot-bg:#FFFFFF;--k-slot-dot:rgba(17,24,39,.07);--k-slot-line:#E3E7ED;--k-slot-ink:#111827;--k-slot-muted:#6B7380;--k-slot-accent:#0057D9;--k-slot-on-accent:#FFFFFF;--k-slot-accent-soft:#E6F0FF;--k-slot-badge:#FFFFFF}
 /* white on white: panels keep a visible hairline */
 :root[data-theme="white"] .b-logo,:root[data-theme="white"] .b-lesson,:root[data-theme="white"] .b-acts:not(.is-on),:root[data-theme="white"] .b-scenes,:root[data-theme="white"] .b-ubtn,:root[data-theme="white"] .b-crumb button,:root[data-theme="white"] .b-fabbtn:not(.is-ink):not(.is-open){border-color:var(--ctl-line)}
 :root[data-theme="white"] .b-dockrow,:root[data-theme="white"] .b-npanel,:root[data-theme="white"] .b-pop,:root[data-theme="white"] .b-sheet,:root[data-theme="white"] .b-fabpal{border-color:#D8DDE4}
@@ -712,14 +721,14 @@ kbd{display:inline-grid;place-items:center;min-width:28px;height:26px;padding:0 
 :root[data-theme="white"] .b-ltile.is-cur:hover{background:#0057E0;border-color:#0057E0}
 :root[data-theme="white"] .b-ltile.is-cur .b-ltinfo small{color:#FFFFFF}
 :root[data-theme="blue"] .b-stage{box-shadow:0 0 0 1px rgba(11,27,63,.08),0 26px 60px -30px rgba(11,27,63,.5)}
-:root[data-theme="blue"] .b-stage.k-root{--k-slot-bg:#FFFFFF;--k-slot-dot:rgba(11,27,63,.07);--k-slot-line:#D6E3FC;--k-slot-ink:#0B1B3F;--k-slot-muted:#5A6E98;--k-slot-accent:#1F5BD8;--k-tm:#2F6FE8;--k-slot-on-accent:#FFFFFF;--k-slot-accent-soft:#FFF3BF;--k-slot-badge:#FFFFFF}
+:root[data-theme="blue"] .b-stage.k-root{--k-slot-bg:#FFFFFF;--k-slot-dot:rgba(11,27,63,.07);--k-slot-line:#D6E3FC;--k-slot-ink:#0B1B3F;--k-slot-muted:#5A6E98;--k-slot-accent:#1F5BD8;--k-slot-on-accent:#FFFFFF;--k-slot-accent-soft:#FFF3BF;--k-slot-badge:#FFFFFF}
 :root[data-theme="blue"] .b-map{background:rgba(77,141,255,.975)}
 :root[data-theme="blue"] .b-next{box-shadow:0 10px 26px -12px rgba(11,27,63,.5)}
 :root[data-theme="blue"] .b-ltile.is-cur{border-color:var(--acc)}
 :root[data-theme="blue"] .b-ltile.is-cur:hover{background:#F5C518;border-color:#F5C518}
 :root[data-theme="blue"] .b-ltile.is-cur .b-ltinfo small{color:rgba(26,20,0,.68)}
 :root[data-theme="pink"] .b-stage{box-shadow:0 0 0 1px rgba(59,15,38,.08),0 26px 60px -30px rgba(120,20,70,.45)}
-:root[data-theme="pink"] .b-stage.k-root{--k-slot-bg:#FFFFFF;--k-slot-dot:rgba(59,15,38,.07);--k-slot-line:#F9D5E4;--k-slot-ink:#3B0F26;--k-slot-muted:#925C77;--k-slot-accent:#C2185B;--k-tm:#D12F6E;--k-slot-on-accent:#FFFFFF;--k-slot-accent-soft:#FFE3EE;--k-slot-badge:#FFFFFF}
+:root[data-theme="pink"] .b-stage.k-root{--k-slot-bg:#FFFFFF;--k-slot-dot:rgba(59,15,38,.07);--k-slot-line:#F9D5E4;--k-slot-ink:#3B0F26;--k-slot-muted:#925C77;--k-slot-accent:#C2185B;--k-slot-on-accent:#FFFFFF;--k-slot-accent-soft:#FFE3EE;--k-slot-badge:#FFFFFF}
 :root[data-theme="pink"] .b-map{background:rgba(255,141,187,.975)}
 :root[data-theme="pink"] .b-next{box-shadow:0 10px 26px -12px rgba(59,15,38,.6)}
 :root[data-theme="pink"] .b-ltile.is-cur:hover{background:#52162F;border-color:#52162F}
