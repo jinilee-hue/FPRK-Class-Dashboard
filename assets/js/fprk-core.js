@@ -253,7 +253,7 @@
   function render(vt) {
     if (!slotEl) return;
     const html = slotHTML();
-    const swap = () => { slotEl.innerHTML = html; measure(); redrawInk(); };
+    const swap = () => { slotEl.innerHTML = html; measure(); redrawInk(); requestAnimationFrame(measure); };   // re-measure once the rest of the page (dock) has rendered: the frame size may have changed
     if (vt && document.startViewTransition && !reduced() && FP.opts.viewTransitions !== false && !document.hidden) {
       try { const t = document.startViewTransition(swap); [t.ready, t.finished, t.updateCallbackDone].forEach(p => p && p.catch(() => {})); } catch (e) { swap(); }
     } else swap();
@@ -302,7 +302,7 @@
     canvas.addEventListener('pointerdown', e => { if (!ink.on) return; canvas.setPointerCapture(e.pointerId); curStroke = { t: ink.tool, c: ink.color, w: ink.width, p: [pt(e)] }; strokes().push(curStroke); redrawInk(); });
     canvas.addEventListener('pointermove', e => { if (!curStroke) return; (e.getCoalescedEvents ? e.getCoalescedEvents() : [e]).forEach(ev => curStroke.p.push(pt(ev))); redrawInk(); emit('inkmove'); });
     ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(t => canvas.addEventListener(t, () => { if (curStroke) { curStroke = null; emit('ink'); } }));
-    new ResizeObserver(() => sizeInk()).observe(root);
+    new ResizeObserver(() => { sizeInk(); measure(); }).observe(root);   // the frame can change size after a step renders (dock height): keep --k-scale in step, not only on render
   }
   FP.ink = {
     state: () => Object.assign({ count: strokes().length }, ink),

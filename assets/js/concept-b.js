@@ -49,7 +49,7 @@
   const mfBase = mfGroup.items.slice();
   function refreshGames() {
     const L = FP.lesson(); if (!L) return;
-    mfGroup.items = [...mfBase, ...GAMES.filter(g => g.has(L)).map(g => ({ id: g.id, label: g.name, sub: g.sub(L), group: mfGroup.group, icon: 'gamepad', game: g }))];
+    mfGroup.items = [...mfBase, ...GAMES.filter(g => g.has(L) && g.id !== 'g-island').map(g => ({ id: g.id, label: g.name, sub: g.sub(L), group: mfGroup.group, icon: 'gamepad', game: g }))];   // Phonics Island is not a Meaning First activity (user)
     for (const g of FP.extras()) for (const it of g.items) {
       const eg = EXTRA_GAMES[it.id]; if (!eg) continue;
       if (!it.base) it.base = { sub: it.sub, soon: it.soon };
@@ -520,16 +520,17 @@
       <div class="b-palgrp"><button type="button" class="b-tool" data-b="undo" title="Undo" aria-label="Undo" ${k.count ? '' : 'disabled'}>${ic('undo')}</button><button type="button" class="b-tool" data-b="clear" title="Clear drawing" aria-label="Clear drawing" ${k.count ? '' : 'disabled'}>${ic('trash')}</button></div>`;
   }
   function setPal(open) { palOpen = open; renderFab(); }
-  function placeFab() {   // in the side margin when the 16:10 frame leaves room, else on the frame's corner
+  function placeFab() {   // the pen lives inside the 16:10 frame (user: "판서 버튼은 가운데 화면에 포함"): bottom-right, on the frame's own 24 px margin; the video bar stops short of it
     const wrap = $('#stagewrap'), st = $('#stage'), fab = $('#fab'); if (!wrap || !st || !fab) return;
-    const gx = (wrap.clientWidth - st.offsetWidth) / 2, gy = (wrap.clientHeight - st.offsetHeight) / 2;
-    const left = root.dataset.controls === 'left', out = gx >= 96;
-    fab.dataset.side = left ? 'left' : 'right'; fab.dataset.mode = out ? 'gutter' : 'inside';
-    const x = out ? Math.max(8, (gx - 64) / 2) : gx + 16, y = gy + (out ? 0 : 16);
-    fab.style.left = left ? x + 'px' : 'auto'; fab.style.right = left ? 'auto' : x + 'px'; fab.style.bottom = y + 'px';
-    fab.style.setProperty('--pal-max', Math.max(200, st.offsetHeight - 76) + 'px');
+    const sw = st.offsetWidth, sh = st.offsetHeight, gx = (wrap.clientWidth - sw) / 2, gy = (wrap.clientHeight - sh) / 2, k = sw / 1280;
+    const m = Math.max(12, Math.round(24 * k));
+    fab.dataset.mode = 'inside';
+    fab.style.left = 'auto'; fab.style.right = gx + m + 'px'; fab.style.bottom = gy + m + 'px';
+    const lift = Math.max(0, Math.ceil(90 * k + 8 - (m + 76)));   // on big frames the open palette clears the video bar's top (bar: 22 + 68 px, scaled)
+    fab.style.setProperty('--pal-lift', lift + 'px');
+    fab.style.setProperty('--pal-max', Math.max(160, Math.floor(sh - m - 76 - lift - 98 * k)) + 'px');   // and stays under the corner timer's row
     const app = $('#app');   // side panels (notes, side controls) line up with the frame's top and bottom
-    app.style.setProperty('--frame-top', Math.max(0, gy) + 'px'); app.style.setProperty('--frame-h', st.offsetHeight + 'px');
+    app.style.setProperty('--frame-top', Math.max(0, gy) + 'px'); app.style.setProperty('--frame-h', sh + 'px');
   }
 
   /* ---------- dock ---------- */

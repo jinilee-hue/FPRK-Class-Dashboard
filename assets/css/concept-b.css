@@ -102,6 +102,7 @@ button:disabled{cursor:default}
 .b-mbig .i{width:60px;height:60px;margin-left:8px;fill:currentColor}
 .b-mbig:hover{transform:scale(1.05)}
 .b-mbar{position:absolute;left:24px;right:24px;bottom:22px;display:flex;align-items:center;gap:14px;height:68px;padding:0 14px 0 10px;border-radius:22px;background:rgba(12,13,16,.78);transition:opacity .3s}
+:root[data-view="teacher"] .b-mbar{right:calc(24px + 76px / var(--k-scale,1))}   /* stops short of the pen (64 px + 12 px gap, unscaled) */
 .b-mbar button{display:grid;place-items:center;flex:none;width:50px;height:50px;border-radius:15px;border:0;background:rgba(255,255,255,.2);color:#fff;cursor:pointer}
 .b-mbar button:hover{background:rgba(255,255,255,.3)}
 .b-mbar .i{width:26px;height:26px}
@@ -232,10 +233,8 @@ button:disabled{cursor:default}
 .b-ctimer.is-done{background:#2F8F5B}
 
 /* ---------- floating board tools ---------- */
-.b-fab{position:absolute;z-index:35;display:flex;align-items:center;gap:12px}
-.b-fab[data-mode="gutter"]{flex-direction:column}
-.b-fab[data-mode="inside"][data-side="right"]{flex-direction:row}
-.b-fab[data-mode="inside"][data-side="left"]{flex-direction:row-reverse}
+.b-fab{position:absolute;z-index:35;display:flex;flex-direction:column;align-items:flex-end;gap:12px}   /* inside the frame, bottom-right; the palette opens upward */
+.b-fab .b-fabpal{margin-bottom:var(--pal-lift,0px)}
 .b-fabbtn{position:relative;display:grid;place-items:center;flex:none;width:64px;height:64px;border-radius:50%;border:1px solid var(--ctl-line);background:var(--d1);color:var(--tx);box-shadow:0 14px 30px -12px rgba(0,0,0,.6);transition:background .15s,color .15s,transform .15s}
 .b-fabbtn:hover{transform:translateY(-1px)}
 .b-fabbtn .i{width:26px;height:26px}
@@ -250,9 +249,6 @@ button:disabled{cursor:default}
 .b-palgrp--sw{gap:2px 4px}
 .b-palgrp--wd{grid-template-columns:repeat(3,auto)}
 .b-palsep{display:block;flex:none;width:72%;height:1px;background:var(--d3)}
-.b-fab[data-mode="inside"] .b-fabpal{flex-direction:row;max-height:none;max-width:calc(100cqw - 120px)}
-.b-fab[data-mode="inside"] .b-palgrp{grid-template-columns:none;grid-auto-flow:column}
-.b-fab[data-mode="inside"] .b-palsep{width:1px;height:38px}
 .b-tool{display:grid;place-items:center;width:50px;height:50px;border:0;border-radius:13px;background:transparent;color:var(--tx2);transition:background .15s,color .15s}
 .b-tool:hover{background:var(--d3);color:var(--tx)}
 .b-tool .i{width:22px;height:22px}
