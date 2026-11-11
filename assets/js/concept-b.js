@@ -435,11 +435,17 @@
     el.innerHTML = `<span class="b-scnl" title="${live ? 'Sharing to the classroom screen' : 'What students see'}">${live ? '<i class="b-live" aria-hidden="true"></i>' : ''}<span>Students see</span></span>${SCENES.map(([v, i, l, t]) => `<button type="button" data-b="scene" data-v="${v}" aria-pressed="${scene === v}" title="${t}">${ic(i)}<span>${l}</span></button>`).join('')}`;
     fitTop();
   }
-  function renderActs() {   // the lesson's class activities + games, next to the lesson button
+  // the Class activities select shows what is picked, like the other selects (no extra path in the top bar)
+  const ACTS_DEF = () => `${ic('grid')}<span class="b-actl">Class activities</span>${ic('chevron-down', 'b-dd')}`;
+  const actsVal = it => {
+    const g = FP.extras().find(x => x.items.some(y => y.id === it.id));
+    return `${ic((g && g.icon) || 'grid')}<b class="b-actv" lang="en">${esc(it.label)}</b>${ic('chevron-down', 'b-dd')}`;   // the group icon + the name, 2 lines max
+  };
+  function renderActs() {
     const b = $('#extrasBtn'); if (!b || !FP.lesson()) return;
-    const on = FP.mode() === 'extra';
-    b.classList.remove('is-on'); b.setAttribute('aria-pressed', on);   // when open it sits in the path (Lesson · Class activities › item) and looks like the other selects
-    b.innerHTML = `${ic('grid')}<span>Class activities</span>${ic('chevron-down', 'b-dd')}`;
+    const it = FP.mode() === 'extra' ? FP.extraInfo() : null;
+    b.classList.toggle('has-val', !!it); b.setAttribute('aria-pressed', !!it);
+    b.innerHTML = it ? actsVal(it) : ACTS_DEF();
   }
   function setScene(v) {
     if (v === 'pause' && scene === 'pause') v = resumeTo;
@@ -465,35 +471,33 @@
   // labels go first: "Students see" → the "Class activities" text → the lesson's sound line (still on the tile and
   // in the tooltip) → the Share text → the screen-button texts (icons + tooltips stay). Decided once per lesson +
   // window width from every section/title pair, so nothing jumps on Next.
-  const FIT = ['is-tight', 'is-tighter', 'is-tightest', 'is-tight4', 'is-tight5', 'is-tight6'];
+  const FIT = ['is-tight', 'is-tighter', 'is-tightest', 'is-tight4', 'is-tight5', 'is-tight6', 'is-tight7'];
   let fitKey = '', fitLevel = 0, fitT = 0;
   const actBtn = (title, tip) => `<button type="button" class="b-crumbact" data-b="actmenu" title="${tip}" aria-haspopup="true"><b lang="en">${esc(title)}</b>${ic('chevron-down')}</button>`;
   const crumbHTML = (sec, title) => `<button type="button" data-b="sections" title="Sections">${esc(sec)}${ic('chevron-down')}</button>${actBtn(title, 'Activities in this section')}`;
-  const extraCrumbHTML = (group, title) => `<button type="button" class="b-crumbact" data-b="actmenu" title="Class activities in this group" aria-haspopup="true"><span class="b-cak"><small lang="en">${esc(group)}</small><b lang="en">${esc(title)}</b></span>${ic('chevron-down')}</button>`;
   function fitTop(force) {
     const top = $('.b-top'), crumb = $('#crumb'), L = FP.lesson(); if (!top || !crumb || !L) return;
-    const key = `${L.n}|${innerWidth}|${live ? 1 : 0}|${shareTo}`;
+    const key = `${L.n}|${innerWidth}|${live ? 1 : 0}|${shareTo}|${FP.mode()}`;
     if (key !== fitKey || force) {
       fitKey = key; fitLevel = 0;
-      const keep = crumb.innerHTML, cut = () => { const b = crumb.querySelector('b'); return b.scrollHeight > b.clientHeight + 4; };
+      const keep = crumb.innerHTML, cut = () => { const b = crumb.querySelector('b'), last = crumb.lastElementChild;   // title cut, or the activity select pushed out of the path
+        return b.scrollHeight > b.clientHeight + 4 || (last && last.getBoundingClientRect().right > crumb.getBoundingClientRect().right + 1); };
+      const btn = $('#extrasBtn'), keepBtn = btn.innerHTML, keepVal = btn.classList.contains('has-val');
+      btn.classList.toggle('has-val', FP.mode() === 'extra');   // measure the box as it will look (renderActs may not have run yet)
+      if (FP.mode() === 'extra') { let w = 0, best = ''; for (const g of FP.extras()) for (const it of g.items) { btn.innerHTML = actsVal(it); if (btn.offsetWidth > w) { w = btn.offsetWidth; best = btn.innerHTML; } } btn.innerHTML = best; }
+      else btn.innerHTML = ACTS_DEF();
       const intro = ['Lesson Words', 'Sound Chant', L.a1, 'Meaning First', 'Sound Awareness', 'Sound–Letter Match', 'Sound Review', 'Sound Blending', L.a2, 'G-Learning'];
       for (const s of FP.sections()) for (const t of (s.built ? intro : s.subs.length ? s.subs : [s.name])) {
         crumb.innerHTML = crumbHTML(s.name, t || '');
         while (fitLevel < FIT.length) { FIT.forEach((c, i) => top.classList.toggle(c, i < fitLevel)); if (!cut()) break; fitLevel++; }
       }
-      for (const g of FP.extras()) for (const it of g.items) {
-        crumb.innerHTML = extraCrumbHTML(g.group, it.label);
-        while (fitLevel < FIT.length) { FIT.forEach((c, i) => top.classList.toggle(c, i < fitLevel)); if (!cut()) break; fitLevel++; }
-      }
-      crumb.innerHTML = keep;
+      crumb.innerHTML = keep; btn.innerHTML = keepBtn; btn.classList.toggle('has-val', keepVal);
     }
     FIT.forEach((c, i) => top.classList.toggle(c, i < fitLevel));
   }
   function renderCrumb() {
-    const c = FP.context(), sec = FP.section();
-    $('.b-top').classList.toggle('is-extra', c.mode === 'extra');
-    if (c.mode === 'extra') $('#crumb').innerHTML = extraCrumbHTML((FP.extraInfo() || {}).group || 'Class activity', c.title);
-    else $('#crumb').innerHTML = crumbHTML(sec.name, FP.cur().title);
+    const sec = FP.section();
+    $('#crumb').innerHTML = crumbHTML(sec.name, FP.cur().title);
     const am = $('#actMenu'); if (am && am.matches(':popover-open')) am.hidePopover();   // picked: the menu closes
     fitTop();
   }
@@ -724,13 +728,10 @@
   /* ---------- activity menu (breadcrumb): the section's activities, or the class activities of the open group ---------- */
   function actMenu(btn) {
     let m = $('#actMenu'); if (!m) { m = document.createElement('div'); m.id = 'actMenu'; m.className = 'b-pop b-pop--secs b-pop--acts'; m.popover = 'auto'; document.body.appendChild(m); }
-    if (FP.mode() === 'extra') {
-      const cur = FP.extraInfo(), g = FP.extras().find(x => x.items.some(it => it.id === cur.id)) || { group: 'Class activities', items: [cur] };
-      m.innerHTML = `<p class="b-lab2" lang="en">${esc(g.group)} · class activities</p>${g.items.map((it, i) => `<button type="button" class="b-secitem${it.id === cur.id ? ' is-on' : ''}" data-b="extra" data-v="${it.id}"><span>${i + 1}</span><b lang="en">${esc(it.label)}</b><small lang="en">${hasVideo(it.id) ? ic('play') + 'Video · ' : ''}${esc(it.sub || '')}</small>${it.soon ? '<em>Soon</em>' : ''}</button>`).join('')}`;
-    } else {
+    {
       const flow = FP.flow(), cur = FP.cur(), groups = FP.groups().map(g => [g, flow.filter(a => a.group === g.id)]).filter(([, a]) => a.length);
       const row = a => { const on = a.id === cur.id, done = a.index < cur.index;
-        return `<button type="button" class="b-secitem${on ? ' is-on' : ''}${done ? ' is-done' : ''}" data-b="go" data-v="${a.id}"><span>${done ? ic('check') : a.index + 1}</span><b lang="en">${esc(a.title)}</b><small>${hasVideo(a.id) ? ic('play') + 'Video · ' : ''}${a.pending ? 'SB ' + esc(a.page) : a.steps.length + (a.steps.length > 1 ? ' steps' : ' step')}</small><em>${a.type === 'sb' ? 'SB' : a.type === 'home' ? 'Home' : 'Prep'}</em></button>`; };
+        return `<button type="button" class="b-secitem${on ? ' is-on' : ''}${done ? ' is-done' : ''}" data-b="${on && FP.mode() === 'extra' ? 'close' : 'go'}" data-v="${a.id}"><span>${done ? ic('check') : a.index + 1}</span><b lang="en">${esc(a.title)}</b><small>${hasVideo(a.id) ? ic('play') + 'Video · ' : ''}${a.pending ? 'SB ' + esc(a.page) : a.steps.length + (a.steps.length > 1 ? ' steps' : ' step')}</small><em>${a.type === 'sb' ? 'SB' : a.type === 'home' ? 'Home' : 'Prep'}</em></button>`; };
       m.innerHTML = `<p class="b-lab2" lang="en">${esc(FP.section().name)} · ${flow.length} ${flow.length === 1 ? 'activity' : 'activities'}</p>${groups.map(([g, items]) => `${groups.length > 1 ? `<p class="b-lab3" lang="en">${esc(g.label)}</p>` : ''}${items.map(row).join('')}`).join('')}`;
     }
     const r = btn.getBoundingClientRect(); m.style.left = Math.max(8, Math.min(r.left, innerWidth - 428)) + 'px'; m.style.top = (r.bottom + 8) + 'px';
