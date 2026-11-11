@@ -38,12 +38,24 @@
     { id: 'g-croco', name: 'Croco Phonics', poster: 'croco', path: 'Croco-Phonics/', blurb: 'Crocodile dentist · say the word', has: L => L.n <= 10, q: L => `?level=${L.n}`, sub: L => `Level ${L.n} · ${L.snd}` },
     { id: 'g-magic', name: 'Magic Block', poster: 'magic', path: 'Magic-Block/', blurb: 'Pull a block · read it aloud', has: L => L.n === 1, q: () => '', sub: () => 'm-word tower' },
     { id: 'g-match', name: 'Phonics Match', poster: 'match', path: 'Phonics-Match/', blurb: 'Match three · say the word', has: () => true, q: L => { const m = matchLevel(L); return `?theme=${m.theme}&level=${m.level}`; }, sub: L => { const m = matchLevel(L); return `Unit ${m.unit} · ${m.theme === 'animals' ? 'Animals' : 'Things'} · Level ${m.level}`; } },
-    { id: 'g-sand', name: 'Magic Sand', poster: 'sand', url: 'https://file.koreapolyschool.com/Contents/LCMSContents/temp/glearning/antony/04/', blurb: 'Trace the letter in magic sand', has: L => L.n === 1, q: () => '', sub: () => 'Trace M and m' },   // POLY G-Learning (Lesson 1 · ④)
     { id: 'g-island', name: 'Phonics Island', poster: 'island', path: 'phonics-island/', blurb: '3D island · lesson stations', has: L => L.n <= 10, q: L => `?start=lesson${L.n}`, sub: L => `Lesson ${L.n} stations` },
   ];
+  // class activities that open a game in some lessons (user: Magic Sand is Lesson 1's Handwriting Words, not a game)
+  const EXTRA_GAMES = {
+    'x-mfh': { name: 'Magic Sand', poster: 'sand', url: 'https://file.koreapolyschool.com/Contents/LCMSContents/temp/glearning/antony/04/', tag: 'Handwriting', icon: 'pen', blurb: 'Trace the letter in magic sand', has: L => L.n === 1, q: () => '', sub: () => 'Magic Sand · trace M and m' },   // POLY G-Learning (Lesson 1 · ④)
+  };
   const gameGroup = { group: 'Games', icon: 'gamepad', items: [] };
   FP.extras().unshift(gameGroup);
-  function refreshGames() { const L = FP.lesson(); if (!L) return; gameGroup.items = GAMES.filter(g => g.has(L)).map(g => ({ id: g.id, label: g.name, sub: g.sub(L), group: 'Games', icon: 'gamepad', game: g })); }
+  function refreshGames() {
+    const L = FP.lesson(); if (!L) return;
+    gameGroup.items = GAMES.filter(g => g.has(L)).map(g => ({ id: g.id, label: g.name, sub: g.sub(L), group: 'Games', icon: 'gamepad', game: g }));
+    for (const g of FP.extras()) for (const it of g.items) {
+      const eg = EXTRA_GAMES[it.id]; if (!eg) continue;
+      if (!it.base) it.base = { sub: it.sub, soon: it.soon };
+      if (eg.has(L)) Object.assign(it, { game: eg, sub: eg.sub(L), soon: false });
+      else { delete it.game; Object.assign(it, it.base); }
+    }
+  }
   const curGame = () => { const it = FP.extraInfo(); return it && it.game ? it : null; };
   const gameUrl = it => (it.game.url || GAME_BASE + it.game.path) + it.game.q(FP.lesson());
 
@@ -99,7 +111,7 @@
       dialLoop();
     }
     else if (scene === 'pick') { el.innerHTML = '<div class="b-fit"><div class="b-pick" id="pickView"></div></div>'; pickIdx = -2; drawPick(); }
-    else { const L = FP.lesson(); el.innerHTML = `<div class="b-fit"><div class="b-spause"${STUDENT ? '' : ' data-b="scene" data-v="pause" title="Back to the lesson (B)"'}>${!STUDENT && live ? '<span class="b-spchip"><i class="b-live" aria-hidden="true"></i>Classroom screen · paused</span>' : ''}<span class="b-pausel" lang="en">${esc(L.key)}</span><p lang="en">Eyes on me!</p></div></div>`; }
+    else { el.innerHTML = `<div class="b-fit"><div class="b-spause"${STUDENT ? '' : ' data-b="scene" data-v="pause" title="Back to the lesson (B)"'}>${!STUDENT && live ? '<span class="b-spchip"><i class="b-live" aria-hidden="true"></i>Classroom screen · paused</span>' : ''}<span class="b-pausel b-attn" aria-hidden="true"><svg viewBox="0 0 200 140" aria-hidden="true"><g class="eye"><ellipse class="sc" cx="60" cy="70" rx="44" ry="56"/><circle class="pu" cx="64" cy="80" r="23"/><circle class="hl" cx="73" cy="69" r="7.5"/></g><g class="eye"><ellipse class="sc" cx="140" cy="70" rx="44" ry="56"/><circle class="pu" cx="144" cy="80" r="23"/><circle class="hl" cx="153" cy="69" r="7.5"/></g></svg></span><p lang="en">Eyes on me!</p></div></div>`; }
     tick();
   }
   // Pick a student: one card in the middle — "Who's next?", the names roll in the same spot, then the reveal
@@ -176,6 +188,7 @@
       'x-abc': { title: 'ABC Song', files: ['abc-song.mp4'] },                                   // Class activities › Songs › Alphabet Song (A–Z, same song in every lesson)
     },
     1: {
+      'x-chant': { title: 'Sound & Rhythm Chant', files: ['l1-chant-1.mp4', 'l1-chant-2.mp4', 'l1-chant-3.mp4', 'l1-chant-4.mp4'] },   // Class activities › Chant (stage 1–4 in a row)
       ls1: { title: 'Sound Chant', steps: [['l1-chant-1.mp4'], ['l1-chant-2.mp4'], ['l1-chant-3.mp4'], ['l1-chant-4.mp4'],
         ['l1-chant-1.mp4', 'l1-chant-2.mp4', 'l1-chant-3.mp4', 'l1-chant-4.mp4']] },          // step 5 "All together" plays 1–4 in a row
     },
@@ -201,7 +214,7 @@
     const m = curMedia();
     root.classList.toggle('has-media', !!m);
     if (!m) {
-      if (el.dataset.key) { el.hidden = true; el.innerHTML = ''; el.dataset.key = ''; mEl = null; }
+      if (el.dataset.key) { dropVideo(); el.hidden = true; el.innerHTML = ''; el.dataset.key = ''; }
       if (!STUDENT && MD.key) Object.assign(MD, { key: '', idx: 0, playing: false, pos: 0, at: Date.now() });
       return;
     }
@@ -210,6 +223,7 @@
         const keep = MD.playing && MD.key && MD.key.split('|').slice(0, 2).join('|') === m.group;
         Object.assign(MD, { key: m.key, idx: 0, playing: !!keep && scene === 'lesson', pos: 0, at: Date.now() });
       }
+      dropVideo();
       el.dataset.key = m.key; el.hidden = false;
       el.innerHTML = `<div class="b-fit"><video playsinline preload="auto"></video>
         <div class="b-mui">
@@ -225,20 +239,22 @@
           <button type="button" class="b-mtap" hidden>${ic('volume-2')}Tap for sound</button>
         </div>
         <div class="b-mmiss" hidden></div></div>`;
-      mEl = el.querySelector('video'); mEl.dataset.src = ''; mPolicyMute = false;
-      mEl.addEventListener('loadedmetadata', () => { DUR[mEl.dataset.src] = mEl.duration; syncMedia(true); });
-      mEl.addEventListener('timeupdate', () => {
+      const v = mEl = el.querySelector('video'); v.dataset.src = ''; mPolicyMute = false;   // listeners below ignore a video that has been replaced
+      v.addEventListener('loadedmetadata', () => { DUR[v.dataset.src] = v.duration; if (v === mEl) syncMedia(true); });
+      v.addEventListener('timeupdate', () => {
+        if (v !== mEl) return;
         paintMedia();
         if (!STUDENT && MD.playing && !mEl.paused && Math.abs(mEl.currentTime - mPos()) > 0.6) { MD.pos = mEl.currentTime; MD.at = Date.now(); broadcast(); }   // re-anchor after buffering
       });
-      mEl.addEventListener('ended', () => {
-        if (STUDENT) return;   // the teacher's window drives the playlist
+      v.addEventListener('ended', () => {
+        if (STUDENT || v !== mEl) return;   // the teacher's window drives the playlist
         const mm = curMedia(); if (!mm) return;
         if (MD.idx < mm.files.length - 1) Object.assign(MD, { idx: MD.idx + 1, pos: 0, at: Date.now(), playing: true });
         else Object.assign(MD, { playing: false, pos: mEl.duration || MD.pos, at: Date.now() });
         syncMedia(true); broadcast();
       });
-      mEl.addEventListener('error', () => {
+      v.addEventListener('error', () => {
+        if (v !== mEl) return;
         const box = el.querySelector('.b-mmiss'); if (!box) return;
         const web = /^https?:$/.test(location.protocol) && !/^(localhost|127\.)/.test(location.hostname);
         box.innerHTML = `<span class="b-mmicon">${ic('monitor-pause')}</span><b>${web ? 'This video couldn’t be loaded' : 'Video file not found'}</b><p>${web ? 'Check the internet connection and try again.' : 'assets/media/' + esc(m.files[MD.idx] || '')}</p>`;
@@ -248,6 +264,11 @@
     syncMedia(true);
   }
   // put the local <video> where MD says; `seek` forces the position (commands, new files), otherwise only big drifts are fixed
+  function dropVideo() {   // stop the old video before its layer is replaced (no stray loading or events)
+    if (!mEl) return;
+    const v = mEl; mEl = null;
+    try { v.pause(); v.removeAttribute('src'); v.load(); } catch (e) { /* already gone */ }
+  }
   function syncMedia(seek) {
     const el = $('#media'), m = curMedia(); if (!el || !mEl || !m || MD.key !== m.key) return;
     const src = mSrc(m.files[Math.min(MD.idx, m.files.length - 1)]);
@@ -333,7 +354,7 @@
     else if (game && game.where === 'screen') acts = `<p class="b-gstat"><i class="b-live" aria-hidden="true"></i>Playing on the classroom screen</p><div class="b-gacts"><button type="button" class="b-gbtn" data-b="gplay" data-v="here">${ic('monitor')}Play here instead</button><button type="button" class="b-gbtn" data-b="gstop">${ic('x')}Stop</button></div>`;
     else if (live) acts = `<div class="b-gacts"><button type="button" class="b-gbtn b-gbtn--go b-gbtn--lg" data-b="gplay" data-v="screen">${ic('cast')}Play on classroom screen</button><button type="button" class="b-gbtn" data-b="gplay" data-v="here">${ic('play')}Play here</button></div>`;
     else acts = `<div class="b-gacts"><button type="button" class="b-gbtn b-gbtn--go b-gbtn--lg" data-b="gplay" data-v="here">${ic('play')}Play</button></div>`;
-    el.innerHTML = `<div class="b-fit"><div class="b-gcover"><img src="assets/games/${g.poster}.webp" alt="" onerror="this.remove()"><div class="b-gshade"></div><div class="b-ginfo"><span class="b-gtag">${ic('gamepad')}Phonics game · Lesson ${FP.lesson().n}</span><h3 lang="en">${esc(it.label)}</h3><p lang="en">${esc(it.sub)} · ${esc(g.blurb)}</p>${acts}</div></div></div>`;
+    el.innerHTML = `<div class="b-fit"><div class="b-gcover"><img src="assets/games/${g.poster}.webp" alt="" onerror="this.remove()"><div class="b-gshade"></div><div class="b-ginfo"><span class="b-gtag">${ic(g.icon || 'gamepad')}${esc(g.tag || 'Phonics game')} · Lesson ${FP.lesson().n}</span><h3 lang="en">${esc(it.label)}</h3><p lang="en">${esc(it.sub)} · ${esc(g.blurb)}</p>${acts}</div></div></div>`;
   }
 
   /* ================= student view ================= */

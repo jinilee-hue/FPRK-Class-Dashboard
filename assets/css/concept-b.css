@@ -152,19 +152,25 @@ button:disabled{cursor:default}
 .b-scene[hidden]{display:none}
 .b-scene .b-fit{background:radial-gradient(circle,var(--k-slot-dot) 1.5px,transparent 2px) 0 0/30px 30px,var(--k-slot-bg);color:var(--k-slot-ink);font-family:var(--f)}
 /* Timer + Pick share the Pause surface (dark: near-black, bright themes: the theme colour) and the Pause tile colours (--acc / --acc-ink) */
-.b-tm,.b-pick{background:#0B0C0F;box-shadow:inset 0 0 0 2px rgba(255,255,255,.12);--sc-tx:#F4F2EE;--sc-tx2:#A7ADB8;--sc-ring:rgba(255,255,255,.12);--sc-low:#FF7A7A;--sc-done:var(--acc)}
-:root[data-tone="bright"] :is(.b-tm,.b-pick){background:var(--bg);box-shadow:inset 0 0 0 2px rgba(0,0,0,.08);--sc-tx:var(--tx);--sc-tx2:var(--tx2);--sc-ring:#FFFFFF;--sc-low:var(--tx);--sc-done:var(--tx)}
+.b-tm,.b-pick{background:#0B0C0F;box-shadow:inset 0 0 0 2px rgba(255,255,255,.12);--sc-tx:#F4F2EE;--sc-tx2:#A7ADB8;--sc-low:#FF7A7A;--sc-done:var(--acc)}
+:root[data-tone="bright"] :is(.b-tm,.b-pick){background:var(--bg);box-shadow:inset 0 0 0 2px rgba(0,0,0,.08);--sc-tx:var(--tx);--sc-tx2:var(--tx2);--sc-low:var(--tx);--sc-done:var(--tx)}
 /* Timer — a simple alarm clock for young kids: the coloured slice is the time left and shrinks as the hand moves; it rings when time is up */
-.b-tm{position:absolute;inset:0;display:grid;justify-items:center;align-content:center;gap:14px;--tm:var(--acc)}
+.b-tm{position:absolute;inset:0;display:grid;justify-items:center;align-content:center;gap:20px;--tm:var(--acc);--tm-pie:#2F6FE8}
+/* the time-left slice takes a colour that contrasts with the clock body (user: "progress 원 색은 대비되는 색으로") */
+:root[data-theme="mint"] .b-tm{--tm-pie:#0E9C7E}
+:root[data-theme="yellow"] .b-tm{--tm-pie:#2F6FE8}
+:root[data-theme="white"] .b-tm{--tm-pie:#F26A1B}
+:root[data-theme="blue"] .b-tm{--tm-pie:#1F5BD8}
+:root[data-theme="pink"] .b-tm{--tm-pie:#0E9C7E}
 .b-tm.is-low{--tpie:#F04A4A}
-.b-tclock{width:560px;height:560px}
+.b-tclock{width:460px;height:460px}   /* a bit smaller (user) */
 .b-tclock svg{display:block;width:100%;height:100%;overflow:visible;transform-origin:50% 88%}
 .b-tclock .body,.b-tclock .bells path,.b-tclock .cap{fill:var(--tm)}
 .b-tclock .legs path,.b-tclock .stem{fill:none;stroke:var(--tm);stroke-width:26;stroke-linecap:round}
 .b-tclock .body{filter:drop-shadow(0 22px 30px rgba(30,20,0,.18))}
 .b-tclock .face{fill:#FFFFFF}
 .b-tclock .dots circle{fill:#1A1712;opacity:.26}
-.b-tclock .pie{fill:var(--tpie,var(--tm));stroke:rgba(0,0,0,.14);stroke-width:3;stroke-linejoin:round;transition:fill .3s}   /* thin edge: a bright yellow slice still reads on the white face */
+.b-tclock .pie{fill:var(--tpie,var(--tm-pie));transition:fill .3s}   /* no edge line (user) — the contrasting colour carries it */
 .b-tclock .hand-halo{stroke:#FFFFFF;stroke-width:20;stroke-linecap:round}   /* keeps the hand visible over dark slices (yellow / pink themes) */
 .b-tclock .hand{stroke:#1A1712;stroke-width:10;stroke-linecap:round}
 .b-tclock .hub{fill:#1A1712;stroke:#FFFFFF;stroke-width:5}
@@ -183,7 +189,7 @@ button:disabled{cursor:default}
 .b-pick{position:absolute;inset:0;display:grid;place-items:center}
 .b-pkcard{display:grid;justify-items:center;gap:28px;max-width:1180px}
 .b-pkhalo{position:relative;display:grid;place-items:center}
-.b-pkav{position:relative;display:grid;place-items:center;width:270px;height:270px;border-radius:50%;background:var(--c,var(--k-slot-line));color:#fff;font:700 146px/1 var(--kid);box-shadow:0 0 0 12px var(--sc-ring),0 34px 60px -24px rgba(0,0,0,.42)}
+.b-pkav{position:relative;display:grid;place-items:center;width:270px;height:270px;border-radius:50%;background:var(--c,var(--k-slot-line));color:#fff;font:700 146px/1 var(--kid);box-shadow:0 34px 60px -24px rgba(0,0,0,.42)}   /* no ring around the circle (user) */
 .b-pkav .i{width:124px;height:124px;stroke-width:1.6}
 .b-pkcard b{max-width:1180px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;padding-bottom:.08em;font:700 128px/1 var(--kid);letter-spacing:-.01em;color:var(--sc-tx)}
 .b-pkcap{display:inline-flex;align-items:center;gap:12px;height:66px;padding:0 32px 0 26px;border-radius:999px;background:var(--acc);color:var(--acc-ink);font-size:30px;font-weight:800}
@@ -205,6 +211,14 @@ button:disabled{cursor:default}
 .b-spause{position:absolute;inset:0;display:grid;place-content:center;justify-items:center;gap:26px;background:#0B0C0F;animation:b-fade .25s both}
 .b-spause[data-b]{cursor:pointer}
 .b-spause .b-pausel{width:230px;height:230px;border-radius:54px;font-size:110px}
+/* attention object: two big eyes that blink now and then ("Eyes on me!" = look at the teacher) */
+.b-attn svg{width:176px;height:auto;overflow:visible}
+.b-attn .sc{fill:#FFFFFF;stroke:#1A1712;stroke-width:7}
+.b-attn .pu{fill:#1A1712}
+.b-attn .hl{fill:#FFFFFF}
+.b-attn .eye{transform-box:fill-box;transform-origin:center;animation:b-blink 4.2s ease-in-out infinite}
+@keyframes b-blink{0%,90%,100%{transform:scaleY(1)}94%{transform:scaleY(.08)}}
+@media (prefers-reduced-motion:reduce){.b-attn .eye{animation:none}}
 .b-spause p{margin:0;font:700 74px/1 var(--kid);color:#F4F2EE}
 .b-spause{box-shadow:inset 0 0 0 2px rgba(255,255,255,.12)}
 .b-spchip{position:absolute;left:28px;top:26px;display:inline-flex;align-items:center;gap:10px;height:44px;padding:0 18px;border-radius:999px;background:rgba(255,255,255,.1);color:#F4F2EE;font-size:18px;font-weight:800}
