@@ -468,8 +468,8 @@
   const FIT = ['is-tight', 'is-tighter', 'is-tightest', 'is-tight4', 'is-tight5', 'is-tight6'];
   let fitKey = '', fitLevel = 0, fitT = 0;
   const actBtn = (title, tip) => `<button type="button" class="b-crumbact" data-b="actmenu" title="${tip}" aria-haspopup="true"><b lang="en">${esc(title)}</b>${ic('chevron-down')}</button>`;
-  const crumbHTML = (sec, title) => `<button type="button" data-b="sections" title="Sections">${esc(sec)}${ic('chevron-down')}</button>${ic('chevron-right')}${actBtn(title, 'Activities in this section')}`;
-  const extraCrumbHTML = (group, title) => `${ic('chevron-right')}<button type="button" class="b-crumbact" data-b="actmenu" title="Class activities in this group" aria-haspopup="true"><span class="b-cak"><small lang="en">${esc(group)}</small><b lang="en">${esc(title)}</b></span>${ic('chevron-down')}</button>`;
+  const crumbHTML = (sec, title) => `<button type="button" data-b="sections" title="Sections">${esc(sec)}${ic('chevron-down')}</button>${actBtn(title, 'Activities in this section')}`;
+  const extraCrumbHTML = (group, title) => `<button type="button" class="b-crumbact" data-b="actmenu" title="Class activities in this group" aria-haspopup="true"><span class="b-cak"><small lang="en">${esc(group)}</small><b lang="en">${esc(title)}</b></span>${ic('chevron-down')}</button>`;
   function fitTop(force) {
     const top = $('.b-top'), crumb = $('#crumb'), L = FP.lesson(); if (!top || !crumb || !L) return;
     const key = `${L.n}|${innerWidth}|${live ? 1 : 0}|${shareTo}`;

@@ -52,7 +52,7 @@ button:disabled{cursor:default}
 .b-ltx b i{font-style:normal;color:var(--acc-text);margin-left:3px}
 .b-ltx b i.is-long{font-size:14.5px;letter-spacing:-.02em;word-spacing:-.1em}
 .b-ltx small{font-size:14.5px;font-weight:600;color:var(--tx2)}
-.b-crumb{display:flex;align-items:center;gap:9px;min-width:0;font-size:17px;color:var(--tx2);white-space:nowrap;overflow-x:clip;overflow-y:visible}
+.b-crumb{display:flex;align-items:center;gap:12px;min-width:0;font-size:17px;color:var(--tx2);white-space:nowrap;overflow-x:clip;overflow-y:visible}
 .b-crumb>.i{width:17px;height:17px;color:var(--tx3)}
 .b-crumb b{min-width:0;max-width:340px;color:var(--tx);font-weight:800;line-height:1.16;white-space:normal;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;text-wrap:balance}
 .b-crumb>button,.b-crumb>span,.b-crumb>.i{flex:none}
@@ -645,7 +645,7 @@ kbd{display:inline-grid;place-items:center;min-width:28px;height:26px;padding:0 
 .b-top.is-tight6{gap:8px}
 .b-top.is-tight6 .b-utils{gap:6px}
 .b-top.is-tight6 .b-scnl{display:none}   /* the Share button keeps its own live dot */
-.b-top.is-tight6 .b-crumb{gap:6px}
+.b-top.is-tight6 .b-crumb{gap:8px}
 .b-top.is-tight6 .b-crumb button{gap:8px;padding:0 10px 0 14px}
 .b-top.is-tight6 .b-acts{padding:0 10px 0 13px}
 .b-top.is-tight6 .b-lesson{padding:0 10px 0 8px}
