@@ -347,12 +347,24 @@ button:disabled{cursor:default}
 
 /* ---------- dock ---------- */
 .b-dock{padding:0 16px 16px 16px;min-width:0}
-.b-segs{display:flex;gap:4px;height:22px;align-items:center;padding:0 2px;margin:0}
+/* lesson progress: one segment per activity, as wide as its planned minutes; the current one fills with the time spent */
+.b-segs{display:flex;gap:6px;height:38px;align-items:stretch;padding:0 2px;margin:0}
 .b-dock:not([data-mode="lesson"]) .b-segs{display:none}
-.b-dock:not([data-mode="lesson"]){padding-top:22px}
-.b-segm{flex:1;height:22px;padding:8px 0;border:0;background:transparent;display:block;position:relative}
-.b-segm::before{content:"";position:absolute;left:0;right:0;top:8px;height:6px;border-radius:4px;background:var(--d3)}
-.b-segm i{position:absolute;left:0;top:8px;height:6px;border-radius:4px;background:var(--acc-bar);transition:width .35s}
+.b-dock:not([data-mode="lesson"]){padding-top:38px}
+.b-segm{flex:1;min-width:0;padding:0;border:0;background:transparent;display:block;position:relative;container-type:inline-size;color:var(--tx2);text-align:left;height:38px}
+.b-segm::before{content:"";position:absolute;left:0;right:0;top:26px;height:6px;border-radius:4px;background:var(--d3)}
+.b-segm i{position:absolute;left:0;top:26px;height:6px;border-radius:4px;background:var(--acc-bar);transition:width .35s}
+.b-segm.is-over i{background:var(--warn)}
+.b-segl{position:absolute;left:1px;right:1px;top:7px;display:flex;align-items:baseline;gap:8px;font-size:12.5px;line-height:14px;white-space:nowrap}   /* 7 px clear of the frame above */
+.b-segl b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;font-weight:600}
+.b-segl em{flex:none;margin-left:auto;font-style:normal;font-weight:700;font-variant-numeric:tabular-nums}
+.b-segm.is-on .b-segl{color:var(--tx)}
+.b-segm.is-on .b-segl b{font-weight:800}
+@container (max-width:110px){.b-segl b{display:none}.b-segp{display:none}}   /* narrow: minutes only (current: time spent only) */
+@container (max-width:44px){.b-segl{display:none}}   /* side docks: bars only — the ring shows the time */
+.b-segsum{flex:none;display:flex;flex-direction:column;align-items:flex-end;min-width:46px;padding:7px 0 0 4px;color:var(--tx2);font-size:12.5px;line-height:14px;font-variant-numeric:tabular-nums;white-space:nowrap}   /* total on the caption line, % on the bar line */
+.b-segsum small{font-size:inherit;font-weight:700}
+.b-segsum b{margin-top:1px;font-size:14px;line-height:14px;font-weight:800;color:var(--tx)}
 .b-segm.is-on::before{background:var(--d4)}
 .b-segm:hover::before{background:var(--d4)}
 .b-dockrow{display:grid;grid-template-columns:minmax(300px,380px) minmax(0,1fr) auto;gap:26px;align-items:center;min-height:108px;padding:14px 16px;border-radius:24px;background:var(--d1);border:1px solid var(--d3)}
@@ -750,6 +762,6 @@ kbd{display:inline-grid;place-items:center;min-width:28px;height:26px;padding:0 
 :root[data-theme="pink"] .b-gbtn--go{background:#FF8DBB;color:#3B0F26}
 /* ---------- readability on every theme ---------- */
 /* text set straight on the blue / pink frame uses the darkest ink (tx2 drops under 4.5:1 there) */
-:root[data-theme="blue"] :is(.b-crumb,.b-crumb>.i,.b-crumb>span,.b-wm small,.b-maphead p,.b-ucol h3 span),:root[data-theme="pink"] :is(.b-crumb,.b-crumb>.i,.b-crumb>span,.b-wm small,.b-maphead p,.b-ucol h3 span){color:var(--tx)}
+:root[data-theme="blue"] :is(.b-crumb,.b-crumb>.i,.b-crumb>span,.b-wm small,.b-maphead p,.b-ucol h3 span,.b-segl,.b-segsum),:root[data-theme="pink"] :is(.b-crumb,.b-crumb>.i,.b-crumb>span,.b-wm small,.b-maphead p,.b-ucol h3 span,.b-segl,.b-segsum){color:var(--tx)}
 /* dark board: the step chip's amber text needs a deeper tone on its pale chip */
 :root[data-theme="dark"] .b-stage .k-slot-step{color:#8A5D00}

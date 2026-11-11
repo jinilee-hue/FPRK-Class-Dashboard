@@ -535,6 +535,17 @@
 
   /* ---------- dock ---------- */
   const R = 25, C = 2 * Math.PI * R;
+  /* planned minutes per activity (Lesson 1 TG: phonemic awareness 5, sound-spelling 10 = Learn and Say 5 + Say It 5, sound sort 5);
+     the progress bar under the frame is sized by them and fills with the time spent (user: "진행시간을 미리 넣고 진행율") */
+  const PLAN_MIN = { lmf: 3, ls1: 5, lssb: 5, si1: 5, si2: 5, si3: 3, bl1: 3, bl3: 5, sisb: 5, sigl: 2 };
+  const planMin = a => PLAN_MIN[a.id] || (a.type === 'home' ? 2 : 5);
+  const mmss = ms => { const s = Math.floor(ms / 1000); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
+  function lessonPct() {   // planned minutes done (finished activities + time in the current one, up to its plan) / planned minutes in this section
+    const flow = FP.flow(), cur = FP.cur(), extra = FP.mode() === 'extra';
+    const total = flow.reduce((t, a) => t + planMin(a), 0) || 1;
+    const done = flow.reduce((t, a) => t + (a.index < cur.index ? planMin(a) : 0), 0) + (extra ? 0 : Math.min(1, FP.timer.actElapsed() / (planMin(cur) * 60000)) * planMin(cur));
+    return Math.min(100, Math.round(done / total * 100));
+  }
   const back = l => `<button type="button" class="b-prev b-back" data-b="scene" data-v="lesson" title="Back to the lesson" aria-label="Back to the lesson">${ic('presentation')}<span>${l || 'Lesson'}</span></button>`;
   function renderDock() {
     const d = $('#dock'); if (!d) return;
@@ -547,8 +558,9 @@
   }
   function dockLesson() {
     const extra = FP.mode() === 'extra', flow = FP.flow(), cur = FP.cur(), st = FP.state();
-    const segs = flow.map(a => { const fill = extra ? 0 : a.index < cur.index ? 1 : a.index === cur.index ? (st.step + 1) / a.steps.length : 0;
-      return `<button type="button" class="b-segm${a.index === cur.index && !extra ? ' is-on' : ''}" style="flex:${a.steps.length}" data-b="go" data-v="${a.id}" title="${esc(a.title)}" aria-label="${esc(a.title)}"><i style="width:${(fill * 100).toFixed(1)}%"></i></button>`; }).join('');
+    const segs = flow.map(a => { const on = !extra && a.index === cur.index, m = planMin(a), ms = on ? FP.timer.actElapsed() : 0, fill = a.index < cur.index ? 1 : on ? Math.min(1, ms / (m * 60000)) : 0;
+      return `<button type="button" class="b-segm${on ? ' is-on' : ''}${on && ms > m * 60000 ? ' is-over' : ''}" style="flex:${m}" data-b="go" data-v="${a.id}" title="${esc(a.title)} · ${m} min" aria-label="${esc(a.title)}, ${m} minutes"><span class="b-segl"><b lang="en">${esc(a.title)}</b><em>${on ? `<span class="b-segt">${mmss(ms)}</span><span class="b-segp"> / ${m} min</span>` : `${m} min`}</em></span><i style="width:${(fill * 100).toFixed(1)}%"></i></button>`; }).join('')
+      + `<span class="b-segsum" title="Planned time for this section · progress"><small>${flow.reduce((t, a) => t + planMin(a), 0)} min</small><b id="segPct">${lessonPct()}%</b></span>`;
     let left, mid, right;
     if (extra) {
       const it = FP.extraInfo(), gm = it.game ? it : null;
@@ -565,7 +577,7 @@
       right = `<div class="b-pn"><button type="button" class="b-prev" data-b="prev" ${pv ? '' : 'disabled'} aria-label="Back" title="Back (←)">${ic('chevron-left')}</button><button type="button" class="b-next" data-b="next" ${nx ? '' : 'disabled'} title="Next (→ / Space)"><span><b>${nl}</b><small lang="en">${nx ? esc(nx.label) : 'End of lesson'}</small></span>${ic('arrow-right')}</button></div>`;
     }
     const notesOn = root.dataset.notes === 'panel' ? root.dataset.npanel !== 'hidden' : notesOpen;
-    return `<div class="b-segs" role="group" aria-label="Progress">${segs}</div>
+    return `<div class="b-segs" role="group" aria-label="Lesson progress">${segs}</div>
       <div class="b-dockrow">${left}${mid}<div class="b-dright"><div class="b-toggles"><button type="button" class="b-tg${notesOn ? ' is-on' : ''}" data-b="notes" aria-pressed="${notesOn}" title="Teacher notes (N)">${ic('notebook-pen')}<span>Notes</span></button><button type="button" class="b-tg${flowOpen ? ' is-on' : ''}" data-b="flow" aria-pressed="${flowOpen}" title="Run of show (L)">${ic('flow')}<span>Flow</span></button></div>${right}</div></div>`;
   }
   const PRESETS = [[30000, '30 s'], [60000, '1 min'], [120000, '2 min'], [180000, '3 min'], [300000, '5 min']];
@@ -590,8 +602,16 @@
       <div class="b-dright"><div class="b-pn"><button type="button" class="b-next" data-b="scene" data-v="pause"><span><b>Resume</b><small>Back to ${to}</small></span>${ic('play')}</button></div></div></div>`;
   }
   function tickRing() {
+    const seg = document.querySelector('.b-segs .b-segm.is-on');
+    if (seg) {   // the current activity fills with the time spent, against its planned minutes
+      const pl = planMin(FP.cur()) * 60000, t = FP.timer.actElapsed();
+      seg.querySelector('i').style.width = (Math.min(1, t / pl) * 100).toFixed(1) + '%';
+      seg.classList.toggle('is-over', t > pl);
+      const tx = seg.querySelector('.b-segt'); if (tx) tx.textContent = mmss(t);
+    }
+    const pct = $('#segPct'); if (pct) pct.textContent = lessonPct() + '%';
     const ring = $('#ring'); if (!ring) return;
-    const a = FP.cur(), ms = FP.timer.actElapsed(), plan = a.type === 'sb' && FP.isIntro() ? 5 * 60000 : 0;
+    const a = FP.cur(), ms = FP.timer.actElapsed(), plan = planMin(a) * 60000;   // same plan as the progress bar
     const fg = ring.querySelector('.b-ring-fg');
     const p = plan ? Math.min(1, ms / plan) : (ms % 60000) / 60000;
     fg.setAttribute('stroke-dashoffset', (C * (1 - p)).toFixed(1));
