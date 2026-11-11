@@ -39,7 +39,7 @@ h1 span{color:var(--muted);font-weight:700}
 .sec-h{display:flex;align-items:baseline;justify-content:space-between;gap:20px;margin:56px 0 20px}
 .sec-h h2{margin:0;font-size:28px;font-weight:800;letter-spacing:-.02em}
 .sec-h p{margin:0;color:var(--muted);font-size:15px}
-.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:28px}
 .card{display:flex;flex-direction:column;border-radius:30px;background:var(--card);border:1px solid var(--line);box-shadow:0 1px 2px rgba(15,20,30,.04),0 30px 60px -40px rgba(15,20,30,.25);overflow:hidden;transition:transform .25s,box-shadow .25s}
 .card:hover{transform:translateY(-3px);box-shadow:0 1px 2px rgba(15,20,30,.04),0 40px 70px -40px rgba(15,20,30,.35)}
 .shot{position:relative;display:block;margin:14px 14px 0;border-radius:20px;overflow:hidden;aspect-ratio:16/9;background:#E9ECF0;outline:1px solid rgba(15,20,30,.06);outline-offset:-1px}
@@ -186,45 +186,29 @@ dialog button{position:fixed;top:20px;right:24px;width:48px;height:48px;border-r
         <div class="cta"><a href="concept-b-stage.html?theme=dark" data-page="concept-b-stage.html">Concept B 열기<svg class="i"><use href="#arrow"/></svg></a></div>
       </div>
     </article>
-
-    <article class="card cc">
-      <a class="shot" href="concept-c-script.html"><img src="assets/preview/c-main.webp" alt="Concept C — Script" loading="lazy"><span class="open">Open<svg class="i"><use href="#arrow"/></svg></span></a>
-      <div class="subs"><button type="button" data-src="assets/preview/c-contents.webp" data-cap="C · Contents"><img src="assets/preview/c-contents.webp" alt="" loading="lazy"><span>Contents</span></button><button type="button" data-src="assets/preview/c-board.webp" data-cap="C · Script hidden — wide board"><img src="assets/preview/c-board.webp" alt="" loading="lazy"><span>Script hidden</span></button></div>
-      <div class="body">
-        <div class="title"><span class="badge">C</span><div><h3>Script</h3><p>Teach from the script.</p></div></div>
-        <p class="desc">오른쪽 스크립트가 곧 내비게이션입니다. 대본을 읽듯 한 줄씩 넘기면 칠판이 따라옵니다. TG 문장을 충실히 따르는 수업에 맞춘 구성입니다.</p>
-        <ul class="points">
-          <li><svg class="i"><use href="#check"/></svg>현재 줄 하이라이트 · 자동 스크롤 텔레프롬프터</li>
-          <li><svg class="i"><use href="#check"/></svg>섹션 챕터 탭 · 수업 전 체크(Before you start)</li>
-          <li><svg class="i"><use href="#check"/></svg><span><kbd>S</kbd> 키로 스크립트를 숨기면 칠판 확장 + 대사 한 줄</span></li>
-        </ul>
-        <dl class="meta"><dt>Content</dt><dd class="num">1271 × 845 <small>· 스크립트 숨기면 1891 × 845</small></dd><dt>Tone</dt><dd>Cool grey · Burnt orange · Pretendard</dd><dt>Best for</dt><dd>대본 중심 진행, 신규 강사 온보딩</dd></dl>
-        <div class="cta"><a href="concept-c-script.html">Concept C 열기<svg class="i"><use href="#arrow"/></svg></a></div>
-      </div>
-    </article>
   </section>
 
   <div class="sec-h"><h2>한눈에 비교</h2><p>콘텐츠 영역 크기는 1920 × 1080 화면 기준 실측값입니다.</p></div>
   <section class="compare">
     <table>
-      <thead><tr><th></th><th><span><i style="background:var(--a)">A</i>Guide</span></th><th><span><i style="background:var(--b);color:var(--b-acc)">B</i>Stage</span></th><th><span><i style="background:var(--c)">C</i>Script</span></th></tr></thead>
+      <thead><tr><th></th><th><span><i style="background:var(--a)">A</i>Guide</span></th><th><span><i style="background:var(--b);color:var(--b-acc)">B</i>Stage</span></th></tr></thead>
       <tbody>
-        <tr><th>레이아웃</th><td>3단 — 흐름 · 칠판 · 가이드</td><td>16:10 학생 화면 + 독 (하단 · 왼쪽 · 오른쪽 선택)</td><td>2단 — 칠판 · 스크립트</td></tr>
-        <tr><th>진행 방식</th><td>왼쪽 흐름 목록 · 하단 <b>Next step</b></td><td>하단 <b>Next</b> · 진행 세그먼트 · 리모컨</td><td>스크립트 줄 선택 · <b>Next line</b></td></tr>
-        <tr><th>강사 가이드</th><td>항상 표시 (접기 가능)</td><td>노트 팝업 또는 사이드 패널</td><td>스크립트 자체가 가이드</td></tr>
-        <tr><th>레슨 이동</th><td>상단 팝오버 (6유닛 × 5레슨)</td><td>전체 화면 레슨맵 + 섹션 미리보기</td><td>목차(Contents) 팝오버</td></tr>
-        <tr><th>콘텐츠 영역</th><td class="num"><b>1198 × 760</b> → 1582 × 760</td><td class="num"><b>1280 × 800</b> 고정 → 1357 × 848</td><td class="num"><b>1271 × 845</b> → 1891 × 845</td></tr>
-        <tr><th>톤</th><td>라이트 · POLY Blue</td><td>다크 · 민트 · 옐로 (테마 3종)</td><td>쿨 그레이 · 번트 오렌지</td></tr>
-        <tr><th>잘 맞는 상황</th><td>처음 이 교재를 가르칠 때</td><td>진행이 익숙하고 몰입이 중요할 때</td><td>TG 대본을 그대로 따를 때</td></tr>
+        <tr><th>레이아웃</th><td>3단 — 흐름 · 칠판 · 가이드</td><td>16:10 학생 화면 + 독 (하단 · 왼쪽 · 오른쪽 선택)</td></tr>
+        <tr><th>진행 방식</th><td>왼쪽 흐름 목록 · 하단 <b>Next step</b></td><td>하단 <b>Next</b> · 진행 세그먼트 · 리모컨</td></tr>
+        <tr><th>강사 가이드</th><td>항상 표시 (접기 가능)</td><td>노트 팝업 또는 사이드 패널</td></tr>
+        <tr><th>레슨 이동</th><td>상단 팝오버 (6유닛 × 5레슨)</td><td>전체 화면 레슨맵 + 섹션 미리보기</td></tr>
+        <tr><th>콘텐츠 영역</th><td class="num"><b>1198 × 760</b> → 1582 × 760</td><td class="num"><b>1280 × 800</b> 고정 → 1357 × 848</td></tr>
+        <tr><th>톤</th><td>라이트 · POLY Blue</td><td>다크 · 민트 · 옐로 (테마 3종)</td></tr>
+        <tr><th>잘 맞는 상황</th><td>처음 이 교재를 가르칠 때</td><td>진행이 익숙하고 몰입이 중요할 때</td></tr>
       </tbody>
     </table>
   </section>
 
-  <div class="sec-h"><h2>세 시안 공통</h2><p>같은 엔진(<code style="font-size:13px">fprk-core.js</code>) 위에 화면 틀만 다릅니다.</p></div>
+  <div class="sec-h"><h2>두 시안 공통</h2><p>같은 엔진(<code style="font-size:13px">fprk-core.js</code>) 위에 화면 틀만 다릅니다.</p></div>
   <section class="shared">
     <div class="feat"><span class="ic"><svg class="i"><use href="#layers"/></svg></span><div><b>빈 콘텐츠 슬롯</b><p>제작 콘텐츠가 들어갈 자리. 현재 활동·단계 이름과 실제 px 규격을 표시합니다.</p></div></div>
     <div class="feat"><span class="ic"><svg class="i"><use href="#list"/></svg></span><div><b>4단 수업 흐름</b><p>Lesson → Section → Activity → Step. 30개 레슨 데이터가 연결돼 있습니다.</p></div></div>
-    <div class="feat"><span class="ic"><svg class="i"><use href="#book"/></svg></span><div><b>레슨 바로 이동</b><p>30개 레슨 · 섹션을 한 번에 옮겨 다닙니다. A 팝오버 · B 레슨맵 · C 목차.</p></div></div>
+    <div class="feat"><span class="ic"><svg class="i"><use href="#book"/></svg></span><div><b>레슨 바로 이동</b><p>30개 레슨 · 섹션을 한 번에 옮겨 다닙니다. A 팝오버 · B 레슨맵.</p></div></div>
     <div class="feat"><span class="ic"><svg class="i"><use href="#pen"/></svg></span><div><b>판서</b><p>펜 · 형광펜 · 지우개, 5색 · 3굵기, 실행 취소. 콘텐츠 위에 바로 씁니다.</p></div></div>
     <div class="feat"><span class="ic"><svg class="i"><use href="#timer"/></svg></span><div><b>수업 타이머</b><p>전체 수업 시간과 활동별 경과 시간을 따로 잽니다.</p></div></div>
     <div class="feat"><span class="ic"><svg class="i"><use href="#music"/></svg></span><div><b>Class activities</b><p>노래 · 율동 · 그림 게임 바로가기. 다녀와도 수업 위치는 그대로입니다.</p></div></div>
@@ -235,7 +219,7 @@ dialog button{position:fixed;top:20px;right:24px;width:48px;height:48px;border-r
 
   <footer class="foot">
     <span>콘텐츠 연결 위치: 각 화면의 <code>.k-viewport</code> (Content area)</span>
-    <span><code>concept-a-guide.html</code> · <code>concept-b-stage.html</code> · <code>concept-c-script.html</code></span>
+    <span><code>concept-a-guide.html</code> · <code>concept-b-stage.html</code></span>
   </footer>
 </main>
 

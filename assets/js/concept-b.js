@@ -184,15 +184,18 @@
 
   /* ---------- produced class media (videos) in the student-screen frame ---------- */
   // Files live in assets/media/ (published with the shared preview — the user OK'd it). `all` = every lesson, numbers = one lesson.
+  const ABC = { title: 'ABC Song', files: ['abc-song.mp4'] };   // the A–Z song, also on the Alphabet section (user picked: L1 Uppercase Letters · Letter Sequence, L2 Lowercase Letters)
   const MEDIA = {
     all: {
       'x-abc': { title: 'ABC Song', files: ['abc-song.mp4'] },                                   // Class activities › Songs › Alphabet Song (A–Z, same song in every lesson)
     },
     1: {
+      's0-0': ABC, 's0-1': ABC,                                                                 // Alphabet › Uppercase Letters, Letter Sequence
       'x-chant': { title: 'Sound & Rhythm Chant', files: ['l1-chant-1.mp4', 'l1-chant-2.mp4', 'l1-chant-3.mp4', 'l1-chant-4.mp4'] },   // Class activities › Chant (stage 1–4 in a row)
       ls1: { title: 'Sound Chant', steps: [['l1-chant-1.mp4'], ['l1-chant-2.mp4'], ['l1-chant-3.mp4'], ['l1-chant-4.mp4'],
         ['l1-chant-1.mp4', 'l1-chant-2.mp4', 'l1-chant-3.mp4', 'l1-chant-4.mp4']] },          // step 5 "All together" plays 1–4 in a row
     },
+    2: { 's0-0': ABC },                                                                         // Alphabet › Lowercase Letters
   };
   const hasVideo = id => { const L = FP.lesson(); return !!(L && ((MEDIA[L.n] || {})[id] || MEDIA.all[id])); };   // the menus mark activities with a video
   const MD = { key: '', idx: 0, playing: false, pos: 0, at: 0 };   // the teacher's window owns this; the classroom screen follows it
