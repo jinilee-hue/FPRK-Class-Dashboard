@@ -81,11 +81,19 @@
     el.hidden = !show; el.dataset.scene = show ? scene : '';
     if (!show) { el.innerHTML = ''; tick(); return; }
     if (scene === 'timer') {
-      const wave = (x0, y, n, h) => { let d = `M${x0} ${y}q70 ${-h} 140 0`; for (let i = 1; i < n; i++) d += 't140 0'; return d + `V${y + 640}H${x0}Z`; };
+      // a simple alarm clock: bells, a white face with 12 dots, the coloured slice = time left, one hand
+      const dot = i => { const a = i * Math.PI / 6, big = i % 3 === 0; return `<circle cx="${(300 + 166 * Math.sin(a)).toFixed(1)}" cy="${(330 - 166 * Math.cos(a)).toFixed(1)}" r="${big ? 8 : 5.5}"/>`; };
       el.innerHTML = `<div class="b-fit"><div class="b-tm" id="tFull">
-        <div class="b-tpond"><svg viewBox="0 0 560 560" aria-hidden="true"><defs><clipPath id="tClip"><circle cx="280" cy="280" r="262"/></clipPath></defs>
-          <circle class="bowl" cx="280" cy="280" r="262"/><g clip-path="url(#tClip)"><g id="tWater"><path class="w2" d="${wave(-420, 0, 11, 15)}"/><path class="w1" d="${wave(-280, 8, 10, 13)}"/></g></g><circle class="rim" cx="280" cy="280" r="262"/></svg>
-          <span class="b-tbell" aria-hidden="true">${ic('bell')}</span></div>
+        <div class="b-tclock"><svg viewBox="0 0 600 600" aria-hidden="true">
+          <g class="rings"><path d="M92 156q-24-44 8-86"/><path d="M60 170q-34-62 10-118"/><path d="M508 156q24-44-8-86"/><path d="M540 170q34-62-10-118"/></g>
+          <g class="legs"><path d="M200 503 137 539"/><path d="M400 503 463 539"/></g>
+          <g class="bells"><path transform="translate(157 125) rotate(-35)" d="M-62 18A62 62 0 0 1 62 18Z"/><path transform="translate(443 125) rotate(35)" d="M-62 18A62 62 0 0 1 62 18Z"/></g>
+          <path class="stem" d="M300 106V82"/><circle class="cap" cx="300" cy="70" r="16"/>
+          <circle class="body" cx="300" cy="330" r="226"/><circle class="face" cx="300" cy="330" r="190"/>
+          <g class="dots">${Array.from({ length: 12 }, (_, i) => dot(i)).join('')}</g>
+          <path class="pie" id="tPie"/><line class="hand" id="tHand" x1="300" y1="330" x2="300" y2="170"/>
+          <circle class="hub" cx="300" cy="330" r="17"/><circle class="hub-dot" cx="300" cy="330" r="6"/>
+        </svg></div>
         <b class="b-tnum" id="tBig"></b>
       </div></div>`;
       dialLoop();
@@ -135,12 +143,14 @@
     }
     const dt = $('#dockTimer'); if (dt) dt.textContent = TM.done ? 'Time’s up!' : clock(left);
   }
-  function drawDial(left) {   // water level = time left (full pond → empty)
-    const w = $('#tWater'); if (!w) return;
-    const p = TM.dur ? Math.max(0, Math.min(1, left / TM.dur)) : 0;
-    w.setAttribute('transform', `translate(0 ${(-12 + (1 - p) * 572).toFixed(1)})`);
+  function drawDial(left) {   // the slice shrinks back to 12 o'clock and the hand rides its edge
+    const pie = $('#tPie'), hand = $('#tHand'); if (!pie) return;
+    const p = TM.dur ? Math.max(0, Math.min(1, left / TM.dur)) : 0, a = p * 2 * Math.PI, R = 152, cx = 300, cy = 330;
+    const x = (cx - R * Math.sin(a)).toFixed(2), y = (cy - R * Math.cos(a)).toFixed(2);
+    pie.setAttribute('d', p >= 0.9995 ? `M${cx} ${cy - R}a${R} ${R} 0 1 0 0.01 0Z` : p <= 0 ? '' : `M${cx} ${cy}L${x} ${y}A${R} ${R} 0 ${p > 0.5 ? 1 : 0} 1 ${cx} ${cy - R}Z`);
+    hand.setAttribute('x2', (cx - 160 * Math.sin(a)).toFixed(2)); hand.setAttribute('y2', (cy - 160 * Math.cos(a)).toFixed(2));
   }
-  function dialLoop() {   // the level sinks smoothly while the timer runs on screen
+  function dialLoop() {   // the slice and the hand move smoothly while the timer runs on screen
     if (!$('#tFull')) return;
     if (TM.run) drawDial(tLeft());
     requestAnimationFrame(dialLoop);
