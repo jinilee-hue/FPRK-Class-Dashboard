@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phonics POND — Classroom</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23FFC83D'/%3E%3Cpath transform='translate(10.88 10.88) scale(.66)' fill='%231C1500' fill-rule='evenodd' d='M32 6a26 26 0 0 1 26 26a26 26 0 0 1-26 26H11a5 5 0 0 1-5-5V32A26 26 0 0 1 32 6ZM23 25.5a2.5 2.5 0 0 1 2.5 2.5v8a2.5 2.5 0 0 1-5 0v-8a2.5 2.5 0 0 1 2.5-2.5ZM32 19.5a2.5 2.5 0 0 1 2.5 2.5v20a2.5 2.5 0 0 1-5 0v-20a2.5 2.5 0 0 1 2.5-2.5ZM41 25.5a2.5 2.5 0 0 1 2.5 2.5v8a2.5 2.5 0 0 1-5 0v-8a2.5 2.5 0 0 1 2.5-2.5Z'/%3E%3C/svg%3E">
+<script>(function(){var q=new URLSearchParams(location.search),r=document.documentElement,g=function(k){try{return localStorage.getItem(k);}catch(e){return null;}},s=function(k,v){try{localStorage.setItem(k,v);}catch(e){}};
+var t=q.get('theme')||g('fprk-bc-theme');if(t==='light')t='mint';if(['dark','mint','yellow','white','blue','pink'].indexOf(t)<0)t='dark';if(q.get('theme'))s('fprk-bc-theme',t);
+var c=q.get('controls')||g('pondc-controls');if(['bottom','left','right'].indexOf(c)<0)c='bottom';if(q.get('controls'))s('pondc-controls',c);
+var n=q.get('notes')||g('pondc-notes');if(['sheet','panel'].indexOf(n)<0)n='sheet';if(q.get('notes'))s('pondc-notes',n);
+var sc=q.get('screen')||g('pondc-screen');if(['full','desk'].indexOf(sc)<0)sc='full';if(q.get('screen'))s('pondc-screen',sc);
+r.dataset.theme=t;r.dataset.tone=t==='dark'?'dark':'bright';r.dataset.controls=c;r.dataset.notes=n;r.dataset.npanel=g('pondc-npanel')==='hidden'?'hidden':'shown';r.dataset.view=q.get('view')==='student'?'student':'teacher';r.dataset.screen=r.dataset.view==='student'?'desk':sc;r.dataset.menu='closed';r.dataset.guide='closed';r.dataset.menuside=c==='left'?'right':'left';})();</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&family=Manrope:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="assets/css/fprk-shell.css?v=e4d958f">
+<link rel="stylesheet" href="assets/css/concept-b-classroom.css?v=e4d958f">
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="pond-mark" viewBox="0 0 64 64"><path fill="currentColor" fill-rule="evenodd" d="M32 6a26 26 0 0 1 26 26a26 26 0 0 1-26 26H11a5 5 0 0 1-5-5V32A26 26 0 0 1 32 6ZM23 25.5a2.5 2.5 0 0 1 2.5 2.5v8a2.5 2.5 0 0 1-5 0v-8a2.5 2.5 0 0 1 2.5-2.5ZM32 19.5a2.5 2.5 0 0 1 2.5 2.5v20a2.5 2.5 0 0 1-5 0v-20a2.5 2.5 0 0 1 2.5-2.5ZM41 25.5a2.5 2.5 0 0 1 2.5 2.5v8a2.5 2.5 0 0 1-5 0v-8a2.5 2.5 0 0 1 2.5-2.5Z"/></symbol>
+</svg>
+<div class="b-app" id="app">
+  <header class="b-top">
+    <a class="b-brand" href="index.html" title="Phonics POND — all concepts"><span class="b-logo"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#pond-mark"/></svg></span><span class="b-wm"><small>Phonics</small><b>POND</b></span></a>
+    <button type="button" class="b-lesson" id="lessonBtn" aria-haspopup="dialog" title="Lesson map (M)"></button>
+    <nav class="b-crumb" id="crumb" aria-label="Where you are"></nav>
+    <button type="button" class="b-acts" id="extrasBtn" popovertarget="extrasPop" title="Class activities and games for this lesson — outside the lesson flow (A)"></button>
+    <div class="b-utils">
+      <div class="b-scenes" id="scenes" role="group" aria-label="What students see"></div>
+      <button type="button" class="b-ubtn b-share" id="shareBtn" popovertarget="sharePop" title="Share with students (S)"></button>
+      <button type="button" class="b-ubtn b-ubtn--icon" id="displayBtn" popovertarget="displayPop" title="Display — layout and color" aria-label="Display settings"><svg class="i"><use href="#i-palette"/></svg></button>
+      <button type="button" class="b-ubtn b-ubtn--icon" id="fsBtn" title="Full screen (F)" aria-label="Full screen"><svg class="i"><use href="#i-maximize"/></svg></button>
+      <button type="button" class="b-ubtn b-ubtn--icon" id="helpBtn" popovertarget="helpPop" title="Shortcuts" aria-label="Keyboard shortcuts"><svg class="i"><use href="#i-keyboard"/></svg></button>
+    </div>
+  </header>
+
+  <main class="b-stagewrap" id="stagewrap">
+    <div class="b-stage" id="stage"></div>
+    <div class="b-fab" id="fab">
+      <div class="b-fabpal" id="fabPal" role="toolbar" aria-label="Board tools" hidden></div>
+      <div class="b-dialitems" id="dialItems" role="group" aria-label="Menu, guide and board tools" hidden></div>
+      <button type="button" class="b-fabbtn" id="fabBtn" aria-expanded="false" aria-controls="fabPal" aria-label="Board tools"></button>
+    </div>
+    <section class="b-sheet b-flow" id="flowStrip" aria-label="Run of show" hidden></section>
+    <section class="b-sheet b-notes" id="notes" aria-label="Teacher notes" hidden></section>
+    <div class="b-wait" id="wait" hidden></div>
+  </main>
+
+  <aside class="b-npanel" id="npanel" aria-label="Teacher notes"></aside>
+  <footer class="b-dock" id="dock" aria-label="Presenter controls"></footer>
+</div>
+
+<div class="b-map" id="map" role="dialog" aria-modal="true" aria-label="Lesson map" hidden></div>
+<div popover id="extrasPop" class="b-pop" aria-label="Class activities"></div>
+<div popover id="sharePop" class="b-pop b-pop--share" aria-label="Share with students"></div>
+<div popover id="displayPop" class="b-pop b-pop--display" aria-label="Display settings"></div>
+<div popover id="rosterPop" class="b-pop b-pop--roster" aria-label="Class list"></div>
+<div popover id="helpPop" class="b-pop b-pop--help" aria-label="Keyboard shortcuts">
+  <h3>Presenter shortcuts</h3>
+  <p>Works with a presentation clicker.</p>
+  <dl>
+    <dt><kbd>→</kbd><kbd>Space</kbd><kbd>PgDn</kbd></dt><dd>Next</dd>
+    <dt><kbd>←</kbd><kbd>PgUp</kbd></dt><dd>Back</dd>
+    <dt><kbd>D</kbd></dt><dd>Pen on / off</dd>
+    <dt><kbd>T</kbd></dt><dd>Timer on the screen</dd>
+    <dt><kbd>P</kbd></dt><dd>Pick a student</dd>
+    <dt><kbd>B</kbd></dt><dd>Eyes on me (pause)</dd>
+    <dt><kbd>G</kbd></dt><dd>Teacher guide (show / hide)</dd>
+    <dt><kbd>N</kbd></dt><dd>Teacher notes</dd>
+    <dt><kbd>L</kbd></dt><dd>Run of show</dd>
+    <dt><kbd>M</kbd></dt><dd>Lesson map</dd>
+    <dt><kbd>A</kbd></dt><dd>Class activities &amp; games</dd>
+    <dt><kbd>S</kbd></dt><dd>Share with students</dd>
+    <dt><kbd>C</kbd></dt><dd>Next color</dd>
+    <dt><kbd>F</kbd></dt><dd>Full screen</dd>
+  </dl>
+</div>
+
+<script src="assets/js/fprk-data.js?v=e4d958f"></script>
+<script src="assets/js/fprk-core-classroom.js?v=e4d958f"></script>
+<script src="assets/js/concept-b-classroom.js?v=e4d958f"></script>
+</body>
+</html>
