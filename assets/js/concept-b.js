@@ -38,13 +38,14 @@
     { id: 'g-croco', name: 'Croco Phonics', poster: 'croco', path: 'Croco-Phonics/', blurb: 'Crocodile dentist · say the word', has: L => L.n <= 10, q: L => `?level=${L.n}`, sub: L => `Level ${L.n} · ${L.snd}` },
     { id: 'g-magic', name: 'Magic Block', poster: 'magic', path: 'Magic-Block/', blurb: 'Pull a block · read it aloud', has: L => L.n === 1, q: () => '', sub: () => 'm-word tower' },
     { id: 'g-match', name: 'Phonics Match', poster: 'match', path: 'Phonics-Match/', blurb: 'Match three · say the word', has: () => true, q: L => { const m = matchLevel(L); return `?theme=${m.theme}&level=${m.level}`; }, sub: L => { const m = matchLevel(L); return `Unit ${m.unit} · ${m.theme === 'animals' ? 'Animals' : 'Things'} · Level ${m.level}`; } },
+    { id: 'g-sand', name: 'Magic Sand', poster: 'sand', url: 'https://file.koreapolyschool.com/Contents/LCMSContents/temp/glearning/antony/04/', blurb: 'Trace the letter in magic sand', has: L => L.n === 1, q: () => '', sub: () => 'Trace M and m' },   // POLY G-Learning (Lesson 1 · ④)
     { id: 'g-island', name: 'Phonics Island', poster: 'island', path: 'phonics-island/', blurb: '3D island · lesson stations', has: L => L.n <= 10, q: L => `?start=lesson${L.n}`, sub: L => `Lesson ${L.n} stations` },
   ];
   const gameGroup = { group: 'Games', icon: 'gamepad', items: [] };
   FP.extras().unshift(gameGroup);
   function refreshGames() { const L = FP.lesson(); if (!L) return; gameGroup.items = GAMES.filter(g => g.has(L)).map(g => ({ id: g.id, label: g.name, sub: g.sub(L), group: 'Games', icon: 'gamepad', game: g })); }
   const curGame = () => { const it = FP.extraInfo(); return it && it.game ? it : null; };
-  const gameUrl = it => GAME_BASE + it.game.path + it.game.q(FP.lesson());
+  const gameUrl = it => (it.game.url || GAME_BASE + it.game.path) + it.game.q(FP.lesson());
 
   /* ---------- class tools shown on the student screen ---------- */
   let scene = 'lesson', resumeTo = 'lesson';                 // lesson | timer | pick | pause
@@ -80,63 +81,33 @@
     el.hidden = !show; el.dataset.scene = show ? scene : '';
     if (!show) { el.innerHTML = ''; tick(); return; }
     if (scene === 'timer') {
-      const ticks = Array.from({ length: 60 }, (_, i) => { const a = i * 6 * Math.PI / 180, big = i % 5 === 0, r1 = big ? 258 : 268;
-        return `<line class="${big ? 'tk tk--big' : 'tk'}" x1="${(300 + r1 * Math.sin(a)).toFixed(1)}" y1="${(300 - r1 * Math.cos(a)).toFixed(1)}" x2="${(300 + 282 * Math.sin(a)).toFixed(1)}" y2="${(300 - 282 * Math.cos(a)).toFixed(1)}"/>`; }).join('');
+      const wave = (x0, y, n, h) => { let d = `M${x0} ${y}q70 ${-h} 140 0`; for (let i = 1; i < n; i++) d += 't140 0'; return d + `V${y + 640}H${x0}Z`; };
       el.innerHTML = `<div class="b-fit"><div class="b-tm" id="tFull">
-        <div class="b-tdial"><svg viewBox="0 0 600 600" aria-hidden="true"><circle class="face" cx="300" cy="300" r="292"/><g>${ticks}</g><path class="pie" id="tPie"/><line class="hand" id="tHand" x1="300" y1="300" x2="300" y2="58"/><circle class="knob" cx="300" cy="300" r="30"/><circle class="knob-dot" cx="300" cy="300" r="10"/></svg>
+        <div class="b-tpond"><svg viewBox="0 0 560 560" aria-hidden="true"><defs><clipPath id="tClip"><circle cx="280" cy="280" r="262"/></clipPath></defs>
+          <circle class="bowl" cx="280" cy="280" r="262"/><g clip-path="url(#tClip)"><g id="tWater"><path class="w2" d="${wave(-420, 0, 11, 15)}"/><path class="w1" d="${wave(-280, 8, 10, 13)}"/></g></g><circle class="rim" cx="280" cy="280" r="262"/></svg>
           <span class="b-tbell" aria-hidden="true">${ic('bell')}</span></div>
-        <div class="b-tinfo"><span class="b-tchip" id="tChip"></span><b class="b-tnum" id="tBig"></b><span class="b-ttot" id="tTot"></span></div>
+        <b class="b-tnum" id="tBig"></b>
       </div></div>`;
       dialLoop();
     }
-    else if (scene === 'pick') { el.innerHTML = '<div class="b-fit"><div class="b-pk" id="pickView"></div></div>'; pickIdx = -2; buildPick(); drawPick(); }
+    else if (scene === 'pick') { el.innerHTML = '<div class="b-fit"><div class="b-pick" id="pickView"></div></div>'; pickIdx = -2; drawPick(); }
     else { const L = FP.lesson(); el.innerHTML = `<div class="b-fit"><div class="b-spause"${STUDENT ? '' : ' data-b="scene" data-v="pause" title="Back to the lesson (B)"'}>${!STUDENT && live ? '<span class="b-spchip"><i class="b-live" aria-hidden="true"></i>Classroom screen · paused</span>' : ''}<span class="b-pausel" lang="en">${esc(L.key)}</span><p lang="en">Eyes on me!</p></div></div>`; }
     tick();
   }
-  // Pick a student: the whole class on the board, a highlight hops from name to name and lands on one
-  function buildPick() {
-    const v = $('#pickView'); if (!v) return;
-    const n = roster.length, cols = n <= 4 ? n : n <= 12 ? 4 : n <= 20 ? 5 : 6, rows = Math.ceil(n / cols);
-    const rowh = Math.max(56, Math.min(140, Math.floor((600 - (rows - 1) * 18) / rows)));
-    const done = roster.filter(x => picked.has(x)).length;
-    v.innerHTML = `<header class="b-pkhead"><span class="b-pkdice">${ic('dices')}</span><h2 lang="en">Who’s next?</h2>
-        <div class="b-pkprog" aria-label="${done} of ${n} had a turn">${n <= 16 ? `<span class="b-pkdots">${roster.map(x => `<i class="${picked.has(x) ? 'is-done' : ''}" data-n="${esc(x)}"></i>`).join('')}</span>` : `<span class="b-pkbar"><i style="width:${(done / n * 100).toFixed(1)}%"></i></span>`}<span><b>${done}</b> of ${n}</span></div></header>
-      <div class="b-pkgrid${cols >= 5 ? ' is-dense' : ''}${cols >= 6 ? ' is-xdense' : ''}" style="--cols:${cols};--rowh:${rowh}px">${roster.map(x => `<div class="b-pkt${picked.has(x) ? ' is-done' : ''}" data-n="${esc(x)}"><span class="b-pkav" style="--c:${avColor(x)}">${initial(x)}<span class="b-pkok">${ic('check')}</span></span><b lang="en">${esc(x)}</b></div>`).join('')}</div>
-      <div class="b-pkres" hidden></div>`;
-    v.dataset.sig = JSON.stringify([roster, [...picked]]);
-    fitNames(v); if (document.fonts) document.fonts.ready.then(() => fitNames(v));
-  }
-  function fitNames(v) {   // long names shrink to fit their tile before they would be cut off
-    v.querySelectorAll('.b-pkt b, .b-pkcard b').forEach(b => {
-      b.style.fontSize = ''; let fs = parseFloat(getComputedStyle(b).fontSize); const min = b.closest('.b-pkcard') ? 64 : 20;
-      while (b.scrollWidth > b.clientWidth + 1 && fs > min) { fs -= 2; b.style.fontSize = fs + 'px'; }
-    });
-  }
+  // Pick a student: one card in the middle — "Who's next?", the names roll in the same spot, then the reveal
+  function fitName(b, min) { if (!b) return; b.style.fontSize = ''; let fs = parseFloat(getComputedStyle(b).fontSize); while (b.scrollWidth > b.clientWidth + 1 && fs > min) { fs -= 2; b.style.fontSize = fs + 'px'; } }
   function drawPick() {
     const v = $('#pickView'); if (!v) return;
     const t = PK.name ? (Date.now() - PK.t0) / SPIN : 0, spinning = !!(PK.name && PK.seq) && t < 1;
     const k = !PK.name ? -1 : spinning ? Math.min(PK.seq.length - 1, Math.floor((1 - Math.pow(1 - Math.max(0, t), 2.6)) * PK.seq.length)) : 1e6;
     if (k !== pickIdx) {
       pickIdx = k;
-      const hot = spinning ? PK.seq[k] : '';
-      v.querySelectorAll('.b-pkt').forEach(el => {
-        const n = el.dataset.n;
-        el.classList.toggle('is-hot', n === hot);
-        el.classList.toggle('is-done', picked.has(n) && !(spinning && n === PK.name));   // don't give the answer away mid-spin
-      });
-      v.querySelectorAll('.b-pkdots i').forEach(d => d.classList.toggle('is-done', picked.has(d.dataset.n) && !(spinning && d.dataset.n === PK.name)));
-      const had = roster.filter(x => picked.has(x) && !(spinning && x === PK.name)).length;
-      const prog = v.querySelector('.b-pkprog b'); if (prog) prog.textContent = had;
-      const bar = v.querySelector('.b-pkbar i'); if (bar) bar.style.width = (had / Math.max(1, roster.length) * 100).toFixed(1) + '%';
-      const res = v.querySelector('.b-pkres');
-      if (res) {
-        const show = !!PK.name && !spinning;
-        if (show && res.hidden) {
-          const n = PK.name, burst = Array.from({ length: 13 }, (_, i) => `<i style="--a:${(-120 + i * 20)}deg;--d:${i % 2 ? 184 : 222}px;--c:${AV[(i * 3) % AV.length]}"></i>`).join('');   // an arc over the head, clear of the name
-          res.innerHTML = `<div class="b-pkcard"><span class="b-pkhalo"><span class="b-pkburst" aria-hidden="true">${burst}</span><span class="b-pkav b-pkav--lg" style="--c:${avColor(n)}">${initial(n)}</span></span><b lang="en">${esc(n)}</b><span class="b-pkcap">${ic('sparkles')}It’s your turn!</span></div>`;
-        }
-        res.hidden = !show;
-        if (show) fitNames(res);
+      if (k === -1) v.innerHTML = `<div class="b-pkcard is-wait"><span class="b-pkav">${ic('dices')}</span><b lang="en">Who’s next?</b><span class="b-pkcap is-quiet" aria-hidden="true"></span></div>`;
+      else {
+        const n = spinning ? PK.seq[k] : PK.name;
+        const burst = spinning ? '' : `<span class="b-pkburst" aria-hidden="true">${Array.from({ length: 13 }, (_, i) => `<i style="--a:${-120 + i * 20}deg;--d:${i % 2 ? 184 : 222}px;--c:${AV[(i * 3) % AV.length]}"></i>`).join('')}</span>`;   // an arc over the head, clear of the name
+        v.innerHTML = `<div class="b-pkcard ${spinning ? 'is-spin' : 'is-pick'}"><span class="b-pkhalo">${burst}<span class="b-pkav" style="--c:${avColor(n)}">${initial(n)}</span></span><b lang="en">${esc(n)}</b>${spinning ? '<span class="b-pkcap is-quiet">Picking…</span>' : `<span class="b-pkcap">${ic('sparkles')}It’s your turn!</span>`}</div>`;
+        fitName(v.querySelector('.b-pkcard b'), 64);
       }
     }
     if (spinning) requestAnimationFrame(drawPick);
@@ -148,12 +119,8 @@
     if (f) {
       const st = TM.done ? 'done' : TM.run ? 'run' : left < TM.dur ? 'paused' : 'ready';
       $('#tBig').textContent = st === 'done' ? 'Time’s up!' : clock(left);
-      if (f.dataset.st !== st) {
-        f.dataset.st = st;
-        $('#tChip').innerHTML = { ready: `${ic('timer')}Ready`, run: '<i class="b-tlive" aria-hidden="true"></i>Time left', paused: `${ic('pause')}Paused`, done: `${ic('check')}Done` }[st];
-      }
-      $('#tTot').textContent = st === 'ready' ? humanTime(TM.dur) : st === 'done' ? 'Great job, everyone!' : `of ${humanTime(TM.dur)}`;
-      f.classList.toggle('is-low', TM.run && left <= 10000); f.classList.toggle('is-done', TM.done); f.classList.toggle('is-long', left >= 600000);
+      f.dataset.st = st;
+      f.classList.toggle('is-low', TM.run && left <= 10000); f.classList.toggle('is-done', TM.done);
       drawDial(left);
     }
     const ct = $('#ctimer');
@@ -168,16 +135,12 @@
     }
     const dt = $('#dockTimer'); if (dt) dt.textContent = TM.done ? 'Time’s up!' : clock(left);
   }
-  const humanTime = ms => { const s = Math.round(ms / 1000), m = Math.floor(s / 60), r = s % 60; return m && r ? `${m} min ${r} s` : m ? `${m} minute${m > 1 ? 's' : ''}` : `${r} seconds`; };
-  function drawDial(left) {
-    const pie = $('#tPie'), hand = $('#tHand'); if (!pie) return;
-    const p = TM.dur ? Math.max(0, Math.min(1, left / TM.dur)) : 0, a = p * 2 * Math.PI, R = 246;
-    const x = (300 - R * Math.sin(a)).toFixed(2), y = (300 - R * Math.cos(a)).toFixed(2);   // the slice runs from 12 o'clock back to the time left
-    pie.setAttribute('d', p >= 0.9995 ? `M300 54a246 246 0 1 0 0.01 0Z` : p <= 0 ? '' : `M300 300L${x} ${y}A${R} ${R} 0 ${p > 0.5 ? 1 : 0} 1 300 54Z`);
-    const hx = (300 - 256 * Math.sin(a)).toFixed(2), hy = (300 - 256 * Math.cos(a)).toFixed(2);
-    hand.setAttribute('x2', hx); hand.setAttribute('y2', hy);
+  function drawDial(left) {   // water level = time left (full pond → empty)
+    const w = $('#tWater'); if (!w) return;
+    const p = TM.dur ? Math.max(0, Math.min(1, left / TM.dur)) : 0;
+    w.setAttribute('transform', `translate(0 ${(-12 + (1 - p) * 572).toFixed(1)})`);
   }
-  function dialLoop() {   // smooth slice while the timer runs on screen
+  function dialLoop() {   // the level sinks smoothly while the timer runs on screen
     if (!$('#tFull')) return;
     if (TM.run) drawDial(tLeft());
     requestAnimationFrame(dialLoop);
@@ -196,14 +159,17 @@
   }
 
   /* ---------- produced class media (videos) in the student-screen frame ---------- */
-  // Files live in assets/media/ on this computer only: company content, kept out of git and the public share.
+  // Files live in assets/media/ (published with the shared preview — the user OK'd it). `all` = every lesson, numbers = one lesson.
   const MEDIA = {
+    all: {
+      'x-abc': { title: 'ABC Song', files: ['abc-song.mp4'] },                                   // Class activities › Songs › Alphabet Song (A–Z, same song in every lesson)
+    },
     1: {
-      'x-abc': { title: 'ABC Song', files: ['l1-abc-song.mp4'] },                              // Class activities › Alphabet Song
       ls1: { title: 'Sound Chant', steps: [['l1-chant-1.mp4'], ['l1-chant-2.mp4'], ['l1-chant-3.mp4'], ['l1-chant-4.mp4'],
         ['l1-chant-1.mp4', 'l1-chant-2.mp4', 'l1-chant-3.mp4', 'l1-chant-4.mp4']] },          // step 5 "All together" plays 1–4 in a row
     },
   };
+  const hasVideo = id => { const L = FP.lesson(); return !!(L && ((MEDIA[L.n] || {})[id] || MEDIA.all[id])); };   // the menus mark activities with a video
   const MD = { key: '', idx: 0, playing: false, pos: 0, at: 0 };   // the teacher's window owns this; the classroom screen follows it
   const DUR = {};
   let mEl = null, mIdleT = 0, mPolicyMute = false;
@@ -211,7 +177,8 @@
   const mSrc = f => 'assets/media/' + f;
   const mClock = s => { s = Math.max(0, Math.floor(s || 0)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
   function curMedia() {
-    const L = FP.lesson(), set = L && MEDIA[L.n]; if (!set) return null;
+    const L = FP.lesson(); if (!L) return null;
+    const set = { ...MEDIA.all, ...(MEDIA[L.n] || {}) };
     const s = FP.state();
     if (FP.mode() === 'extra') { const m = set[s.extra]; return m && m.files ? { key: `${L.n}|${s.extra}`, group: `${L.n}|${s.extra}`, title: m.title, files: m.files } : null; }
     const m = set[s.act]; if (!m) return null;
@@ -262,8 +229,8 @@
       });
       mEl.addEventListener('error', () => {
         const box = el.querySelector('.b-mmiss'); if (!box) return;
-        const shared = /github\.io$/.test(location.hostname);
-        box.innerHTML = `<span class="b-mmicon">${ic('monitor-pause')}</span><b>${shared ? 'This video isn’t in the shared preview' : 'Video file not found'}</b><p>${shared ? 'Class videos stay on the teacher’s computer.' : 'assets/media/' + esc(m.files[MD.idx] || '')}</p>`;
+        const web = /^https?:$/.test(location.protocol) && !/^(localhost|127\.)/.test(location.hostname);
+        box.innerHTML = `<span class="b-mmicon">${ic('monitor-pause')}</span><b>${web ? 'This video couldn’t be loaded' : 'Video file not found'}</b><p>${web ? 'Check the internet connection and try again.' : 'assets/media/' + esc(m.files[MD.idx] || '')}</p>`;
         box.hidden = false; el.classList.add('is-missing');
       });
     }
@@ -365,7 +332,7 @@
     FP.mount($('#stage'), { storageKey: 'pond-student', fresh: true, keys: false, keepAwake: true, design: DESIGN, viewTransitions: false });
     addLayers(); refreshGames();
     const wait = $('#wait');
-    const card = (title, sub) => { wait.innerHTML = `<div class="b-waitin"><span class="b-logo b-logo--lg"><svg viewBox="0 0 32 32" aria-hidden="true"><use href="#pond-mark"/></svg></span><b>${title}</b><p>${sub}</p></div>`; wait.hidden = false; };
+    const card = (title, sub) => { wait.innerHTML = `<div class="b-waitin"><span class="b-logo b-logo--lg"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#pond-mark"/></svg></span><b>${title}</b><p>${sub}</p></div>`; wait.hidden = false; };
     if (!CH) { card('This browser can’t show the student screen', 'Open it in Chrome, Edge or Safari.'); return; }
     card('Waiting for your teacher…', 'On the teacher’s dashboard: Share → Classroom screen.');
     const apply = m => {
@@ -710,7 +677,7 @@
   function renderExtras() {
     const cur = FP.extraInfo();
     const games = gameGroup.items.length ? `<section class="b-xgames"><h4>${ic('gamepad')}Games for Lesson ${FP.lesson().n} <span lang="en">${esc(FP.lesson().snd)}</span></h4><div>${gameGroup.items.map(it => `<button type="button" class="b-xg${cur && cur.id === it.id ? ' is-on' : ''}" data-b="extra" data-v="${it.id}"><img src="assets/games/${it.game.poster}-thumb.webp" alt="" loading="lazy" onerror="this.style.visibility='hidden'"><b lang="en">${esc(it.label)}</b><small lang="en">${esc(it.sub)}</small></button>`).join('')}</div></section>` : '';
-    $('#extrasPop').innerHTML = `<div class="b-pophead"><h3>Class activities</h3><p>Outside the lesson flow — the lesson waits where you left it.</p></div>${games}<div class="b-xgrid">${FP.extras().filter(g => g !== gameGroup).map(g => `<section><h4>${ic(g.icon)}${esc(g.group)}</h4>${g.items.map(it => `<button type="button" class="b-xi${it.soon ? ' is-soon' : ''}${cur && cur.id === it.id ? ' is-on' : ''}" data-b="extra" data-v="${it.id}"><b>${esc(it.label)}</b><small>${esc(it.sub)}</small>${it.soon ? '<em>Soon</em>' : ''}</button>`).join('')}</section>`).join('')}</div>`;
+    $('#extrasPop').innerHTML = `<div class="b-pophead"><h3>Class activities</h3><p>Outside the lesson flow — the lesson waits where you left it.</p></div>${games}<div class="b-xgrid">${FP.extras().filter(g => g !== gameGroup).map(g => `<section><h4>${ic(g.icon)}${esc(g.group)}</h4>${g.items.map(it => `<button type="button" class="b-xi${it.soon ? ' is-soon' : ''}${cur && cur.id === it.id ? ' is-on' : ''}" data-b="extra" data-v="${it.id}"><b>${esc(it.label)}</b><small>${esc(it.sub)}</small>${it.soon ? '<em>Soon</em>' : hasVideo(it.id) ? `<span class="b-xvid">${ic('play')}Video</span>` : ''}</button>`).join('')}</section>`).join('')}</div>`;
   }
 
   /* ---------- sections menu (breadcrumb) ---------- */
@@ -726,11 +693,11 @@
     let m = $('#actMenu'); if (!m) { m = document.createElement('div'); m.id = 'actMenu'; m.className = 'b-pop b-pop--secs b-pop--acts'; m.popover = 'auto'; document.body.appendChild(m); }
     if (FP.mode() === 'extra') {
       const cur = FP.extraInfo(), g = FP.extras().find(x => x.items.some(it => it.id === cur.id)) || { group: 'Class activities', items: [cur] };
-      m.innerHTML = `<p class="b-lab2" lang="en">${esc(g.group)} · class activities</p>${g.items.map((it, i) => `<button type="button" class="b-secitem${it.id === cur.id ? ' is-on' : ''}" data-b="extra" data-v="${it.id}"><span>${i + 1}</span><b lang="en">${esc(it.label)}</b><small lang="en">${esc(it.sub || '')}</small>${it.soon ? '<em>Soon</em>' : ''}</button>`).join('')}`;
+      m.innerHTML = `<p class="b-lab2" lang="en">${esc(g.group)} · class activities</p>${g.items.map((it, i) => `<button type="button" class="b-secitem${it.id === cur.id ? ' is-on' : ''}" data-b="extra" data-v="${it.id}"><span>${i + 1}</span><b lang="en">${esc(it.label)}</b><small lang="en">${hasVideo(it.id) ? ic('play') + 'Video · ' : ''}${esc(it.sub || '')}</small>${it.soon ? '<em>Soon</em>' : ''}</button>`).join('')}`;
     } else {
       const flow = FP.flow(), cur = FP.cur(), groups = FP.groups().map(g => [g, flow.filter(a => a.group === g.id)]).filter(([, a]) => a.length);
       const row = a => { const on = a.id === cur.id, done = a.index < cur.index;
-        return `<button type="button" class="b-secitem${on ? ' is-on' : ''}${done ? ' is-done' : ''}" data-b="go" data-v="${a.id}"><span>${done ? ic('check') : a.index + 1}</span><b lang="en">${esc(a.title)}</b><small>${a.pending ? 'SB ' + esc(a.page) : a.steps.length + (a.steps.length > 1 ? ' steps' : ' step')}</small><em>${a.type === 'sb' ? 'SB' : a.type === 'home' ? 'Home' : 'Prep'}</em></button>`; };
+        return `<button type="button" class="b-secitem${on ? ' is-on' : ''}${done ? ' is-done' : ''}" data-b="go" data-v="${a.id}"><span>${done ? ic('check') : a.index + 1}</span><b lang="en">${esc(a.title)}</b><small>${hasVideo(a.id) ? ic('play') + 'Video · ' : ''}${a.pending ? 'SB ' + esc(a.page) : a.steps.length + (a.steps.length > 1 ? ' steps' : ' step')}</small><em>${a.type === 'sb' ? 'SB' : a.type === 'home' ? 'Home' : 'Prep'}</em></button>`; };
       m.innerHTML = `<p class="b-lab2" lang="en">${esc(FP.section().name)} · ${flow.length} ${flow.length === 1 ? 'activity' : 'activities'}</p>${groups.map(([g, items]) => `${groups.length > 1 ? `<p class="b-lab3" lang="en">${esc(g.label)}</p>` : ''}${items.map(row).join('')}`).join('')}`;
     }
     const r = btn.getBoundingClientRect(); m.style.left = Math.max(8, Math.min(r.left, innerWidth - 428)) + 'px'; m.style.top = (r.bottom + 8) + 'px';

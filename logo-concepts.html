@@ -61,6 +61,7 @@ button{font:inherit;cursor:pointer}
 .meta{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 12px;padding:16px 18px 6px}
 .no{grid-row:span 2;font:800 15px/28px var(--m);color:#9AA1AC;font-variant-numeric:tabular-nums}
 .meta h2{margin:0;font:800 19px/28px var(--f);letter-spacing:-.01em}
+.meta h2 em.is-on{background:var(--ink);color:#fff}
 .meta h2 em{font-style:normal;margin-left:6px;padding:2px 8px;border-radius:7px;background:#EEF0F3;font-size:12.5px;font-weight:700;color:var(--muted);vertical-align:2px}
 .meta p{margin:0;font-size:14.5px;line-height:1.5;color:var(--muted);text-wrap:pretty}
 .foot{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-top:auto;padding:12px 18px 18px}
@@ -103,7 +104,7 @@ button{font:inherit;cursor:pointer}
   <div class="head">
     <div>
       <h1>Phonics POND · 로고 시안</h1>
-      <p>심볼 8안과 현재 마크. 테마를 바꾸면 상단 바와 앱 아이콘이 함께 바뀝니다.</p>
+      <p>심볼 8안과 이전 마크 — <b>08 Talking Drop</b>을 대시보드에 적용했습니다. 테마를 바꾸면 상단 바와 앱 아이콘이 함께 바뀝니다.</p>
     </div>
     <div class="themes" role="group" aria-label="테마" id="themes"></div>
   </div>
@@ -162,7 +163,7 @@ button{font:inherit;cursor:pointer}
   };
 
   const LOGOS = [
-    { id: 'current', no: '00', name: 'Current', tag: '현재', idea: '물방울과 파문 — 지금 대시보드에 쓰는 마크.', wm: WM.stack },
+    { id: 'current', no: '00', name: 'Previous', tag: '이전', idea: '물방울과 파문 — Talking Drop 적용 전까지 쓰던 마크.', wm: WM.stack },
     { id: 'ripple', no: '01', name: 'Ripple', idea: '소리가 물결처럼 퍼지는 순간. POND의 O가 파문이 됩니다.', wm: WM.ripple },
     { id: 'lilyp', no: '02', name: 'Lily P', idea: '연잎과 줄기가 만든 P — Phonics와 Pond의 첫 글자.', wm: WM.lex2 },
     { id: 'frog', no: '03', name: 'Frog', idea: '연못의 주인공이 소리 내어 읽는 입 모양.', wm: WM.line },
@@ -170,16 +171,16 @@ button{font:inherit;cursor:pointer}
     { id: 'refl', no: '05', name: 'Reflection', idea: '물에 비친 P는 b — 아이들이 헷갈리는 b·p를 품은 반영.', wm: WM.refl },
     { id: 'bubbles', no: '06', name: 'Bubbles', idea: '글자가 물방울처럼 떠오릅니다.', wm: WM.lexline },
     { id: 'steps', no: '07', name: 'Lily Steps', idea: '연잎 징검다리 — 레슨을 한 칸씩 건너는 수업 흐름.', wm: WM.stack },
-    { id: 'drop', no: '08', name: 'Talking Drop', idea: '지금의 물방울을 말풍선으로 — 가장 보수적인 발전안.', wm: WM.stack },
+    { id: 'drop', no: '08', name: 'Talking Drop', tag: '적용됨', on: true, idea: '지금의 물방울을 말풍선으로 — 가장 보수적인 발전안.', wm: WM.stack },
   ];
   const chev = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--tx2)"><path d="m6 9 6 6 6-6"/></svg>';
   const lessonMock = `<span class="tb-lesson" aria-hidden="true"><span class="lt">Mm</span><span><b>Lesson 1 <i>/m/</i></b><small>Unit 1 · Day 3</small></span>${chev}</span>`;
   const card = L => `<article class="card" id="logo-${L.id}">
       <div class="stage"><div class="lock">${sym(L.id)}${L.wm()}</div></div>
       <div class="tb" title="Top bar at real size"><span class="tb-logo">${sym(L.id)}</span>${L.wm()}${lessonMock}</div>
-      <div class="meta"><span class="no">${L.no}</span><h2>${L.name}${L.tag ? `<em>${L.tag}</em>` : ''}</h2><p>${L.idea}</p></div>
+      <div class="meta"><span class="no">${L.no}</span><h2>${L.name}${L.tag ? `<em${L.on ? ' class="is-on"' : ''}>${L.tag}</em>` : ''}</h2><p>${L.idea}</p></div>
       <div class="foot"><div class="icons" title="App icon 64 · 40 · 28 · 16 px and one colour">${[64, 40, 28, 16].map(s => `<span class="app" style="--s:${s}px">${sym(L.id, true)}</span>`).join('')}<span class="one">${sym(L.id, true)}</span></div>
-        <button type="button" class="pick" data-hermes-send="${L.id === 'current' ? 'Phonics POND 로고는 지금 마크를 그대로 쓸게.' : `Phonics POND 로고는 ${L.no} ${L.name} 시안으로 할게. 대시보드에 적용해줘.`}">${L.id === 'current' ? '지금 것 유지' : '이 안으로'}</button></div>
+        <button type="button" class="pick" ${L.on ? 'disabled ' : ''}data-hermes-send="${L.id === 'current' ? 'Phonics POND 로고를 이전 물방울 마크로 되돌려줘.' : `Phonics POND 로고는 ${L.no} ${L.name} 시안으로 할게. 대시보드에 적용해줘.`}">${L.on ? '적용됨' : L.id === 'current' ? '이전 마크로' : '이 안으로'}</button></div>
     </article>`;
   document.getElementById('grid').innerHTML = LOGOS.map(card).join('');
 

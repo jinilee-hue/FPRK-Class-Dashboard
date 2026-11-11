@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Phonics POND — Class Dashboard</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23FFC83D'/%3E%3Cpath transform='translate(10.88 10.88) scale(.66)' fill='%231C1500' fill-rule='evenodd' d='M32 6a26 26 0 0 1 26 26a26 26 0 0 1-26 26H11a5 5 0 0 1-5-5V32A26 26 0 0 1 32 6ZM23 25.5a2.5 2.5 0 0 1 2.5 2.5v8a2.5 2.5 0 0 1-5 0v-8a2.5 2.5 0 0 1 2.5-2.5ZM32 19.5a2.5 2.5 0 0 1 2.5 2.5v20a2.5 2.5 0 0 1-5 0v-20a2.5 2.5 0 0 1 2.5-2.5ZM41 25.5a2.5 2.5 0 0 1 2.5 2.5v8a2.5 2.5 0 0 1-5 0v-8a2.5 2.5 0 0 1 2.5-2.5Z'/%3E%3C/svg%3E">
 <script>(function(){var q=new URLSearchParams(location.search),r=document.documentElement,g=function(k){try{return localStorage.getItem(k);}catch(e){return null;}},s=function(k,v){try{localStorage.setItem(k,v);}catch(e){}};
 var t=q.get('theme')||g('fprk-b-theme');if(t==='light')t='mint';if(['dark','mint','yellow','white','blue','pink'].indexOf(t)<0)t='dark';if(q.get('theme'))s('fprk-b-theme',t);
 var c=q.get('controls')||g('pond-controls');if(['bottom','left','right'].indexOf(c)<0)c='bottom';if(q.get('controls'))s('pond-controls',c);
@@ -12,16 +13,16 @@ r.dataset.theme=t;r.dataset.tone=t==='dark'?'dark':'bright';r.dataset.controls=c
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&family=Manrope:wght@400;500;600;700;800&display=swap">
-<link rel="stylesheet" href="assets/css/fprk-shell.css?v=3ac659d">
-<link rel="stylesheet" href="assets/css/concept-b.css?v=3ac659d">
+<link rel="stylesheet" href="assets/css/fprk-shell.css?v=41c6f52">
+<link rel="stylesheet" href="assets/css/concept-b.css?v=41c6f52">
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <symbol id="pond-mark" viewBox="0 0 32 32"><path d="M16 3.5c3.6 4.4 5.4 7.6 5.4 9.9a5.4 5.4 0 0 1-10.8 0c0-2.3 1.8-5.5 5.4-9.9Z" fill="currentColor"/><ellipse cx="16" cy="24" rx="12.5" ry="4.6" fill="none" stroke="currentColor" stroke-width="2" opacity=".42"/><ellipse cx="16" cy="24" rx="6.5" ry="2.2" fill="none" stroke="currentColor" stroke-width="2" opacity=".75"/></symbol>
+  <symbol id="pond-mark" viewBox="0 0 64 64"><path fill="currentColor" fill-rule="evenodd" d="M32 6a26 26 0 0 1 26 26a26 26 0 0 1-26 26H11a5 5 0 0 1-5-5V32A26 26 0 0 1 32 6ZM23 25.5a2.5 2.5 0 0 1 2.5 2.5v8a2.5 2.5 0 0 1-5 0v-8a2.5 2.5 0 0 1 2.5-2.5ZM32 19.5a2.5 2.5 0 0 1 2.5 2.5v20a2.5 2.5 0 0 1-5 0v-20a2.5 2.5 0 0 1 2.5-2.5ZM41 25.5a2.5 2.5 0 0 1 2.5 2.5v8a2.5 2.5 0 0 1-5 0v-8a2.5 2.5 0 0 1 2.5-2.5Z"/></symbol>
 </svg>
 <div class="b-app" id="app">
   <header class="b-top">
-    <a class="b-brand" href="index.html" title="Phonics POND — all concepts"><span class="b-logo"><svg viewBox="0 0 32 32" aria-hidden="true"><use href="#pond-mark"/></svg></span><span class="b-wm"><small>Phonics</small><b>POND</b></span></a>
+    <a class="b-brand" href="index.html" title="Phonics POND — all concepts"><span class="b-logo"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#pond-mark"/></svg></span><span class="b-wm"><small>Phonics</small><b>POND</b></span></a>
     <button type="button" class="b-lesson" id="lessonBtn" aria-haspopup="dialog" title="Lesson map (M)"></button>
     <nav class="b-crumb" id="crumb" aria-label="Where you are"></nav>
     <button type="button" class="b-acts" id="extrasBtn" popovertarget="extrasPop" title="Class activities and games for this lesson — outside the lesson flow (A)"></button>
@@ -74,8 +75,8 @@ r.dataset.theme=t;r.dataset.tone=t==='dark'?'dark':'bright';r.dataset.controls=c
   </dl>
 </div>
 
-<script src="assets/js/fprk-data.js?v=3ac659d"></script>
-<script src="assets/js/fprk-core.js?v=3ac659d"></script>
-<script src="assets/js/concept-b.js?v=3ac659d"></script>
+<script src="assets/js/fprk-data.js?v=41c6f52"></script>
+<script src="assets/js/fprk-core.js?v=41c6f52"></script>
+<script src="assets/js/concept-b.js?v=41c6f52"></script>
 </body>
 </html>
