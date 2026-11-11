@@ -44,11 +44,12 @@
   const EXTRA_GAMES = {
     'x-mfh': { name: 'Magic Sand', poster: 'sand', url: 'https://file.koreapolyschool.com/Contents/LCMSContents/temp/glearning/antony/04/', tag: 'Handwriting', icon: 'pen', blurb: 'Trace the letter in magic sand', has: L => L.n === 1, q: () => '', sub: () => 'Magic Sand · trace M and m' },   // POLY G-Learning (Lesson 1 · ④)
   };
-  const gameGroup = { group: 'Games', icon: 'gamepad', items: [] };
-  FP.extras().unshift(gameGroup);
+  // the lesson's phonics games are Meaning First class activities (user), listed after its own items
+  const mfGroup = FP.extras().find(g => g.group === 'Meaning First') || FP.extras()[0];
+  const mfBase = mfGroup.items.slice();
   function refreshGames() {
     const L = FP.lesson(); if (!L) return;
-    gameGroup.items = GAMES.filter(g => g.has(L)).map(g => ({ id: g.id, label: g.name, sub: g.sub(L), group: 'Games', icon: 'gamepad', game: g }));
+    mfGroup.items = [...mfBase, ...GAMES.filter(g => g.has(L)).map(g => ({ id: g.id, label: g.name, sub: g.sub(L), group: mfGroup.group, icon: 'gamepad', game: g }))];
     for (const g of FP.extras()) for (const it of g.items) {
       const eg = EXTRA_GAMES[it.id]; if (!eg) continue;
       if (!it.base) it.base = { sub: it.sub, soon: it.soon };
@@ -439,7 +440,7 @@
   const ACTS_DEF = () => `${ic('grid')}<span class="b-actl">Class activities</span>${ic('chevron-down', 'b-dd')}`;
   const actsVal = it => {
     const g = FP.extras().find(x => x.items.some(y => y.id === it.id));
-    return `${ic((g && g.icon) || 'grid')}<b class="b-actv" lang="en">${esc(it.label)}</b>${ic('chevron-down', 'b-dd')}`;   // the group icon + the name, 2 lines max
+    return `${ic(it.icon || (g && g.icon) || 'grid')}<b class="b-actv" lang="en">${esc(it.label)}</b>${ic('chevron-down', 'b-dd')}`;   // the group icon + the name, 2 lines max
   };
   function renderActs() {
     const b = $('#extrasBtn'); if (!b || !FP.lesson()) return;
@@ -713,8 +714,7 @@
   /* ---------- class activities + games ---------- */
   function renderExtras() {
     const cur = FP.extraInfo();
-    const games = gameGroup.items.length ? `<section class="b-xgames"><h4>${ic('gamepad')}Games for Lesson ${FP.lesson().n} <span lang="en">${esc(FP.lesson().snd)}</span></h4><div>${gameGroup.items.map(it => `<button type="button" class="b-xg${cur && cur.id === it.id ? ' is-on' : ''}" data-b="extra" data-v="${it.id}"><img src="assets/games/${it.game.poster}-thumb.webp" alt="" loading="lazy" onerror="this.style.visibility='hidden'"><b lang="en">${esc(it.label)}</b><small lang="en">${esc(it.sub)}</small></button>`).join('')}</div></section>` : '';
-    $('#extrasPop').innerHTML = `<div class="b-pophead"><h3>Class activities</h3><p>Outside the lesson flow — the lesson waits where you left it.</p></div>${games}<div class="b-xgrid">${FP.extras().filter(g => g !== gameGroup).map(g => `<section><h4>${ic(g.icon)}${esc(g.group)}</h4>${g.items.map(it => `<button type="button" class="b-xi${it.soon ? ' is-soon' : ''}${cur && cur.id === it.id ? ' is-on' : ''}" data-b="extra" data-v="${it.id}"><b>${esc(it.label)}</b><small>${esc(it.sub)}</small>${it.soon ? '<em>Soon</em>' : hasVideo(it.id) ? `<span class="b-xvid">${ic('play')}Video</span>` : ''}</button>`).join('')}</section>`).join('')}</div>`;
+    $('#extrasPop').innerHTML = `<div class="b-pophead"><h3>Class activities</h3><p>Outside the lesson flow — the lesson waits where you left it.</p></div><div class="b-xgrid">${FP.extras().map(g => `<section><h4>${ic(g.icon)}${esc(g.group)}</h4>${g.items.map(it => `<button type="button" class="b-xi${it.soon ? ' is-soon' : ''}${cur && cur.id === it.id ? ' is-on' : ''}" data-b="extra" data-v="${it.id}"><b>${esc(it.label)}</b><small>${esc(it.sub)}</small>${it.soon ? '<em>Soon</em>' : it.game ? `<span class="b-xgame">${ic('gamepad')}Game</span>` : hasVideo(it.id) ? `<span class="b-xvid">${ic('play')}Video</span>` : ''}</button>`).join('')}</section>`).join('')}</div>`;
   }
 
   /* ---------- sections menu (breadcrumb) ---------- */

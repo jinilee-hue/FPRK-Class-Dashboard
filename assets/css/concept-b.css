@@ -514,8 +514,9 @@ button:disabled{cursor:default}
 .b-xi:hover{border-color:var(--tx3)}
 .b-xi b{font-size:14.5px;font-weight:800;padding-right:44px}
 .b-xi small{font-size:12.5px;color:var(--tx3)}
-.b-xvid{position:absolute;top:10px;right:10px;display:inline-flex;align-items:center;gap:4px;height:22px;padding:0 8px 0 6px;border-radius:7px;background:var(--acc);color:var(--acc-ink);font-size:11.5px;font-weight:800}
+.b-xvid,.b-xgame{position:absolute;top:10px;right:10px;display:inline-flex;align-items:center;gap:4px;height:22px;padding:0 8px 0 6px;border-radius:7px;background:var(--acc);color:var(--acc-ink);font-size:11.5px;font-weight:800}
 .b-xvid .i{width:12px;height:12px;fill:currentColor}
+.b-xgame .i{width:14px;height:14px;stroke-width:2.2}
 .b-secitem small .i{width:12px;height:12px;margin-right:4px;vertical-align:-1px;fill:currentColor}
 .b-xi em{position:absolute;top:11px;right:11px;font-style:normal;font-size:9.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:2px 6px;border-radius:6px;background:rgba(255,138,91,.15);color:#FFB08F}
 .b-xi.is-soon b{color:var(--tx2)}
