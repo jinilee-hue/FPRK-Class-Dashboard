@@ -446,6 +446,7 @@
   /* ================= teacher view ================= */
   let notesOpen = false, flowOpen = false, notesTab = 'plan', mapPick = null, palOpen = false;
   let menuOpen = false, guideOpen = false, dialOpen = false;   // classroom screen: the menu, the teacher guide and the one button's Menu · Guide · Pen stay hidden until asked for
+  let fanGeo = null;   // classroom screen: where the one button's arc opens
   let pos = get('pondc-pos', {});   // where the teacher dragged the one button (classroom screen): centre as a fraction of the board
   pos = pos && typeof pos === 'object' && Array.isArray(pos.fab) ? { fab: pos.fab } : {};
 
@@ -557,15 +558,19 @@
     const b = $('#fabBtn'), dial = CLASSROOM(), shut = palOpen || (dial && (dialOpen || menuOpen));   // classroom: the one button closes what is open
     b.classList.toggle('is-ink', k.on && !shut); b.classList.toggle('is-open', shut);
     b.setAttribute('aria-expanded', dial ? dialOpen || palOpen || menuOpen : palOpen); b.setAttribute('aria-label', dial ? 'Menu, guide and board tools' : 'Board tools');
-    b.title = dial ? (palOpen ? 'Hide board tools' : menuOpen ? 'Close the menu (Esc)' : dialOpen ? 'Close' : k.on ? 'Menu · Guide · Pen — drawing is on (D) · drag to move' : 'Menu · Guide · Pen — drag to move')
+    b.title = dial ? (palOpen ? 'Hide board tools' : menuOpen ? 'Close the menu (Esc)' : dialOpen ? 'Close' : k.on ? 'Phonics POND — Menu · Guide · Pen · drawing is on (D) · drag to move' : 'Phonics POND — Menu · Guide · Pen · drag to move')
       : palOpen ? 'Hide board tools' : k.on ? 'Board tools — drawing is on (D)' : 'Board tools (D = pen)';
-    b.innerHTML = shut ? ic('x') : `${ic(k.on ? tIcon : dial ? 'grid' : 'pen')}${k.on && cur !== 'er' ? `<i class="b-fabdot" style="--c:${k.color}"></i>` : ''}${k.count && !k.on && !dial ? `<i class="b-fabn">${k.count}</i>` : ''}`;
+    const face = dial ? '<svg class="b-fabmark" viewBox="0 0 64 64" aria-hidden="true"><use href="#pond-mark"/></svg>' : ic(k.on ? tIcon : 'pen');   // classroom: our symbol on the one button (user: "메뉴 표시 대신에 우리 심볼아이콘")
+    b.innerHTML = shut ? ic('x') : `${face}${k.on && cur !== 'er' ? `<i class="b-fabdot" style="--c:${k.color}"></i>` : ''}${k.count && !k.on && !dial ? `<i class="b-fabn">${k.count}</i>` : ''}`;
     const items = $('#dialItems');   // Menu · Guide · Pen, toward the middle of the board
     if (items) {
       items.hidden = !(dial && dialOpen);
       const it = (a, icon, label, on, tip, n) => `<button type="button" class="b-dialitem${on ? ' is-on' : ''}" data-b="${a}" aria-pressed="${on}" title="${tip}">${ic(icon)}<span>${label}</span>${n ? `<i class="b-fabn">${n}</i>` : ''}</button>`;
-      if (!items.hidden) items.innerHTML = it('dmenu', 'menu', 'Menu', menuOpen, 'Menu — lessons, activities, share, display')
-        + it('dguide', 'notebook-pen', 'Guide', guideOpen, 'Teacher guide — what to say and do (G)') + it('dpen', 'pen', 'Pen', k.on, 'Board tools (D = pen)', k.count && !k.on ? k.count : 0);
+      if (!items.hidden) {
+        items.innerHTML = it('dmenu', 'menu', 'Menu', menuOpen, 'Menu — lessons, activities, share, display')
+          + it('dpen', 'pen', 'Pen', k.on, 'Pen — draw on the board, tools at hand (D)', k.count && !k.on ? k.count : 0) + it('dguide', 'notebook-pen', 'Guide', guideOpen, 'Teacher guide — what to say and do (G)');   // Menu · Pen · Guide (user: "판서버튼이랑 가이드 버튼 위치 순서 바꿔줘")
+        layoutFan();
+      }
     }
     const pal = $('#fabPal'); pal.hidden = !palOpen; if (!palOpen) return;
     const t = (id, n, l) => `<button type="button" class="b-tool${cur === id ? ' is-on' : ''}" data-b="tool" data-v="${id}" title="${l}" aria-label="${l}" aria-pressed="${cur === id}">${ic(n)}</button>`;
@@ -574,89 +579,131 @@
       <div class="b-palgrp b-palgrp--wd">${[[3, 'Thin'], [6, 'Medium'], [12, 'Thick']].map(([w, n]) => `<button type="button" class="b-wd${k.width === w ? ' is-on' : ''}" data-b="width" data-v="${w}" title="${n} line" aria-label="${n} line"><i style="--w:${w}px"></i></button>`).join('')}</div><i class="b-palsep"></i>
       <div class="b-palgrp"><button type="button" class="b-tool" data-b="undo" title="Undo" aria-label="Undo" ${k.count ? '' : 'disabled'}>${ic('undo')}</button><button type="button" class="b-tool" data-b="clear" title="Clear drawing" aria-label="Clear drawing" ${k.count ? '' : 'disabled'}>${ic('trash')}</button></div>`;
   }
-  function setPal(open) { palOpen = open; renderFab(); }
+  function setPal(open) { palOpen = open; renderFab(); if (open) requestAnimationFrame(placeFab); }   // (the strip is placed once it has its size)
 
   /* ---------- classroom screen: the teacher's screen IS the classroom screen (user: "강사용 대시보드가 곧 수업시 교실안에 스크린과 동일하게")
-     The board fills the screen; one button opens Menu · Guide · Pen: the menu (former top bar) opens beside it, the teacher guide (dock, notes) slides in on demand —
+     The board fills the screen; one button (our symbol, bottom centre) fans out Menu · Guide · Pen: the menu (former top bar) is a bar along the bottom, the teacher guide (dock, notes) slides in on demand —
      no menus along the top ("위에 메뉴들이 있으면 불편"). Display › Screen › With controls keeps the desk layout. ---------- */
   const CLASSROOM = () => root.dataset.screen === 'full' && !STUDENT;
   const MENU_POPS = ['extrasPop', 'sharePop', 'displayPop', 'helpPop', 'secMenu', 'actMenu'];
   function setMenu(on) {
     menuOpen = !!on && CLASSROOM(); root.dataset.menu = menuOpen ? 'open' : 'closed';
     if (!menuOpen) MENU_POPS.forEach(id => { const p = document.getElementById(id); if (p && p.matches(':popover-open')) p.hidePopover(); });
-    else { dialOpen = false; if (palOpen) setPal(false); }   // one thing open at a time
-    renderFab();
+    else { if (dialOpen) setDial(false); if (palOpen) setPal(false); }   // one thing open at a time
+    renderFab(); requestAnimationFrame(placeFab);   // the button steps above the menu bar
   }
   function setGuide(on) { guideOpen = !!on && CLASSROOM(); root.dataset.guide = guideOpen ? 'open' : 'closed'; renderFab(); requestAnimationFrame(placeFab); }
-  function setDial(on) { dialOpen = !!on && CLASSROOM(); renderFab(); }
-  function placePop(pop, btn) {   // menus beside the menu drawer, level with their button (desk layout: under the button)
-    const r = btn.getBoundingClientRect();
+  function setDial(on) {   // the one button's menu: dim + the layer (today's flow, Meaning First) + Menu · Guide · Pen on a half disc
+    dialOpen = !!on && CLASSROOM(); root.dataset.dial = dialOpen ? 'open' : 'closed';
+    renderLayer(); placeFab(); renderFab();
+  }
+  function renderLayer() {   // user: "버튼 밑에는 오늘 학습 플로우와 meaning first 활동들이 밑에서 레이어 팝업형태로 올라오게"
+    const el = $('#layer'), dim = $('#dim'); if (!el || !dim) return;
+    el.hidden = dim.hidden = !dialOpen; if (!dialOpen) { el.innerHTML = ''; return; }
+    const flow = FP.flow(), cur = FP.cur(), extra = FP.mode() === 'extra', L = FP.lesson(), xi = FP.extraInfo();
+    const card = a => { const on = !extra && a.id === cur.id, done = !extra && a.index < cur.index;
+      return `<button type="button" class="b-card${on ? ' is-on' : ''}${done ? ' is-done' : ''}" data-b="go" data-v="${a.id}"><small>${done ? ic('check') : ''}${esc(a.kicker)}</small><b lang="en">${esc(a.title)}</b><span class="b-cmeta"><em class="b-type b-type--${a.type}">${a.type === 'sb' ? 'SB' : a.type === 'home' ? 'Home' : 'Prep'}</em><span class="b-lymin">${planMin(a)} min</span></span></button>`; };
+    const tile = it => `<button type="button" class="b-xi${it.soon ? ' is-soon' : ''}${xi && xi.id === it.id ? ' is-on' : ''}" data-b="extra" data-v="${it.id}"><b lang="en">${esc(it.label)}</b><small lang="en">${esc(it.sub)}</small>${it.soon ? '<em>Soon</em>' : it.game ? `<span class="b-xgame">${ic('gamepad')}Game</span>` : hasVideo(it.id) ? `<span class="b-xvid">${ic('play')}Video</span>` : ''}</button>`;
+    el.innerHTML = `<div class="b-lyrow"><div class="b-lyhead"><h3>Today <span lang="en">Lesson ${L.n} ${esc(L.snd || '')}</span></h3><div class="b-lysecs" role="group" aria-label="Sections">${FP.sections().map(x => `<button type="button" class="b-lysec${x.on ? ' is-on' : ''}" data-b="sec" data-v="${x.i}" aria-pressed="${x.on}" lang="en">${esc(x.name)}</button>`).join('')}</div></div>
+        <div class="b-lycards">${flow.map(card).join('')}</div></div>
+      <div class="b-lyrow"><div class="b-lyhead"><h3>${ic('layers')}Meaning First</h3></div><div class="b-lycards">${mfGroup.items.map(tile).join('')}</div></div>`;
+    const on = el.querySelector('.b-card.is-on'); if (on) { const box = on.parentElement; box.scrollLeft = on.offsetLeft - box.offsetLeft - (box.clientWidth - on.offsetWidth) / 2; }
+    const sec = el.querySelector('.b-lysec.is-on'); if (sec) sec.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  }
+  function placePop(pop, btn) {   // classroom: menus rise from the bottom edge over the menu bar, in line with their button (desk layout: under the button)
     if (!CLASSROOM()) return false;
-    const d = $('.b-top'), right = innerWidth - (d.offsetLeft + d.offsetWidth) < d.offsetLeft;   // beside the drawer, on its roomier side (offsetLeft/Width: its resting place, also while it slides in)
-    pop.style.bottom = 'auto';
-    if (right) { pop.style.left = 'auto'; pop.style.right = (innerWidth - d.offsetLeft + 12) + 'px'; }
-    else { pop.style.right = 'auto'; pop.style.left = (d.offsetLeft + d.offsetWidth + 12) + 'px'; }
-    pop.style.top = r.top + 'px';
+    const r = btn.getBoundingClientRect();
+    pop.style.top = 'auto'; pop.style.right = 'auto'; pop.style.bottom = '12px'; pop.style.left = Math.max(12, r.left) + 'px';
     return true;
   }
-  function clampPop(pop) {
+  function clampPop(pop) {   // classroom: keep it on screen (it scrolls inside when taller than the screen)
     if (!CLASSROOM()) return;
-    pop.style.top = Math.max(12, Math.min(parseFloat(pop.style.top) || 12, innerHeight - pop.offsetHeight - 12)) + 'px';
-    const d = $('.b-top'), dl = d.offsetLeft, dr = dl + d.offsetWidth, w = pop.offsetWidth, M = 12;   // beside the drawer, away from the Menu button when it fits
-    const away = (root.dataset.menufrom || root.dataset.menuside) === 'right' ? 'left' : 'right', fitR = innerWidth - dr - 2 * M >= w, fitL = dl - 2 * M >= w;
-    const side = away === 'right' ? (fitR || !fitL ? 'right' : 'left') : (fitL || !fitR ? 'left' : 'right');
-    pop.style.right = 'auto'; pop.style.left = Math.max(M, Math.min(side === 'right' ? dr + M : dl - M - w, innerWidth - w - M)) + 'px';
+    pop.style.top = 'auto'; pop.style.bottom = '12px';
+    pop.style.left = Math.max(12, Math.min(parseFloat(pop.style.left) || 12, innerWidth - pop.offsetWidth - 12)) + 'px';
   }
   function placeFab() {   // the pen lives inside the 16:10 frame (user: "판서 버튼은 가운데 화면에 포함"): bottom-right, on the frame's own 24 px margin; the video bar stops short of it
     const wrap = $('#stagewrap'), st = $('#stage'), fab = $('#fab'); if (!wrap || !st || !fab) return;
     const sw = st.offsetWidth, sh = st.offsetHeight, gx = (wrap.clientWidth - sw) / 2, gy = (wrap.clientHeight - sh) / 2, k = Math.min(sw / 1280, sh / 800);
     const m = Math.max(12, Math.round(24 * k));
     fab.dataset.mode = 'inside';
-    fab.style.left = 'auto'; fab.style.top = 'auto'; fab.style.right = gx + m + 'px'; fab.style.bottom = gy + m + 'px'; fab.classList.remove('is-moved', 'is-down', 'is-start');
     const lift = Math.max(0, Math.ceil(90 * k + 8 - (m + 76)));   // on big frames the open palette clears the video bar's top (bar: 22 + 68 px, scaled)
     fab.style.setProperty('--pal-lift', lift + 'px');
     fab.style.setProperty('--pal-max', Math.max(160, Math.floor(sh - m - 76 - lift - 98 * k)) + 'px');   // and stays under the corner timer's row
     const app = $('#app');   // side panels (notes, side controls) line up with the frame's top and bottom
     app.style.setProperty('--frame-top', Math.max(0, gy) + 'px'); app.style.setProperty('--frame-h', sh + 'px');
-    if (!CLASSROOM()) { ['--sheet-l', '--sheet-r', '--sheet-b'].forEach(p => wrap.style.removeProperty(p)); return; }
+    if (!CLASSROOM()) {   // desk: the pen in the frame's bottom-right corner (the classroom screen places it below without a reset in between: a reset would be measured and animated)
+      fab.style.left = 'auto'; fab.style.top = 'auto'; fab.style.right = gx + m + 'px'; fab.style.bottom = gy + m + 'px'; fab.style.transform = ''; fab.classList.remove('is-moved', 'is-down', 'is-start', 'is-mid', 'is-side');
+      ['--sheet-l', '--sheet-r', '--sheet-b'].forEach(p => wrap.style.removeProperty(p)); return;
+    }
     const W = wrap.offsetLeft, Wr = W + wrap.offsetWidth, Wb = wrap.offsetTop + wrap.offsetHeight;
     const fx = Math.round(W + gx), fy = Math.round(wrap.offsetTop + gy), fr = Math.round(innerWidth - fx - sw), fb = Math.round(innerHeight - fy - sh);
     [['--fx', fx], ['--fy', fy], ['--fw', sw], ['--fh', sh], ['--fr', fr], ['--fb', fb]].forEach(([p, v]) => root.style.setProperty(p, v + 'px'));   // the floating buttons and drawers follow the frame
-    // the one button: where the teacher dragged it, else the board's bottom-right corner (the pen's place). It never hides:
+    // the one button: where the teacher dragged it, else the middle of the board's bottom edge (Naver's green dot). It never hides:
     // above an open bottom guide, beside a side guide or the notes panel.
-    const H = 32, M = 8, side = root.dataset.controls, P = pos.fab, cw = wrap.clientWidth, ch = wrap.clientHeight;
+    const S = Math.round(Math.min(96, Math.max(72, 68 * k))), SD = Math.round(S * .78);   // the one button grows with the screen (user: "화면 비율에 비해 조금 작은거 같아. 조금 키워줘"); ‹ › a size smaller
+    root.style.setProperty('--fab-s', S + 'px'); root.style.setProperty('--fab-sd', SD + 'px');
+    const H = S / 2, M = 8, RW = H + 12 + SD, side = root.dataset.controls, P = pos.fab, cw = wrap.clientWidth, ch = wrap.clientHeight;   // RW: half the row ‹ ● › (12 px gaps)
     const box = el => el && el.offsetWidth && getComputedStyle(el).display !== 'none' ? { l: el.offsetLeft - W, t: el.offsetTop - wrap.offsetTop, r: el.offsetLeft - W + el.offsetWidth, b: el.offsetTop - wrap.offsetTop + el.offsetHeight } : null;   // resting place, wrap coordinates
-    let cx = P ? gx + P[0] * sw : gx + sw - m - H, cy = P ? gy + P[1] * sh : gy + sh - m - H;
-    cx = Math.min(Math.max(cx, gx + M + H), gx + sw - M - H); cy = Math.min(Math.max(cy, gy + M + H), gy + sh - M - H);
-    let sl = 16, sr = 16, sb = gy + 16, shifted = false;
+    let cx = P ? gx + P[0] * sw : gx + sw / 2, cy = P ? gy + P[1] * sh : gy + sh - m - H;
+    cx = Math.min(Math.max(cx, gx + M + RW), gx + sw - M - RW); cy = Math.min(Math.max(cy, gy + M + H), gy + sh - M - H);
+    let sl = 16, sr = 16, sb = gy + 16;
     if (guideOpen) {
       const d = box($('#dock')), q = box($('#npanel'));
-      if (d && side === 'bottom') { cy = Math.min(cy, d.t - 12 - H); sb = ch - d.t + 12; }   // above the guide (the video bar is under it)
+      if (d && side === 'bottom') { cy = Math.min(cy, d.t - 12 - H); sb = ch - d.t + 12; }   // above the guide
       else if (d) {
         if (side === 'right') sr = cw - d.l + 12; else sl = d.r + 12;
-        if (cx + H > d.l - 12 && cx - H < d.r + 12) { cx = side === 'right' ? d.l - 12 - H : d.r + 12 + H; shifted = true; }   // beside a side guide
+        if (cx + RW > d.l - 12 && cx - RW < d.r + 12) cx = side === 'right' ? d.l - 12 - RW : d.r + 12 + RW;   // beside a side guide
       }
-      if (q) { sl = Math.max(sl, q.r + 12); if (cx + H > q.l - 12 && cx - H < q.r + 12 && cy + H > q.t && cy - H < q.b) { cx = q.r + 12 + H; shifted = true; } }   // beside the notes panel
-      if (shifted && !P) cy = Math.min(cy, gy + sh - Math.ceil(90 * k) - 10 - H);   // moved along the bottom: above the video bar
+      if (q) { sl = Math.max(sl, q.r + 12); if (cx + RW > q.l - 12 && cx - RW < q.r + 12 && cy + H > q.t && cy - H < q.b) cx = q.r + 12 + RW; }   // beside the notes panel
     }
-    const up = cy > gy + sh / 2, onRight = cx > gx + sw / 2, corner = !P && !shifted && !(guideOpen && side === 'bottom');
-    fab.classList.toggle('is-moved', !!P); fab.classList.toggle('is-down', !up); fab.classList.toggle('is-start', !onRight);   // Menu · Guide · Pen and the board tools open toward the middle
-    fab.style.left = onRight ? 'auto' : (cx - H) + 'px'; fab.style.right = onRight ? (cw - cx - H) + 'px' : 'auto';
+    if (menuOpen && !dialOpen) { const tb = $('.b-top'), top = tb ? tb.offsetTop - wrap.offsetTop : ch; if (cy + H > top - 12) cy = top - 12 - H; }   // above the menu bar
+    if (dialOpen) { const ly = $('#layer'); cx = gx + sw / 2; cy = Math.max(gy + 190, ly && !ly.hidden ? ch - ly.offsetHeight : gy + sh - m - H); }   // open: the button rides on the layer's top edge, the menu above it
+    const up = cy > gy + sh / 2, onRight = cx > gx + sw / 2, mid = dialOpen || (Math.abs(cx - (gx + sw / 2)) < sw / 6 && cw - sr - sl >= 560);   // in the middle (and room for the tools strip)
+    const beside = mid && guideOpen && side === 'bottom', pal = $('#fabPal');   // a guide along the bottom leaves no room above the button: the strip goes beside it
+    fab.classList.toggle('is-side', beside);
+    if (mid && !beside && pal && !pal.hidden) { const pw = pal.offsetWidth, l0 = cx - pw / 2, l = Math.max(sl, Math.min(l0, cw - sr - pw)); fab.style.setProperty('--pal-dx', Math.round(l - l0) + 'px'); }   // clear of side panels
+    else fab.style.setProperty('--pal-dx', '0px');
+    const hangR = !onRight || cx - RW - sl < 120;   // the board tools open toward the middle — or away from a panel the button sits against
+    let palX = null;   // a column of tools hanging from a button near the middle would sit on the middle of the board (the video's play button): beside it instead
+    if (!mid && up && pal && !pal.hidden) {
+      const pw = pal.offsetWidth, zone = 68 * k + 14, bc = gx + sw / 2, left0 = hangR ? cx - RW : cx + RW - pw;
+      if (left0 < bc + zone && left0 + pw > bc - zone) { if (cw - sr - (bc + zone) >= pw) palX = bc + zone; else if (bc - zone - sl >= pw) palX = bc - zone - pw; }
+    }
+    fab.classList.toggle('is-aside', palX != null); fab.style.setProperty('--pal-x', palX != null ? Math.round(palX - (cx - RW)) + 'px' : '0px');
+    fab.classList.toggle('is-moved', !!P); fab.classList.toggle('is-down', !up); fab.classList.toggle('is-start', hangR); fab.classList.toggle('is-mid', mid);   // in the middle, centred over the button
+    if (mid) { fab.style.left = cx + 'px'; fab.style.right = 'auto'; fab.style.transform = 'translateX(-50%)'; }
+    else { fab.style.transform = ''; fab.style.left = hangR ? (cx - RW) + 'px' : 'auto'; fab.style.right = hangR ? 'auto' : (cw - cx - RW) + 'px'; }
     fab.style.top = up ? 'auto' : (cy - H) + 'px'; fab.style.bottom = up ? (ch - cy - H) + 'px' : 'auto';
-    fab.style.setProperty('--pal-lift', corner ? lift + 'px' : '0px');
-    fab.style.setProperty('--pal-max', Math.max(160, Math.floor(up ? cy - H - 12 - gy - M - (corner ? lift + 98 * k : 0) : gy + sh - M - cy - H - 12)) + 'px');
-    if (up) { if (onRight) sr = Math.max(sr, cw - (cx - H) + 12); else sl = Math.max(sl, cx + H + 12); }   // pop-up sheets end before the button
+    fab.style.setProperty('--pal-lift', '0px');   // no video bar on the classroom screen
+    fab.style.setProperty('--pal-max', Math.max(160, Math.floor(up ? cy - H - 12 - gy - M : gy + sh - M - cy - H - 12)) + 'px');
+    if (up) { if (mid) sb = Math.max(sb, ch - (cy - H) + 12); else if (onRight) sr = Math.max(sr, cw - (cx - RW) + 12); else sl = Math.max(sl, cx + RW + 12); }   // pop-up sheets end before the buttons
     wrap.style.setProperty('--sheet-l', sl + 'px'); wrap.style.setProperty('--sheet-r', sr + 'px'); wrap.style.setProperty('--sheet-b', sb + 'px');
-    placeDrawer(W + cx, wrap.offsetTop + cy);
+    fanGeo = { cx, cy, th: -Math.PI / 2, x0: gx + M + 40, x1: gx + sw - M - 40, y0: gy + M + 34, y1: gy + sh - M - 34 }; layoutFan();
   }
 
   /* ---------- the one button moves (user: "한개 버튼만 이동도 가능하게") ----------
      Press and move more than 6 px (10 px by finger) = drag; a press that stays put is still a click. The centre is saved as a
      fraction of the board (pondc-pos), so it holds on any window size; Display › Button › Reset position puts it back. */
-  function placeDrawer(x, y) {   // the menu opens beside the one button, on the roomier side (viewport coordinates of its centre)
-    const D = $('.b-top').offsetWidth || 420, M = 8, H = 32, roomR = innerWidth - (x + H) - 10 - M, roomL = x - H - 10 - M;
-    if (roomR >= D || roomR >= roomL) { root.dataset.menufrom = 'left'; root.style.setProperty('--menu-l', Math.max(M, Math.min(x + H + 10, innerWidth - D - M)) + 'px'); }
-    else { root.dataset.menufrom = 'right'; root.style.setProperty('--menu-r', Math.max(M, Math.min(innerWidth - (x - H) + 10, innerWidth - D - M)) + 'px'); }
+  function layoutFan() {   // Menu · Guide · Pen on the half disc above the button (Naver's green dot), kept on the board
+    const items = $('#dialItems'); if (!items || items.hidden || !fanGeo) return;
+    const { cx, cy, th, x0, x1, y0, y1 } = fanGeo, R = 112, STEP = 60 * Math.PI / 180;
+    [...items.children].forEach((b, i) => {
+      const a = th + (i - 1) * STEP, x = Math.min(Math.max(cx + R * Math.cos(a), x0), x1), y = Math.min(Math.max(cy + R * Math.sin(a), y0), y1);
+      b.style.setProperty('--dx', (x - cx).toFixed(1) + 'px'); b.style.setProperty('--dy', (y - cy).toFixed(1) + 'px'); b.style.setProperty('--i', i);
+    });
+  }
+
+  /* ---------- ‹ › beside the one button: back / next at any time, finished or not (user: "가운데 버튼 옆으로 좌우 이동할수
+     있는 버튼 추가해줘. 학습을 다 안하고 다음학습이나 이전학습으로 넘어갈수도 있어서") — the guide's Back / Next (→ ←): step by
+     step, on into the next activity at the end of one; a whole activity at once = the flow cards under the button. ---------- */
+  function renderSides() {
+    if (STUDENT) return;
+    const pv = $('#fabPrev'), nx = $('#fabNext'); if (!pv || !nx) return;
+    if (!pv.firstChild) { pv.innerHTML = ic('chevron-left'); nx.innerHTML = ic('chevron-left'); }
+    const x = FP.mode() === 'extra', p = FP.peek(-1), n = FP.peek(1);
+    pv.disabled = !x && !p; nx.disabled = !x && !n;
+    pv.title = x ? 'Back to the lesson' : p ? `Back — ${p.label} (←)` : 'Back';
+    nx.title = x ? 'Back to the lesson' : n ? `Next — ${n.label} (→)` : 'Next';
   }
   let drag = null, eatClickUntil = 0;
   function initMove() {
@@ -922,7 +969,7 @@
       <section class="b-dsec"><h4>${CLASSROOM() ? 'Teacher guide' : 'Controls'}</h4><div class="b-opts">${LAYOUT.controls.map(([v, l]) => opt('controls', v, l)).join('')}</div></section>
       <section class="b-dsec"><h4>Teacher notes</h4><div class="b-opts">${LAYOUT.notes.map(([v, l]) => opt('notes', v, l)).join('')}</div></section>
       <section class="b-dsec"><h4>Color</h4><div class="b-opts b-opts--color">${THEMES.map(col).join('')}</div></section>
-      ${CLASSROOM() ? `<section class="b-dsec"><h4>Button</h4><button type="button" class="b-sbtn b-dreset" data-b="posreset" title="The Menu · Guide · Pen button back to the bottom-right corner" ${pos.fab ? '' : 'disabled'}>${ic('rotate-ccw')}Reset position</button></section>` : ''}`;
+      ${CLASSROOM() ? `<section class="b-dsec"><h4>Button</h4><button type="button" class="b-sbtn b-dreset" data-b="posreset" title="The Menu · Guide · Pen button back to the middle of the bottom edge" ${pos.fab ? '' : 'disabled'}>${ic('rotate-ccw')}Reset position</button></section>` : ''}`;
   }
   function refreshDisplay() { if ($('#displayPop').matches(':popover-open')) renderDisplay(); }
 
@@ -1027,10 +1074,11 @@
       case 'sharestop': setShareTo('none'); break;
       case 'dmenu': setDial(false); setMenu(!menuOpen); break;   // the one button's Menu · Guide · Pen
       case 'dguide': setDial(false); setGuide(!guideOpen); break;
-      case 'dpen': setDial(false); if (menuOpen) setMenu(false); setPal(!palOpen); break;
+      case 'dpen': setDial(false); if (menuOpen) setMenu(false); if (!FP.ink.state().on) FP.ink.toggle(); setPal(true); break;   // Pen = drawing on now, the tools at hand
       case 'posreset': pos = {}; put('pondc-pos', pos); placeFab(); renderDisplay(); break;
     }
     if (menuOpen && ['go', 'extra', 'close', 'mapsec', 'mapopen', 'scene'].includes(a) && !t.closest('.b-dock, .b-sheet, .b-npanel')) setMenu(false);   // picked: the class sees it
+    if (dialOpen && (a === 'go' || a === 'extra')) setDial(false);   // picked in the layer: the class sees it
   });
   $('#fabBtn').addEventListener('click', () => {   // classroom: the one button opens Menu · Guide · Pen, or closes what is open
     if (!CLASSROOM()) { setPal(!palOpen); return; }
@@ -1051,6 +1099,7 @@
     });
   });
   Object.keys(POPS).forEach(p => $('#' + p).addEventListener('toggle', e => { if (e.newState === 'open') clampPop($('#' + p)); }));
+  MENU_POPS.forEach(id => { const p = document.getElementById(id); if (p) p.addEventListener('toggle', e => { if (e.newState === 'closed') requestAnimationFrame(() => { if (CLASSROOM() && !document.querySelector(MENU_POPS.map(x => '#' + x + ':popover-open').join(','))) placeFab(); }); }); });   // a menu slid aside for a popover comes back
   $('#extrasPop').addEventListener('toggle', e => {
     if (e.newState !== 'open' || CLASSROOM()) return; const pop = $('#extrasPop');
     pop.style.left = Math.max(10, Math.min(parseFloat(pop.style.left) || 10, innerWidth - pop.offsetWidth - 10)) + 'px';
@@ -1061,7 +1110,7 @@
   FP.on(e => {
     if ((e.type === 'lesson' || e.type === 'nav') && addGamesStep()) { FP.render(); renderDock(); }
     if (e.type === 'lesson') { refreshGames(); renderTop(); }
-    if (e.type === 'nav') { renderCrumb(); renderActs(); renderMedia(); renderDock(); renderFlow(); renderNotes(); renderGame(); broadcast(); }
+    if (e.type === 'nav') { renderCrumb(); renderActs(); renderMedia(); renderDock(); renderFlow(); renderNotes(); renderGame(); broadcast(); renderSides(); if (dialOpen) { renderLayer(); requestAnimationFrame(placeFab); } }
     if (e.type === 'ink') { renderFab(); broadcast(); }
     if (e.type === 'inkmove') broadcastInk();
     if (e.type === 'key') {
@@ -1094,9 +1143,15 @@
 
   FP.mount($('#stage'), { storageKey: 'fprk-bc', keepAwake: true, fresh: qs.has('fresh'), lesson: +qs.get('lesson') || 1, act: qs.get('act') || 'ls1', design: DESIGN });
   addLayers(); refreshGames(); if (addGamesStep()) FP.render();
-  renderScenes(); renderActs(); renderFab(); renderShareBtn(); renderMedia(); renderDock(); renderGame();
+  renderScenes(); renderActs(); renderFab(); renderShareBtn(); renderMedia(); renderDock(); renderGame(); renderSides();
   new ResizeObserver(() => { root.style.setProperty('--guide-h', ($('#dock').offsetHeight || 0) + 'px'); placeFab(); }).observe($('#dock'));
-  $('#stagewrap').addEventListener('click', e => { if ((menuOpen || dialOpen) && !e.target.closest('.b-fab')) { setMenu(false); setDial(false); e.stopPropagation(); e.preventDefault(); } }, true);   // a tap on the board closes the menu / Menu · Guide · Pen first
+  $('#stagewrap').addEventListener('click', e => { if ((menuOpen || dialOpen) && !e.target.closest('.b-fab, .b-layer')) { setMenu(false); setDial(false); e.stopPropagation(); e.preventDefault(); } }, true);   // a tap on the board closes the menu / Menu · Guide · Pen first
+  $('#stagewrap').addEventListener('click', e => {   // classroom: tap the video = play / pause (no player bar)
+    if (!CLASSROOM() || FP.ink.state().on || scene !== 'lesson' || !curMedia()) return;
+    const path = e.composedPath().filter(n => n.nodeType === 1);   // the path at the tap: a button may have re-rendered (detached) its insides by now
+    if (path.some(n => n.matches('button, a, input, select, textarea, label, iframe, [data-b], .b-fab, .b-sheet, .b-pop'))) return;
+    if (path.some(n => n.id === 'media')) mediaCmd('mtoggle');
+  });
   $('#stage').addEventListener('pointermove', mediaIdle);
   new ResizeObserver(() => placeFab()).observe($('#stagewrap'));
   initMove();

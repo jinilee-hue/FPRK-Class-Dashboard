@@ -14,8 +14,8 @@ r.dataset.theme=t;r.dataset.tone=t==='dark'?'dark':'bright';r.dataset.controls=c
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&family=Manrope:wght@400;500;600;700;800&display=swap">
-<link rel="stylesheet" href="assets/css/fprk-shell.css?v=e4d958f">
-<link rel="stylesheet" href="assets/css/concept-b-classroom.css?v=e4d958f">
+<link rel="stylesheet" href="assets/css/fprk-shell.css?v=51c07d5">
+<link rel="stylesheet" href="assets/css/concept-b-classroom.css?v=51c07d5">
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -41,8 +41,10 @@ r.dataset.theme=t;r.dataset.tone=t==='dark'?'dark':'bright';r.dataset.controls=c
     <div class="b-fab" id="fab">
       <div class="b-fabpal" id="fabPal" role="toolbar" aria-label="Board tools" hidden></div>
       <div class="b-dialitems" id="dialItems" role="group" aria-label="Menu, guide and board tools" hidden></div>
-      <button type="button" class="b-fabbtn" id="fabBtn" aria-expanded="false" aria-controls="fabPal" aria-label="Board tools"></button>
+      <div class="b-fabrow"><button type="button" class="b-fabside" id="fabPrev" data-b="prev" aria-label="Back"></button><button type="button" class="b-fabbtn" id="fabBtn" aria-expanded="false" aria-controls="fabPal" aria-label="Board tools"></button><button type="button" class="b-fabside" id="fabNext" data-b="next" aria-label="Next"></button></div>
     </div>
+    <div class="b-dim" id="dim" hidden></div>
+    <section class="b-layer" id="layer" aria-label="Today’s lesson and Meaning First" hidden></section>
     <section class="b-sheet b-flow" id="flowStrip" aria-label="Run of show" hidden></section>
     <section class="b-sheet b-notes" id="notes" aria-label="Teacher notes" hidden></section>
     <div class="b-wait" id="wait" hidden></div>
@@ -78,8 +80,8 @@ r.dataset.theme=t;r.dataset.tone=t==='dark'?'dark':'bright';r.dataset.controls=c
   </dl>
 </div>
 
-<script src="assets/js/fprk-data.js?v=e4d958f"></script>
-<script src="assets/js/fprk-core-classroom.js?v=e4d958f"></script>
-<script src="assets/js/concept-b-classroom.js?v=e4d958f"></script>
+<script src="assets/js/fprk-data.js?v=51c07d5"></script>
+<script src="assets/js/fprk-core-classroom.js?v=51c07d5"></script>
+<script src="assets/js/concept-b-classroom.js?v=51c07d5"></script>
 </body>
 </html>
